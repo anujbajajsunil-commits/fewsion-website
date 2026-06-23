@@ -1095,12 +1095,38 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
     console.log("Transmitting payload package to Supabase...", payload);
 
     // Write row directly to PostgreSQL table
+    // Change .insert() to .upsert() and declare the matching index target column
     const { data, error } = await supabaseClientInstance
       .from('brand_profiles')
-      .insert([payload]);
+      .upsert([{
+        user_id: userId, 
+        brand_name: brandData.brandName,
+        industry: brandData.industry,
+        website_url: brandData.website,
+        brand_description: brandData.brandDesc,
+        primary_market: brandData.market,
+        campaign_name: brandData.campaignName,
+        campaign_objective: brandData.objective,
+        content_types_needed: brandData.contentTypes || [], 
+        start_date: brandData.startDate,
+        duration: brandData.duration,
+        budget_range: brandData.budget,
+        creator_tier_preferences: brandData.creatorTiers || [],
+        min_engagement_rate: parseFloat(brandData.minEngagement) || 3.00,
+        creator_niches: brandData.creatorNiches || [],
+        language_preferences: brandData.languages || [],
+        creator_count: brandData.creatorCount,
+        gender_preference: brandData.genderPref,
+        key_message: brandData.keyMessage,
+        dos: brandData.dos,
+        donts: brandData.donts,
+        brand_tone: brandData.tone || [],
+        promo_code: brandData.promoCode,
+        ai_fit_score: parseInt(aiParsedResult.campaign_fit_score) || 74
+      }], { onConflict: 'user_id' }); // Tells Postgres to overwrite data if this ID already exists
 
     if (error) throw error;
-    console.log("🎉 SUCCESS! The row was successfully posted to your brand_profiles table!");
+    console.log("🎉 SUCCESS! The row was successfully synced to your brand_profiles table!");
 
   } catch (err) {
     console.error("Database compilation error:", err.message);
