@@ -177,7 +177,7 @@
 </div>
 <div class="toast" id="toast"></div>
 
-<script>
+<!-- <script>
   // Redirect if already logged in
   FewsionAuth.redirectIfLoggedIn();
 
@@ -257,6 +257,110 @@
       FewsionAuth.login(user);
       showToast('Welcome back! Redirecting...', 'success');
       setTimeout(() => window.location.href = selectedRole + '-dashboard.html', 800);
+    }, 1000);
+  }
+
+  // Enter key
+  document.addEventListener('keydown', e => { if(e.key==='Enter') handleLogin(); });
+</script> -->
+  <script>
+  // Redirect if already logged in
+  FewsionAuth.redirectIfLoggedIn();
+
+  let selectedRole = 'brand';
+
+  function selectRole(role, el) {
+    selectedRole = role;
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // Explicit routing rules for each platform role
+  function getRedirectUrl(role) {
+    switch(role) {
+      case 'brand':
+        return 'fewsion_brand_portal.html';
+      case 'creator':
+        return 'creator_profile_builder.html';
+      case 'editor':
+        return 'fewsion_editor_portal.html';
+      default:
+        return 'index.html'; // Fallback safeguard
+    }
+  }
+
+  function socialLogin(provider) {
+    showToast(`Signing in with ${provider.charAt(0).toUpperCase()+provider.slice(1)}...`);
+    setTimeout(() => {
+      // Demo: create a user based on selected role
+      const names = { brand: 'Arjun Desai', creator: 'Priya Sharma', editor: 'Kabir Mehta' };
+      const companies = { brand: 'BrewBox India', creator: null, editor: null };
+      const user = {
+        role: selectedRole,
+        name: names[selectedRole],
+        email: names[selectedRole].toLowerCase().replace(' ','') + '@example.com',
+        company: companies[selectedRole],
+        avatar: names[selectedRole].split(' ').map(n=>n[0]).join(''),
+        joinedAt: new Date().toISOString(),
+        plan: 'free'
+      };
+      FewsionAuth.login(user);
+      
+      // Dynamic routing based on selected role
+      window.location.href = getRedirectUrl(selectedRole);
+    }, 1200);
+  }
+
+  function handleLogin() {
+    const email = document.getElementById('emailInput').value.trim();
+    const pass = document.getElementById('passInput').value;
+    let valid = true;
+
+    // Validate
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      document.getElementById('emailInput').classList.add('error');
+      document.getElementById('emailError').style.display = 'block';
+      valid = false;
+    } else {
+      document.getElementById('emailInput').classList.remove('error');
+      document.getElementById('emailError').style.display = 'none';
+    }
+    if (!pass || pass.length < 6) {
+      document.getElementById('passInput').classList.add('error');
+      document.getElementById('passError').style.display = 'block';
+      valid = false;
+    } else {
+      document.getElementById('passInput').classList.remove('error');
+      document.getElementById('passError').style.display = 'none';
+    }
+    if (!valid) return;
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.textContent = 'Signing in...';
+
+    setTimeout(() => {
+      const roleNames = { brand: 'Brand Account', creator: 'Creator Profile', editor: 'Editor Profile' };
+      const user = {
+        role: selectedRole,
+        name: email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),
+        email,
+        avatar: email.slice(0,2).toUpperCase(),
+        joinedAt: new Date().toISOString(),
+        plan: 'free'
+      };
+      FewsionAuth.login(user);
+      showToast('Welcome back! Redirecting...', 'success');
+      
+      // Dynamic routing based on selected role
+      setTimeout(() => window.location.href = getRedirectUrl(selectedRole), 800);
     }, 1000);
   }
 
