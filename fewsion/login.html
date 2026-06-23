@@ -263,12 +263,29 @@
   // Enter key
   document.addEventListener('keydown', e => { if(e.key==='Enter') handleLogin(); });
 </script> -->
-  <script>
-  // Redirect if already logged in
-  FewsionAuth.redirectIfLoggedIn();
+ <script>
+  // 1. Initialize Global Configuration & State
+  // Make sure your credentials here match your main app setups perfectly
+  const SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co"; 
+  const SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3"; 
 
+  let supabase = null;
   let selectedRole = 'brand';
 
+  // Safely connect to Supabase after DOM content mounts
+  window.addEventListener('DOMContentLoaded', () => {
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      console.log("Login client linked to Supabase engine.");
+    }
+  });
+
+  // Redirect if already logged in via standard tracking script
+  if (typeof FewsionAuth !== 'undefined') {
+    FewsionAuth.redirectIfLoggedIn();
+  }
+
+  // 2. UI Picker Controls
   function selectRole(role, el) {
     selectedRole = role;
     document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
@@ -277,29 +294,33 @@
 
   function showToast(msg, type='') {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast ' + type + ' show';
-    setTimeout(() => t.classList.remove('show'), 3000);
-  }
-
-  // Explicit routing rules for each platform role
-  function getRedirectUrl(role) {
-    switch(role) {
-      case 'brand':
-        return 'fewsion_brand_portal.html';
-      case 'creator':
-        return 'creator_profile_builder.html';
-      case 'editor':
-        return 'fewsion_editor_portal.html';
-      default:
-        return 'index.html'; // Fallback safeguard
+    if (t) {
+      t.textContent = msg;
+      t.className = 'toast ' + type + ' show';
+      setTimeout(() => t.classList.remove('show'), 3000);
     }
   }
 
+  // 3. Dynamic Router Rule Engine
+  function getRedirectUrl(role, isNewUser = false) {
+    if (isNewUser) {
+      // New sign-ups routing straight to onboarding onboarding wizards
+      switch(role) {
+        case 'brand':   return 'fewsion_brand_portal.html';
+        case 'creator': return 'creator_profile_builder.html';
+        case 'editor':  return 'fewsion_editor_portal.html';
+        default:        return 'index.html';
+      }
+    } else {
+      // Existing verified users jump straight to data workspaces
+      return role + '-dashboard.html';
+    }
+  }
+
+  // 4. Social Authentication Hooks
   function socialLogin(provider) {
-    showToast(`Signing in with ${provider.charAt(0).toUpperCase()+provider.slice(1)}...`);
+    showToast(`Signing in with ${provider.charAt(0).toUpperCase() + provider.slice(1)}...`);
     setTimeout(() => {
-      // Demo: create a user based on selected role
       const names = { brand: 'Arjun Desai', creator: 'Priya Sharma', editor: 'Kabir Mehta' };
       const companies = { brand: 'BrewBox India', creator: null, editor: null };
       const user = {
@@ -311,19 +332,18 @@
         joinedAt: new Date().toISOString(),
         plan: 'free'
       };
-      FewsionAuth.login(user);
-      
-      // Dynamic routing based on selected role
-      window.location.href = getRedirectUrl(selectedRole);
+      if (typeof FewsionAuth !== 'undefined') FewsionAuth.login(user);
+      window.location.href = getRedirectUrl(selectedRole, false);
     }, 1200);
   }
 
-  function handleLogin() {
+  // 5. Dual-Action Email Authentication Pipeline
+  async function handleLogin() {
     const email = document.getElementById('emailInput').value.trim();
     const pass = document.getElementById('passInput').value;
     let valid = true;
 
-    // Validate
+    // Frontend Input Verification Checks
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       document.getElementById('emailInput').classList.add('error');
       document.getElementById('emailError').style.display = 'block';
@@ -343,28 +363,98 @@
     if (!valid) return;
 
     const btn = document.getElementById('loginBtn');
-    btn.disabled = true;
-    btn.textContent = 'Signing in...';
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Processing security verification...';
+    }
 
-    setTimeout(() => {
-      const roleNames = { brand: 'Brand Account', creator: 'Creator Profile', editor: 'Editor Profile' };
-      const user = {
-        role: selectedRole,
-        name: email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),
-        email,
-        avatar: email.slice(0,2).toUpperCase(),
-        joinedAt: new Date().toISOString(),
-        plan: 'free'
-      };
-      FewsionAuth.login(user);
-      showToast('Welcome back! Redirecting...', 'success');
+    try {
+      if (!supabase) {
+        throw new Error("Database client connection is offline. Please reload and retry.");
+      }
+
+      console.log("Executing credential check against Supabase instance index...");
       
-      // Dynamic routing based on selected role
-      setTimeout(() => window.location.href = getRedirectUrl(selectedRole), 800);
-    }, 1000);
+      // RUN PATH A: TRY SIGNING IN CURRENT RECURRING PROFILE
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: pass,
+      });
+
+      if (!signInError) {
+        // 🟢 EXISTING USER PATH FOUND
+        console.log("Existing account verified successfully:", signInData.user.id);
+        
+        if (typeof FewsionAuth !== 'undefined') {
+          FewsionAuth.login({
+            id: signInData.user.id,
+            role: selectedRole,
+            email: email,
+            name: email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),
+            joinedAt: signInData.user.created_at
+          });
+        }
+
+        showToast('Welcome back! Loading dashboard metrics...', 'success');
+        setTimeout(() => window.location.href = getRedirectUrl(selectedRole, false), 1000);
+        return;
+      }
+
+      // RUN PATH B: DYNAMIC ONBOARDING UPON CREDENTIAL MISS
+      // Supabase returns an explicit 400 error status code block if lookups fail to match a row
+      if (signInError.status === 400 || signInError.message.includes("Invalid login credentials")) {
+        console.log("No profile detected matching criteria. Launching account provisioning sequence...");
+        
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: email,
+          password: pass,
+          options: {
+            data: { role: selectedRole }
+          }
+        });
+
+        if (signUpError) throw signUpError;
+
+        console.log("Account created inside Auth system. Writing row to relation profiles mapping table...");
+
+        // Inserts the new tracking profile entry inside public.users schema table
+        const { error: dbError } = await supabase
+          .from('users')
+          .insert([{
+            id: signUpData.user.id, 
+            email: email,
+            role: selectedRole
+          }]);
+
+        if (dbError) throw dbError;
+
+        if (typeof FewsionAuth !== 'undefined') {
+          FewsionAuth.login({
+            id: signUpData.user.id,
+            role: selectedRole,
+            email: email,
+            name: email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),
+            joinedAt: signUpData.user.created_at
+          });
+        }
+
+        showToast('Account successfully setup! Opening portal registration...', 'success');
+        setTimeout(() => window.location.href = getRedirectUrl(selectedRole, true), 1200);
+      } else {
+        throw signInError;
+      }
+
+    } catch (err) {
+      console.error("Authentication engine boundary exception caught:", err.message);
+      showToast(err.message, 'error');
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Sign in →';
+      }
+    }
   }
 
-  // Enter key
+  // Listener to catch Enter key executions smoothly
   document.addEventListener('keydown', e => { if(e.key==='Enter') handleLogin(); });
 </script>
 </body>
