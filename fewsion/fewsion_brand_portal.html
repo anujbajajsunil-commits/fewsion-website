@@ -1095,7 +1095,7 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
     console.log("Transmitting payload package to Supabase...", payload);
 
     // Write row directly to PostgreSQL table
-    // Change .insert() to .upsert() and declare the matching index target column
+   // Change .insert() to .upsert() and declare the matching index target column
     const { data, error } = await supabaseClientInstance
       .from('brand_profiles')
       .upsert([{
