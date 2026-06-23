@@ -30,157 +30,125 @@
 //   }
 // };
 
-// Updated Form Submission Controller
-async function startGenerate(){
-  const bn = document.getElementById('brandName').value.trim();
-  const cn = document.getElementById('campaignName').value.trim();
-  const km = document.getElementById('keyMessage').value.trim();
-  
-  if (!bn || !cn || !km) {
-    const e = document.getElementById('genErr');
-    e.textContent = 'Please fill in brand name, campaign name, and key message.';
-    e.style.display = 'block';
-    return;
+
+  // 1. Declare state variables first to fix the initialization error
+  let selectedRole = 'brand';
+
+  // 2. Safely call your script checks after variables are declared
+  if (typeof FewsionAuth !== 'undefined') {
+    FewsionAuth.redirectIfLoggedIn();
+  } else {
+    console.error("Critical: fewsion-auth.js library is missing or failed to link in the HTML header.");
   }
-  document.getElementById('genErr').style.display = 'none';
-  go(4);
 
-  const msgs = ['Crafting AI-powered campaign brief', 'Analysing creator fit signals', 'Building brand storefront', 'Generating match criteria'];
-  let mi = 0;
-  const msgEl = document.getElementById('genMsg');
-  const int = setInterval(() => { mi++; if (mi < msgs.length) msgEl.textContent = msgs[mi]; }, 2000);
-
-  const brandData = {
-    brandName: bn,
-    industry: S.industry || 'Not specified',
-    website: document.getElementById('website').value,
-    brandDesc: document.getElementById('brandDesc').value,
-    market: S.market || 'Not specified',
-    campaignName: cn,
-    objective: S.obj || 'Not specified',
-    contentTypes: S.ctype,
-    startDate: document.getElementById('startDate').value,
-    duration: document.getElementById('duration').value,
-    budget: getBudget(),
-    creatorTiers: S.tier,
-    minEngagement: getEng(),
-    creatorNiches: S.cniche,
-    languages: S.lang,
-    creatorCount: document.getElementById('creatorCount').value,
-    genderPref: document.getElementById('genderPref').value,
-    keyMessage: km,
-    dos: document.getElementById('dos').value,
-    donts: document.getElementById('donts').value,
-    tone: S.tone,
-    promoCode: document.getElementById('promoCode').value
-  };
-
-  try {
-    // Browser client requests directly to api.anthropic.com will always trigger a CORS block.
-    // If you plan to use live responses, migrate this specific endpoint fetch to a serverless backend function.
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: buildPrompt(brandData) }]
-      })
-    });
-    const data = await resp.json();
-    clearInterval(int);
-    const textBlock = data.content.find(b => b.type === 'text');
-    if (!textBlock) throw new Error('no text');
-    const raw = textBlock.text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(raw);
-    
-    renderStorefront(brandData, parsed);
-    await saveBrandToSupabase(brandData, parsed);
-
-  } catch (e) {
-    console.warn("API/CORS restriction encountered. Processing fallback path gracefully...");
-    clearInterval(int);
-    const fallback = fallbackBrief(brandData);
-    
-    // Renders UI matching image_1a7100.png 
-    renderStorefront(brandData, fallback);
-    
-    // Executes fallback save to Supabase table
-    await saveBrandToSupabase(brandData, fallback);
+  // 3. UI Interaction Controller
+  function selectRole(role, el) {
+    selectedRole = role;
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
   }
-}
 
-// Updated Supabase Write Hook with Session Safeguards
-async function saveBrandToSupabase(brandData, aiParsedResult) {
-  try {
-    if (!supabaseClientInstance && window.supabase) {
-      supabaseClientInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    if (t) {
+      t.textContent = msg;
+      t.className = 'toast ' + type + ' show';
+      setTimeout(() => t.classList.remove('show'), 3000);
     }
-    
-    if (!supabaseClientInstance) {
-      console.error("Supabase engine down or client uninitialized.");
-      return; 
-    }
+  }
 
-    // Safely check for FewsionAuth instance availability
-    let userId = null;
-    if (typeof FewsionAuth !== 'undefined') {
-      const activeUser = FewsionAuth.getUser();
-      if (activeUser && activeUser.id) {
-        userId = activeUser.id;
+  // Explicit routing rules for each platform role
+  function getRedirectUrl(role) {
+    switch(role) {
+      case 'brand':
+        return 'fewsion_brand_portal.html';
+      case 'creator':
+        return 'creator_profile_builder.html';
+      case 'editor':
+        return 'fewsion_editor_portal.html';
+      default:
+        return 'index.html'; // Fallback safeguard
+    }
+  }
+
+  function socialLogin(provider) {
+    showToast(`Signing in with ${provider.charAt(0).toUpperCase() + provider.slice(1)}...`);
+    setTimeout(() => {
+      const names = { brand: 'Arjun Desai', creator: 'Priya Sharma', editor: 'Kabir Mehta' };
+      const companies = { brand: 'BrewBox India', creator: null, editor: null };
+      const user = {
+        role: selectedRole,
+        name: names[selectedRole],
+        email: names[selectedRole].toLowerCase().replace(' ', '') + '@example.com',
+        company: companies[selectedRole],
+        avatar: names[selectedRole].split(' ').map(n => n[0]).join(''),
+        joinedAt: new Date().toISOString(),
+        plan: 'free'
+      };
+      
+      if (typeof FewsionAuth !== 'undefined') {
+        FewsionAuth.login(user);
       }
-    }
-
-    // Fallback: If not logged in, fetch or match a dummy row for development
-    if (!userId) {
-      console.warn("FewsionAuth profile missing or unlinked. Querying active Supabase session fallback...");
-      const { data: sessionData } = await supabaseClientInstance.auth.getSession();
-      if (sessionData && sessionData.session) {
-        userId = sessionData.session.user.id;
-      } else {
-        // Stop execution if no valid authenticated record can be matched
-        console.error("Submission halted: Entries require a authenticated user_id.");
-        return;
-      }
-    }
-
-    const payload = {
-      user_id: userId, 
-      brand_name: brandData.brandName,
-      industry: brandData.industry,
-      website_url: brandData.website,
-      brand_description: brandData.brandDesc,
-      primary_market: brandData.market,
-      campaign_name: brandData.campaignName,
-      campaign_objective: brandData.objective,
-      content_types_needed: brandData.contentTypes, 
-      start_date: brandData.startDate,
-      duration: brandData.duration,
-      budget_range: brandData.budget,
-      creator_tier_preferences: brandData.creatorTiers,
-      min_engagement_rate: parseFloat(brandData.minEngagement) || 0.00,
-      creator_niches: brandData.creatorNiches,
-      language_preferences: brandData.languages,
-      creator_count: brandData.creatorCount,
-      gender_preference: brandData.genderPref,
-      key_message: brandData.keyMessage,
-      dos: brandData.dos,
-      donts: brandData.donts,
-      brand_tone: brandData.tone,
-      promo_code: brandData.promoCode,
-      ai_fit_score: parseInt(aiParsedResult.campaign_fit_score) || 74
-    };
-
-    console.log("Transmitting payload to 'brand_profiles' table...", payload);
-
-    const { data, error } = await supabaseClientInstance
-      .from('brand_profiles')
-      .insert([payload]);
-
-    if (error) throw error;
-    console.log("Data successfully posted to Supabase database!");
-
-  } catch (err) {
-    console.error("Database table insertion crash:", err.message);
+      
+      window.location.href = getRedirectUrl(selectedRole);
+    }, 1200);
   }
-}
+
+  function handleLogin() {
+    const email = document.getElementById('emailInput').value.trim();
+    const pass = document.getElementById('passInput').value;
+    let valid = true;
+
+    // Validate email
+    const emailInput = document.getElementById('emailInput');
+    const emailError = document.getElementById('emailError');
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      if(emailInput) emailInput.classList.add('error');
+      if(emailError) emailError.style.display = 'block';
+      valid = false;
+    } else {
+      if(emailInput) emailInput.classList.remove('error');
+      if(emailError) emailError.style.display = 'none';
+    }
+
+    // Validate password
+    const passInput = document.getElementById('passInput');
+    const passError = document.getElementById('passError');
+    if (!pass || pass.length < 6) {
+      if(passInput) passInput.classList.add('error');
+      if(passError) passError.style.display = 'block';
+      valid = false;
+    } else {
+      if(passInput) passInput.classList.remove('error');
+      if(passError) passError.style.display = 'none';
+    }
+    
+    if (!valid) return;
+
+    const btn = document.getElementById('loginBtn');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+    }
+
+    setTimeout(() => {
+      const user = {
+        role: selectedRole,
+        name: email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        email,
+        avatar: email.slice(0, 2).toUpperCase(),
+        joinedAt: new Date().toISOString(),
+        plan: 'free'
+      };
+      
+      if (typeof FewsionAuth !== 'undefined') {
+        FewsionAuth.login(user);
+      }
+      
+      showToast('Welcome back! Redirecting...', 'success');
+      setTimeout(() => window.location.href = getRedirectUrl(selectedRole), 800);
+    }, 1000);
+  }
+
+  // Enter key submission
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
