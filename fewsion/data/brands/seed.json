@@ -1,0 +1,41 @@
+{
+  "_schema": {
+    "version": "1.0.0",
+    "description": "Seed brand data for development and demo UI."
+  },
+  "brands": [
+    {
+      "id":          "brand_glow-republic",
+      "name":        "Glow Republic",
+      "logo":        "🧴",
+      "industry":    "skincare",
+      "tier":        "premium",
+      "totalSpend":  85000,
+      "campaigns":   3,
+      "avgRating":   4.8,
+      "status":      "active"
+    },
+    {
+      "id":          "brand_boldcraft",
+      "name":        "BoldCraft Nutrition",
+      "logo":        "💪",
+      "industry":    "fitness",
+      "tier":        "starter",
+      "totalSpend":  40000,
+      "campaigns":   1,
+      "avgRating":   4.5,
+      "status":      "active"
+    },
+    {
+      "id":          "brand_leaflink",
+      "name":        "LeafLink Tea",
+      "logo":        "🍵",
+      "industry":    "wellness",
+      "tier":        "starter",
+      "totalSpend":  30000,
+      "campaigns":   1,
+      "avgRating":   4.6,
+      "status":      "active"
+    }
+  ]
+}

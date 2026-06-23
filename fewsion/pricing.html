@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing — Fewsion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808; --deep: #0e0e0e; --card: #141414; --card2: #1a1a1a;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+    --amber: #F5A623; --amber2: #FF6B35; --amber-glow: rgba(245,166,35,0.15);
+    --green: #4ade80;
+    --text: #f0ece4; --muted: #888; --muted2: #555; --white: #ffffff;
+    --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+    --radius: 16px; --radius-sm: 10px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--text); font-family: var(--font-body); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E"); pointer-events: none; z-index: 999; opacity: 0.4; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 5%; height: 70px; display: flex; align-items: center; justify-content: space-between; transition: background 0.3s, border-color 0.3s; border-bottom: 1px solid transparent; }
+  nav.scrolled { background: rgba(8,8,8,0.92); backdrop-filter: blur(16px); border-color: var(--border); }
+  .nav-logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--white); text-decoration: none; }
+  .nav-logo span { color: var(--amber); }
+  .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+  .nav-links a { font-size: 14px; color: var(--muted); text-decoration: none; font-weight: 400; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--text); }
+  .nav-cta { background: var(--amber); color: #000 !important; font-weight: 600 !important; padding: 9px 22px; border-radius: 50px; transition: opacity 0.2s, transform 0.2s !important; }
+  .nav-cta:hover { opacity: 0.88; transform: translateY(-1px) !important; }
+  .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+  .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; }
+
+  /* HERO */
+  .pricing-hero { padding: 140px 5% 80px; text-align: center; position: relative; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(245,166,35,0.1) 0%, transparent 60%); }
+  .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 60% at 50% 20%, black 30%, transparent 100%); }
+  .hero-inner { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.25); border-radius: 50px; padding: 7px 18px; font-size: 13px; color: var(--amber); font-weight: 500; margin-bottom: 28px; letter-spacing: 0.03em; }
+  h1 { font-family: var(--font-display); font-size: clamp(40px, 6vw, 76px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; color: var(--white); margin-bottom: 20px; }
+  h1 em { font-style: normal; background: linear-gradient(135deg, var(--amber) 0%, var(--amber2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-sub { font-size: 19px; color: var(--muted); font-weight: 300; max-width: 520px; margin: 0 auto 40px; line-height: 1.7; }
+
+  /* TOGGLE */
+  .toggle-wrap { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 64px; }
+  .toggle-label { font-size: 14px; color: var(--muted); font-weight: 400; }
+  .toggle-label.active { color: var(--text); font-weight: 500; }
+  .toggle { width: 48px; height: 26px; background: rgba(255,255,255,0.08); border: 1px solid var(--border2); border-radius: 50px; position: relative; cursor: pointer; transition: background 0.3s; }
+  .toggle.annual { background: rgba(245,166,35,0.2); border-color: rgba(245,166,35,0.4); }
+  .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--muted); transition: all 0.3s; }
+  .toggle.annual::after { left: calc(100% - 21px); background: var(--amber); }
+  .save-badge { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: var(--green); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 50px; }
+
+  /* PRICING TABS */
+  .pricing-tabs { display: flex; gap: 0; justify-content: center; margin-bottom: 48px; background: var(--card); border: 1px solid var(--border); border-radius: 50px; padding: 4px; width: fit-content; margin-left: auto; margin-right: auto; }
+  .pricing-tab { font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--muted); padding: 10px 28px; border-radius: 50px; cursor: pointer; transition: all 0.25s; border: none; background: none; }
+  .pricing-tab.active { background: var(--amber); color: #000; }
+
+  /* PLANS */
+  section { padding: 80px 5%; }
+  .plans-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .plan-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px 32px; position: relative; transition: transform 0.3s, border-color 0.3s; }
+  .plan-card:hover { transform: translateY(-6px); }
+  .plan-card.featured { border-color: rgba(245,166,35,0.4); background: linear-gradient(160deg, rgba(245,166,35,0.07) 0%, rgba(255,107,53,0.04) 100%); }
+  .plan-card.featured::before { content: 'Most Popular'; position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--amber), var(--amber2)); color: #000; font-family: var(--font-display); font-size: 11px; font-weight: 800; padding: 5px 18px; border-radius: 50px; letter-spacing: 0.05em; white-space: nowrap; }
+  .plan-name { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .plan-price { font-family: var(--font-display); font-size: 48px; font-weight: 800; color: var(--white); letter-spacing: -2px; line-height: 1; margin-bottom: 4px; }
+  .plan-price sup { font-size: 24px; vertical-align: super; letter-spacing: 0; }
+  .plan-price.free { color: var(--amber); }
+  .plan-period { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .plan-desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+  .plan-btn { display: block; text-align: center; width: 100%; padding: 13px; border-radius: 50px; font-family: var(--font-display); font-size: 14px; font-weight: 700; text-decoration: none; margin-bottom: 28px; transition: all 0.2s; }
+  .plan-btn.primary { background: var(--amber); color: #000; }
+  .plan-btn.primary:hover { box-shadow: 0 8px 30px rgba(245,166,35,0.4); transform: translateY(-1px); }
+  .plan-btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border2); }
+  .plan-btn.ghost:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.04); }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .plan-features li { font-size: 14px; color: var(--muted); display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
+  .plan-features li.yes { color: var(--text); }
+  .plan-features li::before { content: ''; width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; }
+  .plan-features li.yes::before { background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.3); background-image: url("data:image/svg+xml,%3Csvg width='10' height='8' viewBox='0 0 10 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4L3.5 6.5L9 1' stroke='%234ade80' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; }
+  .plan-features li.no { color: var(--muted2); }
+  .plan-features li.no::before { background: rgba(255,255,255,0.04); border: 1px solid var(--border); background-image: url("data:image/svg+xml,%3Csvg width='8' height='8' viewBox='0 0 8 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L7 7M7 1L1 7' stroke='%23555' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; }
+
+  /* ADD-ONS */
+  #addons { background: var(--deep); }
+  .section-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--amber); margin-bottom: 16px; }
+  .section-tag::before { content: ''; width: 20px; height: 1.5px; background: var(--amber); display: inline-block; }
+  .section-title { font-family: var(--font-display); font-size: clamp(30px, 4vw, 52px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; color: var(--white); margin-bottom: 16px; }
+  .section-title em { font-style: normal; color: var(--amber); }
+  .section-sub { font-size: 17px; color: var(--muted); max-width: 520px; line-height: 1.7; font-weight: 300; margin-bottom: 48px; }
+  .addons-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .addon-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: border-color 0.3s, transform 0.3s; position: relative; overflow: hidden; }
+  .addon-card:hover { border-color: rgba(245,166,35,0.25); transform: translateY(-4px); }
+  .addon-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--amber), var(--amber2)); }
+  .addon-price { font-family: var(--font-display); font-size: 26px; font-weight: 800; color: var(--amber); letter-spacing: -0.5px; margin-bottom: 4px; }
+  .addon-name { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+  .addon-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+
+  /* FAQ */
+  #faq { background: var(--black); }
+  .faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 48px; }
+  .faq-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 24px 28px; cursor: pointer; transition: border-color 0.2s; }
+  .faq-item:hover { border-color: var(--border2); }
+  .faq-q { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .faq-q::after { content: '+'; color: var(--amber); font-size: 20px; font-weight: 400; flex-shrink: 0; }
+  .faq-a { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  /* CTA */
+  #page-cta { background: linear-gradient(135deg, rgba(245,166,35,0.1) 0%, rgba(255,107,53,0.08) 50%, transparent 100%); border-top: 1px solid var(--border); padding: 100px 5%; text-align: center; }
+  #page-cta h2 { font-family: var(--font-display); font-size: clamp(32px, 5vw, 60px); font-weight: 800; letter-spacing: -2px; color: var(--white); margin-bottom: 16px; line-height: 1.1; }
+  #page-cta h2 em { font-style: normal; color: var(--amber); }
+  #page-cta p { font-size: 18px; color: var(--muted); max-width: 480px; margin: 0 auto 40px; font-weight: 300; }
+  .cta-buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary { background: var(--amber); color: #000; font-family: var(--font-display); font-size: 15px; font-weight: 700; padding: 14px 32px; border-radius: 50px; border: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(245,166,35,0.35); }
+  .btn-ghost { background: transparent; color: var(--text); font-family: var(--font-display); font-size: 15px; font-weight: 600; padding: 14px 32px; border-radius: 50px; border: 1px solid var(--border2); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: border-color 0.2s, background 0.2s; }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.04); }
+
+  footer { background: var(--black); padding: 60px 5% 32px; border-top: 1px solid var(--border); }
+  .footer-top { display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); gap: 48px; margin-bottom: 48px; }
+  .footer-brand .logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--white); margin-bottom: 14px; letter-spacing: -0.5px; }
+  .footer-brand .logo span { color: var(--amber); }
+  .footer-brand p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+  .footer-col h5 { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--white); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 16px; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col ul a { font-size: 14px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .footer-col ul a:hover { color: var(--text); }
+  .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 12px; }
+  .footer-bottom p { font-size: 13px; color: var(--muted2); }
+  .footer-bottom .made span { color: var(--amber); }
+
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+
+  @media (max-width: 1024px) {
+    .plans-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+    .addons-grid { grid-template-columns: 1fr 1fr; }
+    .faq-grid { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    section { padding: 70px 5%; }
+    .addons-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .nav-links.open { display: flex; flex-direction: column; position: fixed; inset: 70px 0 0 0; background: rgba(8,8,8,0.97); backdrop-filter: blur(16px); padding: 32px 5%; gap: 24px; z-index: 99; }
+    .nav-links.open a { font-size: 22px; color: var(--text); }
+    .nav-hamburger { display: flex; }
+    .footer-top { grid-template-columns: 1fr; gap: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="navbar">
+  <a class="nav-logo" href="index.html">Few<span>sion</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="creators.html">For Creators</a></li>
+    <li><a href="brands.html">For Brands</a></li>
+    <li><a href="editors.html">For Editors</a></li>
+    <li><a href="pricing.html" class="active">Pricing</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="#page-cta" class="nav-cta">Get started</a></li>
+  </ul>
+  <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="pricing-hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">Simple, Transparent Pricing</div>
+    <h1>Pay for what<br><em>you actually use</em></h1>
+    <p class="hero-sub">No hidden fees. No agency markups. Start free and upgrade as your campaigns scale.</p>
+  </div>
+</div>
+
+<!-- TABS -->
+<section style="padding: 0 5% 80px;">
+  <div class="pricing-tabs">
+    <button class="pricing-tab active" onclick="showPlans('brand')">For Brands</button>
+    <button class="pricing-tab" onclick="showPlans('creator')">For Creators</button>
+    <button class="pricing-tab" onclick="showPlans('editor')">For Editors</button>
+  </div>
+
+  <!-- BRAND PLANS -->
+  <div class="plans-panel" id="plans-brand">
+    <div class="plans-grid">
+      <div class="plan-card reveal">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price free">Free</div>
+        <div class="plan-period">Always free</div>
+        <div class="plan-desc">For D2C brands testing creator marketing for the first time. No commitment needed.</div>
+        <a href="#" class="plan-btn ghost">Get started free</a>
+        <ul class="plan-features">
+          <li class="yes">Up to 3 active campaigns</li>
+          <li class="yes">Standard creator search & filters</li>
+          <li class="yes">AI basic matching</li>
+          <li class="yes">Razorpay escrow on all deals</li>
+          <li class="yes">AI contract generator (₹99/contract)</li>
+          <li class="yes">10–15% transaction commission</li>
+          <li class="no">AI brief builder</li>
+          <li class="no">Brand storefront</li>
+          <li class="no">Performance tracker</li>
+          <li class="no">Bulk creator outreach</li>
+        </ul>
+      </div>
+      <div class="plan-card featured reveal reveal-delay-1">
+        <div class="plan-name">Brand Premium</div>
+        <div class="plan-price"><sup>₹</sup>2,999</div>
+        <div class="plan-period">per month</div>
+        <div class="plan-desc">For growing brands running consistent UGC campaigns. Everything in Starter, plus AI tools and analytics.</div>
+        <a href="#" class="plan-btn primary">Start Premium →</a>
+        <ul class="plan-features">
+          <li class="yes">Unlimited active campaigns</li>
+          <li class="yes">Advanced search with Creator Score filter</li>
+          <li class="yes">AI chatbot creator matching</li>
+          <li class="yes">AI brief builder (unlimited)</li>
+          <li class="yes">Performance tracker dashboard</li>
+          <li class="yes">Brand storefront with creator reviews</li>
+          <li class="yes">Bulk creator outreach</li>
+          <li class="yes">AI contract generator (included)</li>
+          <li class="yes">Priority support</li>
+          <li class="yes">10–15% transaction commission</li>
+        </ul>
+      </div>
+      <div class="plan-card reveal reveal-delay-2">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price" style="font-size:36px;letter-spacing:-1px">Custom</div>
+        <div class="plan-period">contact us</div>
+        <div class="plan-desc">For large brands and agencies managing multiple campaigns and creator relationships at scale.</div>
+        <a href="#" class="plan-btn ghost">Talk to our team</a>
+        <ul class="plan-features">
+          <li class="yes">Everything in Brand Premium</li>
+          <li class="yes">Dedicated account manager</li>
+          <li class="yes">White-glove creator matching</li>
+          <li class="yes">Custom contract templates</li>
+          <li class="yes">API access for CRM integration</li>
+          <li class="yes">Multi-brand / multi-team access</li>
+          <li class="yes">Volume discounts on commissions</li>
+          <li class="yes">Custom SLA & onboarding</li>
+          <li class="yes">Invoicing & credit-based billing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATOR PLANS -->
+  <div class="plans-panel" id="plans-creator" style="display:none">
+    <div class="plans-grid">
+      <div class="plan-card reveal">
+        <div class="plan-name">Creator Free</div>
+        <div class="plan-price free">Free</div>
+        <div class="plan-period">Always free</div>
+        <div class="plan-desc">Build your portfolio and apply to campaigns — no subscription needed.</div>
+        <a href="#" class="plan-btn ghost">Create profile</a>
+        <ul class="plan-features">
+          <li class="yes">Full performance portfolio</li>
+          <li class="yes">Apply to unlimited campaigns</li>
+          <li class="yes">Creator Score (public)</li>
+          <li class="yes">Escrow-protected payments</li>
+          <li class="yes">AI contract on every project</li>
+          <li class="yes">Editor collaboration invites</li>
+          <li class="no">Priority search ranking</li>
+          <li class="no">Advanced analytics & CTR data</li>
+          <li class="no">Featured profile placement</li>
+          <li class="no">AI-powered career insights</li>
+        </ul>
+      </div>
+      <div class="plan-card featured reveal reveal-delay-1">
+        <div class="plan-name">Creator Pro</div>
+        <div class="plan-price"><sup>₹</sup>499</div>
+        <div class="plan-period">per month</div>
+        <div class="plan-desc">For serious creators who want more visibility, better data, and faster growth.</div>
+        <a href="#" class="plan-btn primary">Go Pro →</a>
+        <ul class="plan-features">
+          <li class="yes">Everything in Creator Free</li>
+          <li class="yes">Priority ranking in search results</li>
+          <li class="yes">Full CTR & conversion analytics</li>
+          <li class="yes">Featured profile placement</li>
+          <li class="yes">AI career insights & rate benchmarks</li>
+          <li class="yes">Early access to premium campaigns</li>
+          <li class="yes">Creator Pro badge on profile</li>
+          <li class="yes">Dedicated support</li>
+        </ul>
+      </div>
+      <div class="plan-card reveal reveal-delay-2">
+        <div class="plan-name">Creator Team</div>
+        <div class="plan-price" style="font-size:36px;letter-spacing:-1px">Coming</div>
+        <div class="plan-period">Q2 2027</div>
+        <div class="plan-desc">For creator studios and talent agencies managing multiple creator profiles.</div>
+        <a href="#" class="plan-btn ghost">Join waitlist</a>
+        <ul class="plan-features">
+          <li class="yes">Manage up to 20 creator profiles</li>
+          <li class="yes">Centralized earnings dashboard</li>
+          <li class="yes">Agency storefront page</li>
+          <li class="yes">Bulk campaign applications</li>
+          <li class="yes">Priority enterprise brand matching</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDITOR PLANS -->
+  <div class="plans-panel" id="plans-editor" style="display:none">
+    <div class="plans-grid" style="max-width:700px;margin:0 auto;grid-template-columns:1fr 1fr;">
+      <div class="plan-card reveal">
+        <div class="plan-name">Editor Free</div>
+        <div class="plan-price free">Free</div>
+        <div class="plan-period">Always free</div>
+        <div class="plan-desc">List your portfolio, receive collab invites, and get paid — no upfront cost.</div>
+        <a href="#" class="plan-btn ghost">Create portfolio</a>
+        <ul class="plan-features">
+          <li class="yes">Full reel & portfolio showcase</li>
+          <li class="yes">Receive creator collab invites</li>
+          <li class="yes">Apply to brand editing jobs</li>
+          <li class="yes">Performance rating system</li>
+          <li class="yes">Escrow-protected payments</li>
+          <li class="yes">AI contract on every project</li>
+          <li class="no">Priority search ranking</li>
+          <li class="no">Featured editor placement</li>
+          <li class="no">Advanced project analytics</li>
+        </ul>
+      </div>
+      <div class="plan-card featured reveal reveal-delay-1">
+        <div class="plan-name">Editor Pro</div>
+        <div class="plan-price"><sup>₹</sup>299</div>
+        <div class="plan-period">per month</div>
+        <div class="plan-desc">Get discovered faster and build a reputation that brings inbound work to you.</div>
+        <a href="#" class="plan-btn primary">Go Pro →</a>
+        <ul class="plan-features">
+          <li class="yes">Everything in Editor Free</li>
+          <li class="yes">Priority ranking in editor search</li>
+          <li class="yes">Featured placement in creator matching</li>
+          <li class="yes">Full project analytics</li>
+          <li class="yes">Editor Pro badge on profile</li>
+          <li class="yes">Early access to high-budget jobs</li>
+          <li class="yes">Rate benchmarking tool</li>
+          <li class="yes">Dedicated support</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ADD-ONS -->
+<section id="addons">
+  <div class="section-tag">Add-ons</div>
+  <h2 class="section-title reveal">Pay only for<br><em>what you need</em></h2>
+  <p class="section-sub reveal reveal-delay-1">One-time tools and boosts available across all plan tiers.</p>
+  <div class="addons-grid">
+    <div class="addon-card reveal">
+      <div class="addon-price">₹99</div>
+      <div class="addon-name">AI Contract</div>
+      <div class="addon-desc">One-click contract generation for any project. Covers usage rights, revisions, deadlines, and payment terms. Included free in Premium plans.</div>
+    </div>
+    <div class="addon-card reveal reveal-delay-1">
+      <div class="addon-price">₹999</div>
+      <div class="addon-name">Featured Brand Listing</div>
+      <div class="addon-desc">Boost your brand storefront to appear at the top of creator discovery for 30 days. Drives faster applications from relevant creators.</div>
+    </div>
+    <div class="addon-card reveal reveal-delay-2">
+      <div class="addon-price">₹499</div>
+      <div class="addon-name">Creator Profile Boost</div>
+      <div class="addon-desc">Pin your creator profile to the top of brand search results for 14 days. Best for launching a new niche or re-entering the market.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-tag">Frequently Asked</div>
+  <h2 class="section-title reveal">Got questions?<br><em>We've got answers.</em></h2>
+  <div class="faq-grid">
+    <div class="faq-item reveal">
+      <div class="faq-q">How does the transaction commission work?</div>
+      <div class="faq-a">Fewsion charges 10–15% on every completed project. This is paid by the brand on top of the creator's agreed fee — creators and editors keep their full quoted amount.</div>
+    </div>
+    <div class="faq-item reveal reveal-delay-1">
+      <div class="faq-q">Do creators and editors pay to join?</div>
+      <div class="faq-a">No. Creator and Editor Free tiers are genuinely free — no hidden charges. Brands pay the platform commission. Creators and editors can upgrade to Pro for extra visibility, but it's never required.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">How does escrow work exactly?</div>
+      <div class="faq-a">When a brand approves a creator for a campaign, they deposit the full agreed amount via Razorpay into escrow. This is held safely until the creator delivers approved content. No content, no release.</div>
+    </div>
+    <div class="faq-item reveal reveal-delay-1">
+      <div class="faq-q">Can I cancel my subscription anytime?</div>
+      <div class="faq-a">Yes. All subscriptions are month-to-month with no lock-in. You can downgrade or cancel at any time — you keep access until the end of the billing period.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Is there a minimum spend for brands?</div>
+      <div class="faq-a">None at all. You can post a campaign with a budget as low as ₹5,000. Fewsion is built for D2C brands of all sizes, including those just starting with UGC.</div>
+    </div>
+    <div class="faq-item reveal reveal-delay-1">
+      <div class="faq-q">When does my Creator or Editor get paid?</div>
+      <div class="faq-a">Escrow releases within 24 hours of brand approval. Payment hits the creator or editor's linked bank account or UPI within 1–2 business days via Razorpay.</div>
+    </div>
+  </div>
+</section>
+
+<section id="page-cta">
+  <div class="section-tag" style="justify-content:center;display:flex;">Get Started</div>
+  <h2>Start free.<br><em>Scale when ready.</em></h2>
+  <p>No credit card needed. Launch your first campaign or portfolio in minutes.</p>
+  <div class="cta-buttons">
+    <a href="#" class="btn-primary">I'm a Brand →</a>
+    <a href="creators.html" class="btn-ghost">I'm a Creator</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="logo">Few<span>sion</span></div>
+      <p>India's first performance-first creator marketplace. Connecting brands, creators, and editors — powered by AI.</p>
+    </div>
+    <div class="footer-col"><h5>Platform</h5><ul><li><a href="creators.html">For Creators</a></li><li><a href="brands.html">For Brands</a></li><li><a href="editors.html">For Editors</a></li><li><a href="pricing.html">Pricing</a></li></ul></div>
+    <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About</a></li><li><a href="#">Blog</a></li><li><a href="#">Careers</a></li><li><a href="#">Contact</a></li></ul></div>
+    <div class="footer-col"><h5>Legal</h5><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li><li><a href="#">Creator Agreement</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Fewsion. All rights reserved.</p>
+    <p class="made">Made with <span>♥</span> for Indian creators</p>
+  </div>
+</footer>
+
+<script>
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 20));
+  function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
+  document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open')));
+
+  function showPlans(type) {
+    document.querySelectorAll('.plans-panel').forEach(p => p.style.display = 'none');
+    document.querySelectorAll('.pricing-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('plans-' + type).style.display = 'block';
+    event.target.classList.add('active');
+  }
+
+  const observer = new IntersectionObserver((entries) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }), { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

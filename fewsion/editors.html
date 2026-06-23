@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Editors — Fewsion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808; --deep: #0e0e0e; --card: #141414; --card2: #1a1a1a;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+    --amber: #F5A623; --amber2: #FF6B35; --amber-glow: rgba(245,166,35,0.15);
+    --green: #4ade80; --green-glow: rgba(74,222,128,0.1);
+    --text: #f0ece4; --muted: #888; --muted2: #555; --white: #ffffff;
+    --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+    --radius: 16px; --radius-sm: 10px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--text); font-family: var(--font-body); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E"); pointer-events: none; z-index: 999; opacity: 0.4; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 5%; height: 70px; display: flex; align-items: center; justify-content: space-between; transition: background 0.3s, border-color 0.3s; border-bottom: 1px solid transparent; }
+  nav.scrolled { background: rgba(8,8,8,0.92); backdrop-filter: blur(16px); border-color: var(--border); }
+  .nav-logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--white); text-decoration: none; }
+  .nav-logo span { color: var(--amber); }
+  .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+  .nav-links a { font-size: 14px; color: var(--muted); text-decoration: none; font-weight: 400; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--text); }
+  .nav-cta { background: var(--amber); color: #000 !important; font-weight: 600 !important; padding: 9px 22px; border-radius: 50px; transition: opacity 0.2s, transform 0.2s !important; }
+  .nav-cta:hover { opacity: 0.88; transform: translateY(-1px) !important; }
+  .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+  .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; }
+
+  .page-hero { min-height: 90vh; display: flex; align-items: center; padding: 120px 5% 80px; position: relative; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 30% 50%, rgba(74,222,128,0.07) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 80% 20%, rgba(245,166,35,0.06) 0%, transparent 50%); }
+  .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 80% at 30% 50%, black 30%, transparent 100%); }
+  .hero-content { position: relative; z-index: 2; max-width: 580px; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); border-radius: 50px; padding: 7px 18px; font-size: 13px; color: var(--green); font-weight: 500; margin-bottom: 28px; letter-spacing: 0.03em; }
+  .hero-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.4)} }
+  h1 { font-family: var(--font-display); font-size: clamp(40px, 6vw, 76px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; color: var(--white); margin-bottom: 24px; }
+  h1 em { font-style: normal; background: linear-gradient(135deg, var(--amber) 0%, var(--amber2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-sub { font-size: clamp(16px, 2vw, 19px); color: var(--muted); margin-bottom: 40px; font-weight: 300; line-height: 1.7; }
+  .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn-primary { background: var(--amber); color: #000; font-family: var(--font-display); font-size: 15px; font-weight: 700; padding: 14px 32px; border-radius: 50px; border: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(245,166,35,0.35); }
+  .btn-ghost { background: transparent; color: var(--text); font-family: var(--font-display); font-size: 15px; font-weight: 600; padding: 14px 32px; border-radius: 50px; border: 1px solid var(--border2); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: border-color 0.2s, background 0.2s; }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.04); }
+  .hero-visual { position: absolute; right: 5%; top: 50%; transform: translateY(-50%); z-index: 2; width: min(420px, 40vw); }
+
+  /* EDITOR PORTFOLIO CARD */
+  .editor-preview { background: var(--card); border: 1px solid rgba(74,222,128,0.15); border-radius: 20px; padding: 28px; box-shadow: 0 40px 80px rgba(0,0,0,0.6); }
+  .ep-header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+  .ep-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--green), #22c55e); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 16px; color: #000; flex-shrink: 0; }
+  .ep-name { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--white); }
+  .ep-role { font-size: 12px; color: var(--muted); }
+  .ep-rating { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+  .ep-rating-val { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--amber); }
+  .ep-reel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 18px; }
+  .ep-reel { border-radius: 8px; aspect-ratio: 9/16; background: #1a1a1a; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 22px; position: relative; overflow: hidden; }
+  .ep-reel::after { content: '▶'; position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.6); color: var(--white); font-size: 10px; padding: 3px 6px; border-radius: 4px; }
+  .ep-skills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .ep-skill { font-size: 12px; color: var(--green); background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.15); padding: 5px 12px; border-radius: 50px; }
+  .ep-invite { background: rgba(245,166,35,0.06); border: 1px solid rgba(245,166,35,0.2); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .ep-invite-text { font-size: 13px; color: var(--text); font-weight: 500; }
+  .ep-invite-text span { display: block; font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+  .ep-invite-btn { background: var(--amber); color: #000; font-family: var(--font-display); font-size: 12px; font-weight: 700; padding: 8px 16px; border-radius: 50px; border: none; cursor: pointer; }
+
+  section { padding: 100px 5%; }
+  .section-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--amber); margin-bottom: 16px; }
+  .section-tag::before { content: ''; width: 20px; height: 1.5px; background: var(--amber); display: inline-block; }
+  .section-title { font-family: var(--font-display); font-size: clamp(30px, 4vw, 52px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; color: var(--white); margin-bottom: 16px; }
+  .section-title em { font-style: normal; color: var(--amber); }
+  .section-sub { font-size: 17px; color: var(--muted); max-width: 520px; line-height: 1.7; font-weight: 300; margin-bottom: 56px; }
+
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .feature-card { background: var(--card); padding: 36px 30px; transition: background 0.3s; position: relative; }
+  .feature-card:hover { background: var(--card2); }
+  .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--green), var(--amber)); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+  .feature-card:hover::before { transform: scaleX(1); }
+  .feature-icon { width: 48px; height: 48px; background: var(--green-glow); border: 1px solid rgba(74,222,128,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 18px; }
+  .feature-card h3 { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+  .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  /* HOW IT WORKS */
+  #how { background: var(--deep); }
+  .steps { display: flex; flex-direction: column; gap: 0; margin-top: 56px; position: relative; }
+  .steps::before { content: ''; position: absolute; left: 23px; top: 24px; bottom: 24px; width: 2px; background: linear-gradient(to bottom, var(--green), var(--amber), transparent); }
+  .step { display: flex; gap: 28px; align-items: flex-start; padding: 36px 0; border-bottom: 1px solid var(--border); position: relative; }
+  .step:last-child { border-bottom: none; }
+  .step-num { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--green), #22c55e); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 16px; font-weight: 800; color: #000; flex-shrink: 0; position: relative; z-index: 1; }
+  .step-body h3 { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--white); margin-bottom: 8px; letter-spacing: -0.4px; }
+  .step-body p { font-size: 15px; color: var(--muted); line-height: 1.7; max-width: 600px; }
+
+  /* INCOME */
+  #income { background: var(--black); }
+  .income-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+  .income-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .income-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: border-color 0.3s, transform 0.3s; }
+  .income-card:hover { border-color: rgba(74,222,128,0.25); transform: translateY(-4px); }
+  .income-card.featured { grid-column: span 2; background: linear-gradient(135deg, rgba(74,222,128,0.06), rgba(245,166,35,0.04)); border-color: rgba(74,222,128,0.15); }
+  .inc-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .inc-val { font-family: var(--font-display); font-size: 32px; font-weight: 800; color: var(--green); letter-spacing: -1px; margin-bottom: 4px; }
+  .inc-sub { font-size: 13px; color: var(--muted); }
+  .income-text h2 { font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 44px); font-weight: 800; letter-spacing: -1.5px; color: var(--white); margin-bottom: 20px; line-height: 1.15; }
+  .income-text h2 em { font-style: normal; color: var(--amber); }
+  .income-text p { font-size: 16px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; font-weight: 300; }
+  .check-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+  .check-list li { display: flex; align-items: center; gap: 12px; font-size: 15px; color: var(--text); }
+  .check-list li::before { content: '✓'; width: 22px; height: 22px; border-radius: 50%; background: var(--green-glow); border: 1px solid rgba(74,222,128,0.2); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+  /* COLLAB */
+  #collab { background: var(--deep); }
+  .collab-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+  .collab-ui { background: var(--card); border: 1px solid rgba(74,222,128,0.15); border-radius: var(--radius); padding: 28px; }
+  .collab-ui h4 { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .collab-msg { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .collab-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .collab-bubble { background: #1a1a1a; border: 1px solid var(--border); border-radius: 12px 12px 12px 4px; padding: 10px 14px; font-size: 13px; color: var(--text); line-height: 1.5; }
+  .collab-bubble.editor { border-radius: 12px 12px 4px 12px; background: rgba(74,222,128,0.06); border-color: rgba(74,222,128,0.15); }
+  .collab-file { background: rgba(245,166,35,0.06); border: 1px solid rgba(245,166,35,0.2); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; margin-left: 42px; }
+  .collab-file-icon { font-size: 20px; }
+  .collab-file-name { font-size: 13px; color: var(--text); font-weight: 500; }
+  .collab-file-size { font-size: 11px; color: var(--muted); }
+  .collab-approved { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); border-radius: 10px; padding: 12px 14px; text-align: center; font-size: 13px; color: var(--green); font-weight: 600; }
+  .collab-text p { font-size: 16px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; font-weight: 300; }
+
+  #page-cta { background: linear-gradient(135deg, rgba(74,222,128,0.08) 0%, rgba(245,166,35,0.07) 50%, transparent 100%); border-top: 1px solid var(--border); padding: 100px 5%; text-align: center; }
+  #page-cta h2 { font-family: var(--font-display); font-size: clamp(32px, 5vw, 60px); font-weight: 800; letter-spacing: -2px; color: var(--white); margin-bottom: 16px; line-height: 1.1; }
+  #page-cta h2 em { font-style: normal; color: var(--amber); }
+  #page-cta p { font-size: 18px; color: var(--muted); max-width: 480px; margin: 0 auto 40px; font-weight: 300; }
+  .cta-buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+  footer { background: var(--black); padding: 60px 5% 32px; border-top: 1px solid var(--border); }
+  .footer-top { display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); gap: 48px; margin-bottom: 48px; }
+  .footer-brand .logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--white); margin-bottom: 14px; letter-spacing: -0.5px; }
+  .footer-brand .logo span { color: var(--amber); }
+  .footer-brand p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+  .footer-col h5 { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--white); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 16px; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col ul a { font-size: 14px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .footer-col ul a:hover { color: var(--text); }
+  .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 12px; }
+  .footer-bottom p { font-size: 13px; color: var(--muted2); }
+  .footer-bottom .made span { color: var(--amber); }
+
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+
+  @media (max-width: 1024px) {
+    .features-grid { grid-template-columns: 1fr 1fr; }
+    .income-grid, .collab-layout { grid-template-columns: 1fr; }
+    .hero-visual { display: none; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    section { padding: 70px 5%; }
+    .features-grid { grid-template-columns: 1fr; }
+    .income-cards { grid-template-columns: 1fr 1fr; }
+    .income-card.featured { grid-column: span 2; }
+    .nav-links { display: none; }
+    .nav-links.open { display: flex; flex-direction: column; position: fixed; inset: 70px 0 0 0; background: rgba(8,8,8,0.97); backdrop-filter: blur(16px); padding: 32px 5%; gap: 24px; z-index: 99; }
+    .nav-links.open a { font-size: 22px; color: var(--text); }
+    .nav-hamburger { display: flex; }
+    .footer-top { grid-template-columns: 1fr; gap: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="navbar">
+  <a class="nav-logo" href="index.html">Few<span>sion</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="creators.html">For Creators</a></li>
+    <li><a href="brands.html">For Brands</a></li>
+    <li><a href="editors.html" class="active">For Editors</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="#page-cta" class="nav-cta">Join waitlist</a></li>
+  </ul>
+  <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<section class="page-hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Editor Portal · India's First</div>
+    <h1>Editors finally<br>get a <em>platform</em><br>of their own.</h1>
+    <p class="hero-sub">India's creator economy runs on video. But every editing tool, every marketplace, every job board treats editors like an afterthought. Fewsion is the first platform built for you.</p>
+    <div class="hero-btns">
+      <a href="#page-cta" class="btn-primary">Claim your editor profile →</a>
+      <a href="#how" class="btn-ghost">See how it works</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="editor-preview">
+      <div class="ep-header">
+        <div class="ep-avatar">VS</div>
+        <div>
+          <div class="ep-name">Vikram Sharma</div>
+          <div class="ep-role">Ad Video Editor · Short-Form</div>
+        </div>
+        <div class="ep-rating">
+          <div class="ep-rating-val">⭐ 4.9</div>
+        </div>
+      </div>
+      <div class="ep-reel-grid">
+        <div class="ep-reel">🎬</div>
+        <div class="ep-reel">📱</div>
+        <div class="ep-reel">🎯</div>
+      </div>
+      <div class="ep-skills">
+        <span class="ep-skill">Ad Edits</span>
+        <span class="ep-skill">Reels</span>
+        <span class="ep-skill">Motion Graphics</span>
+        <span class="ep-skill">Colour Grading</span>
+      </div>
+      <div class="ep-invite">
+        <div class="ep-invite-text">New Collab Request
+          <span>From Priya K. · Skincare Reel · ₹3,500</span>
+        </div>
+        <button class="ep-invite-btn">Accept →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="background:var(--deep);">
+  <div class="section-tag">Editor Portal</div>
+  <h2 class="section-title reveal">Built for the people<br>who <em>make the content</em></h2>
+  <p class="section-sub reveal reveal-delay-1">Stop being hired through someone else's connections. Build your own client base.</p>
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon">🎞️</div>
+      <h3>Dedicated Editor Portfolio</h3>
+      <p>Showcase your reels, ad edits, YouTube shorts, and motion graphics work in a portfolio purpose-built for video editors — not a generic freelance profile.</p>
+    </div>
+    <div class="feature-card reveal reveal-delay-1">
+      <div class="feature-icon">🏢</div>
+      <h3>Direct Brand Listings</h3>
+      <p>Brands post editing jobs directly on Fewsion. Apply for editing projects without needing a creator middleman — get hired on your own merit.</p>
+    </div>
+    <div class="feature-card reveal reveal-delay-2">
+      <div class="feature-icon">🤝</div>
+      <h3>Creator Collaboration Invites</h3>
+      <p>Creators building campaigns can invite you directly into their projects. You get briefed, collaborate in-platform, and deliver — no WhatsApp chains.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">⭐</div>
+      <h3>Performance Rating System</h3>
+      <p>Your rating builds with every project completed — based on delivery speed, revision rounds, and brand/creator satisfaction. Your reputation compounds.</p>
+    </div>
+    <div class="feature-card reveal reveal-delay-1">
+      <div class="feature-icon">🔒</div>
+      <h3>Escrow-Protected Payments</h3>
+      <p>Your editing fees are held in escrow and released upon approval. No chasing payments. No ghost clients. Every project is financially protected.</p>
+    </div>
+    <div class="feature-card reveal reveal-delay-2">
+      <div class="feature-icon">📋</div>
+      <h3>AI Contracts</h3>
+      <p>Auto-generated agreements for every project — revision limits, file ownership, payment terms, and delivery deadlines. One click, fully covered.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-tag">Your Journey</div>
+  <h2 class="section-title reveal">From profile to<br><em>consistent income</em></h2>
+  <p class="section-sub reveal reveal-delay-1">Three ways to get hired. All on one platform.</p>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>Build your editor portfolio</h3>
+        <p>Upload your best reels, ad edits, and short-form work. Tag your skills — motion graphics, colour grading, sound design. Set your rates and availability. Your profile goes live immediately.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>Get found three ways</h3>
+        <p>Brands browsing for editors discover you via search. Creators building campaigns send you direct collab invites. AI matching surfaces your profile to the most relevant opportunities automatically.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>Deliver, get paid, build your rating</h3>
+        <p>Work flows through Fewsion's in-platform collaboration tools. Deliver your edit, get approval, receive escrow payment within 24 hours. Every project builds your public rating.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INCOME -->
+<section id="income">
+  <div class="income-grid">
+    <div class="income-cards reveal">
+      <div class="income-card featured">
+        <div class="inc-label">Top Editor Monthly Earnings</div>
+        <div class="inc-val">₹60,000+</div>
+        <div class="inc-sub">For editors with a rating above 4.8 and fast turnaround</div>
+      </div>
+      <div class="income-card">
+        <div class="inc-label">Avg Editing Project</div>
+        <div class="inc-val">₹3,500</div>
+        <div class="inc-sub">UGC reel or ad video edit</div>
+      </div>
+      <div class="income-card">
+        <div class="inc-label">Payment SLA</div>
+        <div class="inc-val">&lt; 24h</div>
+        <div class="inc-sub">From approval to account</div>
+      </div>
+      <div class="income-card">
+        <div class="inc-label">Platform Fee</div>
+        <div class="inc-val">0%</div>
+        <div class="inc-sub">Editors keep everything</div>
+      </div>
+    </div>
+    <div class="income-text reveal reveal-delay-1">
+      <div class="section-tag">Earn Steadily</div>
+      <h2>Turn your editing skills<br>into <em>predictable income</em></h2>
+      <p>The Indian creator economy produces millions of videos a month. Every creator campaign needs an editor. Until now, you could only find that work through personal connections.</p>
+      <p>Fewsion opens the market to you directly — and pays you reliably.</p>
+      <ul class="check-list">
+        <li>Apply to brand editing jobs without a creator referral</li>
+        <li>Build long-term relationships with repeat creators</li>
+        <li>Higher rating = higher rates = more inbound work</li>
+        <li>Set your own availability and project limits</li>
+        <li>Escrow means every agreed fee is guaranteed</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- COLLAB EXPERIENCE -->
+<section id="collab">
+  <div class="collab-layout">
+    <div class="collab-ui reveal">
+      <h4>🎬 Project: "SPF Reel" <span style="background:var(--green-glow);border:1px solid rgba(74,222,128,0.2);color:var(--green);font-size:11px;padding:3px 10px;border-radius:50px;font-family:var(--font-display);font-weight:700">In Review</span></h4>
+      <div class="collab-msg">
+        <div class="collab-av" style="background:rgba(245,166,35,0.15);color:var(--amber)">PK</div>
+        <div class="collab-bubble">Hey! Brief is attached. Go for warm tones, show the glow on skin. 30s max. 2 revision rounds.</div>
+      </div>
+      <div class="collab-msg" style="flex-direction:row-reverse">
+        <div class="collab-av" style="background:var(--green-glow);color:var(--green)">VS</div>
+        <div class="collab-bubble editor">Got it! First cut ready — used a golden-hour grade. Let me know what you think.</div>
+      </div>
+      <div class="collab-file">
+        <div class="collab-file-icon">🎬</div>
+        <div>
+          <div class="collab-file-name">SPF_reel_v1.mp4</div>
+          <div class="collab-file-size">82 MB · 29s · 9:16</div>
+        </div>
+      </div>
+      <div class="collab-approved">✓ Content approved — payment released to editor</div>
+    </div>
+    <div class="collab-text reveal reveal-delay-1">
+      <div class="section-tag">In-Platform Collaboration</div>
+      <h2 class="section-title">Everything in one place.<br><em>No WhatsApp.</em></h2>
+      <p>The creator sends you a brief inside Fewsion. You deliver the edit inside Fewsion. They approve inside Fewsion. You get paid inside Fewsion.</p>
+      <p>No more scattered conversations across Instagram DMs, Google Drive folders, and payment apps. Every project is a single, clean thread.</p>
+      <ul class="check-list">
+        <li>Receive structured briefs, not voice notes</li>
+        <li>Deliver files directly in the project thread</li>
+        <li>Revision requests are tracked, not lost in chat</li>
+        <li>Approval triggers escrow release automatically</li>
+        <li>Full project history for your portfolio</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="page-cta">
+  <div class="section-tag" style="justify-content:center;display:flex;">Get Visible</div>
+  <h2>India's editors deserve<br>a <em>real marketplace.</em></h2>
+  <p>Join the waitlist and be among the first editors on Fewsion at launch. Early members get featured placement.</p>
+  <div class="cta-buttons">
+    <a href="#" class="btn-primary">Build my editor profile →</a>
+    <a href="pricing.html" class="btn-ghost">See pricing</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="logo">Few<span>sion</span></div>
+      <p>India's first performance-first creator marketplace. Connecting brands, creators, and editors — powered by AI.</p>
+    </div>
+    <div class="footer-col"><h5>Platform</h5><ul><li><a href="creators.html">For Creators</a></li><li><a href="brands.html">For Brands</a></li><li><a href="editors.html">For Editors</a></li><li><a href="pricing.html">Pricing</a></li></ul></div>
+    <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About</a></li><li><a href="#">Blog</a></li><li><a href="#">Careers</a></li><li><a href="#">Contact</a></li></ul></div>
+    <div class="footer-col"><h5>Legal</h5><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li><li><a href="#">Editor Agreement</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Fewsion. All rights reserved.</p>
+    <p class="made">Made with <span>♥</span> for Indian creators</p>
+  </div>
+</footer>
+
+<script>
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 20));
+  function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
+  document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open')));
+  const observer = new IntersectionObserver((entries) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }), { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

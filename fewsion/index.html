@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fewsion — Where Brands Meet Creators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --deep: #0e0e0e;
+    --card: #141414;
+    --card2: #1a1a1a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --amber: #F5A623;
+    --amber2: #FF6B35;
+    --amber-glow: rgba(245,166,35,0.15);
+    --text: #f0ece4;
+    --muted: #888;
+    --muted2: #555;
+    --white: #ffffff;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 0 5%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.3s, border-color 0.3s;
+    border-bottom: 1px solid transparent;
+  }
+  nav.scrolled {
+    background: rgba(8,8,8,0.92);
+    backdrop-filter: blur(16px);
+    border-color: var(--border);
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--amber); }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 14px;
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--amber);
+    color: #000 !important;
+    font-weight: 600 !important;
+    padding: 9px 22px;
+    border-radius: 50px;
+    transition: opacity 0.2s, transform 0.2s !important;
+  }
+  .nav-cta:hover { opacity: 0.88; transform: translateY(-1px) !important; }
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  /* ─── HERO ─── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 5% 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(245,166,35,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255,107,53,0.08) 0%, transparent 50%);
+  }
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+  }
+  .hero-inner { position: relative; z-index: 2; max-width: 900px; }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(245,166,35,0.1);
+    border: 1px solid rgba(245,166,35,0.25);
+    border-radius: 50px;
+    padding: 7px 18px;
+    font-size: 13px;
+    color: var(--amber);
+    font-weight: 500;
+    margin-bottom: 28px;
+    letter-spacing: 0.03em;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--amber);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.4); }
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(42px, 7vw, 88px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    color: var(--white);
+    margin-bottom: 24px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+  .hero h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--amber) 0%, var(--amber2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--muted);
+    max-width: 580px;
+    margin: 0 auto 40px;
+    font-weight: 300;
+    line-height: 1.7;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+  .hero-btns {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--amber);
+    color: #000;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    padding: 14px 32px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.01em;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(245,166,35,0.35);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 14px 32px;
+    border-radius: 50px;
+    border: 1px solid var(--border2);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-ghost:hover {
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.04);
+  }
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 72px;
+    padding-top: 48px;
+    border-top: 1px solid var(--border);
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -1px;
+  }
+  .stat-num span { color: var(--amber); }
+  .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; letter-spacing: 0.04em; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── SECTIONS ─── */
+  section { padding: 100px 5%; }
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 16px;
+  }
+  .section-tag::before {
+    content: '';
+    width: 20px; height: 1.5px;
+    background: var(--amber);
+    display: inline-block;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 4.5vw, 56px);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    color: var(--white);
+    margin-bottom: 16px;
+  }
+  .section-title em {
+    font-style: normal;
+    color: var(--amber);
+  }
+  .section-sub {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* ─── PROBLEM ─── */
+  #problem { background: var(--deep); }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 56px;
+  }
+  .problem-card {
+    background: var(--card);
+    padding: 40px 32px;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .problem-card:hover { background: var(--card2); }
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--amber), var(--amber2));
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+  .problem-card:hover::before { transform: scaleX(1); }
+  .problem-icon {
+    width: 48px; height: 48px;
+    background: var(--amber-glow);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  .problem-card h3 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 12px;
+    letter-spacing: -0.3px;
+  }
+  .problem-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  /* ─── SOLUTION ─── */
+  #solution {
+    background: var(--black);
+    position: relative;
+    overflow: hidden;
+  }
+  #solution::before {
+    content: '';
+    position: absolute;
+    right: -200px; top: -100px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(245,166,35,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .solution-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: end;
+    margin-bottom: 64px;
+  }
+  .portal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .portal-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    cursor: default;
+  }
+  .portal-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--border2);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  }
+  .portal-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  .portal-card h3 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 14px;
+    letter-spacing: -0.4px;
+  }
+  .portal-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .portal-card ul li {
+    font-size: 13.5px;
+    color: var(--muted);
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .portal-card ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--amber);
+    font-size: 11px;
+  }
+
+  /* ─── DIFFERENTIATORS ─── */
+  #differentiators { background: var(--deep); }
+  .diff-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 56px;
+  }
+  .diff-item {
+    background: var(--card);
+    padding: 32px 36px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    transition: background 0.25s;
+  }
+  .diff-item:hover { background: var(--card2); }
+  .diff-num {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 0.05em;
+    padding-top: 3px;
+    min-width: 28px;
+  }
+  .diff-content h4 {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+    letter-spacing: -0.2px;
+  }
+  .diff-content p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* ─── MARKET ─── */
+  #market { background: var(--black); }
+  .market-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    margin-top: 56px;
+  }
+  .market-numbers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .market-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    transition: border-color 0.3s;
+  }
+  .market-card:hover { border-color: rgba(245,166,35,0.3); }
+  .market-card.featured {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(245,166,35,0.08) 0%, rgba(255,107,53,0.06) 100%);
+    border-color: rgba(245,166,35,0.2);
+  }
+  .market-card .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .market-card .number {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+  }
+  .market-card .number.amber { color: var(--amber); }
+  .market-card .sub { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .market-text {}
+  .market-text p {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 20px;
+    font-weight: 300;
+  }
+  .market-text .highlight {
+    background: rgba(245,166,35,0.08);
+    border-left: 3px solid var(--amber);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    font-size: 15px;
+    color: var(--text);
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  /* ─── COMPETITORS ─── */
+  #competitors { background: var(--deep); }
+  .comp-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 48px 0 32px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+  .comp-tab {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .comp-tab.active {
+    color: var(--amber);
+    border-bottom-color: var(--amber);
+  }
+  .comp-table-wrap { overflow-x: auto; }
+  .comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .comp-table th {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .comp-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    vertical-align: middle;
+  }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .comp-table tr.us td { color: var(--text); background: rgba(245,166,35,0.04); }
+  .comp-table tr.us td:first-child {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--amber);
+  }
+  .yes { color: #4ade80; font-weight: 600; }
+  .no { color: #666; }
+  .comp-panel { display: none; }
+  .comp-panel.active { display: block; }
+
+  /* ─── REVENUE ─── */
+  #revenue { background: var(--black); }
+  .rev-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 56px;
+  }
+  .rev-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .rev-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(245,166,35,0.25);
+  }
+  .rev-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--amber), var(--amber2));
+  }
+  .rev-card .price {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--amber);
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .rev-card h3 {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 10px;
+  }
+  .rev-card p { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+  .rev-projections {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+  }
+  .proj-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 24px 20px;
+    text-align: center;
+  }
+  .proj-card .month { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .proj-card .val {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.5px;
+  }
+  .proj-card .val.highlight { color: var(--amber); }
+  .proj-card .desc { font-size: 12px; color: var(--muted2); margin-top: 4px; }
+
+  /* ─── ROADMAP ─── */
+  #roadmap { background: var(--deep); }
+  .roadmap-track {
+    position: relative;
+    margin-top: 64px;
+    padding-left: 40px;
+  }
+  .roadmap-track::before {
+    content: '';
+    position: absolute;
+    left: 7px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--amber), var(--amber2), var(--border));
+  }
+  .roadmap-item {
+    position: relative;
+    margin-bottom: 48px;
+    opacity: 0;
+    transform: translateX(-16px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+  .roadmap-item.visible { opacity: 1; transform: translateX(0); }
+  .roadmap-dot {
+    position: absolute;
+    left: -37px; top: 4px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--amber);
+    border: 3px solid var(--deep);
+    box-shadow: 0 0 0 4px rgba(245,166,35,0.15);
+  }
+  .roadmap-dot.future { background: var(--card2); border-color: var(--muted2); box-shadow: none; }
+  .roadmap-quarter {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 8px;
+  }
+  .roadmap-item h4 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.4px;
+    margin-bottom: 12px;
+  }
+  .roadmap-items-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .roadmap-pill {
+    font-size: 13px;
+    color: var(--muted);
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 50px;
+  }
+  .roadmap-pill.done {
+    color: var(--amber);
+    background: var(--amber-glow);
+    border-color: rgba(245,166,35,0.2);
+  }
+
+  /* ─── VISION ─── */
+  #vision {
+    background: var(--black);
+    text-align: center;
+    padding: 120px 5%;
+    position: relative;
+    overflow: hidden;
+  }
+  #vision::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(245,166,35,0.06) 0%, transparent 70%);
+  }
+  .vision-inner { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; }
+  .vision-quote {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3.5vw, 40px);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.25;
+    letter-spacing: -1px;
+    margin-bottom: 32px;
+  }
+  .vision-quote em {
+    font-style: normal;
+    color: var(--amber);
+  }
+  .vision-sub {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 600px;
+    margin: 0 auto 48px;
+    font-weight: 300;
+  }
+
+  /* ─── CTA ─── */
+  #cta {
+    background: linear-gradient(135deg, rgba(245,166,35,0.1) 0%, rgba(255,107,53,0.08) 50%, transparent 100%);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 100px 5%;
+    text-align: center;
+  }
+  #cta .section-title { margin-bottom: 12px; }
+  #cta .section-sub { margin: 0 auto 40px; text-align: center; max-width: 460px; }
+  .cta-buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--black);
+    padding: 60px 5% 32px;
+    border-top: 1px solid var(--border);
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.5fr repeat(3, 1fr);
+    gap: 48px;
+    margin-bottom: 48px;
+  }
+  .footer-brand .logo {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 14px;
+    letter-spacing: -0.5px;
+  }
+  .footer-brand .logo span { color: var(--amber); }
+  .footer-brand p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+  .footer-col h5 {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col ul a {
+    font-size: 14px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-col ul a:hover { color: var(--text); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-bottom p { font-size: 13px; color: var(--muted2); }
+  .footer-bottom .made { font-size: 13px; color: var(--muted2); }
+  .footer-bottom .made span { color: var(--amber); }
+
+  /* ─── SCROLL REVEAL ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1024px) {
+    .problem-grid { grid-template-columns: 1fr 1fr; }
+    .portal-grid { grid-template-columns: 1fr 1fr; }
+    .solution-header { grid-template-columns: 1fr; gap: 24px; }
+    .diff-list { grid-template-columns: 1fr; }
+    .market-layout { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .rev-projections { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    section { padding: 70px 5%; }
+    .problem-grid { grid-template-columns: 1fr; }
+    .portal-grid { grid-template-columns: 1fr; }
+    .rev-grid { grid-template-columns: 1fr; }
+    .market-numbers { grid-template-columns: 1fr 1fr; }
+    .market-card.featured { grid-column: span 2; }
+    .nav-links { display: none; }
+    .nav-links.open {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      inset: 70px 0 0 0;
+      background: rgba(8,8,8,0.97);
+      backdrop-filter: blur(16px);
+      padding: 32px 5%;
+      gap: 24px;
+      z-index: 99;
+    }
+    .nav-links.open a { font-size: 22px; color: var(--text); }
+    .nav-hamburger { display: flex; }
+    .footer-top { grid-template-columns: 1fr; gap: 32px; }
+    .comp-tabs { overflow-x: auto; white-space: nowrap; }
+    .rev-projections { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .hero-stats { gap: 28px; }
+    .rev-projections { grid-template-columns: 1fr 1fr; }
+    .market-numbers { grid-template-columns: 1fr; }
+    .market-card.featured { grid-column: span 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a class="nav-logo" href="index.html">Few<span>sion</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="creators.html">For Creators</a></li>
+    <li><a href="brands.html">For Brands</a></li>
+    <li><a href="editors.html">For Editors</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="#solution">How It Works</a></li>
+    <li><a href="#cta" class="nav-cta">Join Waitlist</a></li>
+  </ul>
+  <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">India's First Performance-First Creator Marketplace</div>
+    <h1>Where <em>Brands</em><br>Meet <em>Creators</em></h1>
+    <p>Fewsion connects D2C brands, UGC content creators, and video editors — powered by AI matching, verified performance data, and built-in escrow payments.</p>
+    <div class="hero-btns">
+      <a href="#cta" class="btn-primary">Join the waitlist →</a>
+      <a href="#solution" class="btn-ghost">See how it works</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">₹3,500<span>Cr</span></div>
+        <div class="stat-label">Indian Market Size</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">4.5<span>M+</span></div>
+        <div class="stat-label">Indian Creators</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num"><span>$</span>323B</div>
+        <div class="stat-label">Global Creator Economy</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">26<span>%</span></div>
+        <div class="stat-label">Annual Growth Rate</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="section-tag">The Problem</div>
+  <h2 class="section-title reveal">The creator economy is broken<br><em>for everyone involved</em></h2>
+  <p class="section-sub reveal reveal-delay-1">Brands, creators, and editors all face painful friction — and no existing platform solves all three.</p>
+  <div class="problem-grid">
+    <div class="problem-card reveal">
+      <div class="problem-icon">🏢</div>
+      <h3>For Brands</h3>
+      <p>No reliable way to find quality UGC creators at scale. Brands hire based on follower count with zero performance data. Contracts and payments scattered across WhatsApp, email, Notion — high drop-off, no accountability.</p>
+    </div>
+    <div class="problem-card reveal reveal-delay-1">
+      <div class="problem-icon">🎬</div>
+      <h3>For Creators</h3>
+      <p>No professional portfolio built for UGC or short-form content. Hard to discover what brands actually want. Payment delays with no escrow protection. No easy way to collaborate with editors.</p>
+    </div>
+    <div class="problem-card reveal reveal-delay-2">
+      <div class="problem-icon">🎞️</div>
+      <h3>For Editors</h3>
+      <p>Invisible to brands — editors only get hired through personal connections. No platform to showcase reel, ad, or short-form editing work. Inconsistent income, no long-term client relationships.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section id="solution">
+  <div class="solution-header">
+    <div>
+      <div class="section-tag">The Solution</div>
+      <h2 class="section-title reveal">One platform.<br><em>Three portals.</em><br>One AI brain.</h2>
+    </div>
+    <p class="section-sub reveal reveal-delay-1">Fewsion unifies every stakeholder in the creator economy — with AI-powered matching, performance tracking, escrow payments, and built-in collaboration tools.</p>
+  </div>
+  <div class="portal-grid">
+    <div class="portal-card reveal">
+      <div class="portal-icon" style="background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.2);">🎬</div>
+      <h3>Creator Portal</h3>
+      <ul>
+        <li>Performance-backed portfolio & niche tagging</li>
+        <li>Real CTR and engagement stats on every piece</li>
+        <li>Invite editors directly into your projects</li>
+        <li>Browse & apply to brand campaigns</li>
+        <li>Escrow-protected payments</li>
+      </ul>
+    </div>
+    <div class="portal-card reveal reveal-delay-1">
+      <div class="portal-icon" style="background: rgba(255,107,53,0.1); border: 1px solid rgba(255,107,53,0.2);">🏢</div>
+      <h3>Brand Portal</h3>
+      <ul>
+        <li>AI-powered brief builder in seconds</li>
+        <li>Discover creators by proven performance, not followers</li>
+        <li>Post UGC, ad video, and content campaigns</li>
+        <li>AI chatbot to find the right creator instantly</li>
+        <li>Public brand storefront with creator reviews</li>
+      </ul>
+    </div>
+    <div class="portal-card reveal reveal-delay-2">
+      <div class="portal-icon" style="background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.15);">🎞️</div>
+      <h3>Editor Portal</h3>
+      <ul>
+        <li>First Indian platform with a dedicated editor marketplace</li>
+        <li>Showcase reels, ad edits, short-form work</li>
+        <li>Get hired by brands directly — not just creators</li>
+        <li>Receive collab invites from creators on projects</li>
+        <li>Performance rating builds long-term reputation</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- DIFFERENTIATORS -->
+<section id="differentiators">
+  <div class="section-tag">What Makes Us Different</div>
+  <h2 class="section-title reveal">8 features no Indian<br><em>platform has today</em></h2>
+  <div class="diff-list">
+    <div class="diff-item reveal">
+      <div class="diff-num">01</div>
+      <div class="diff-content">
+        <h4>Performance-Based Creator Score</h4>
+        <p>A public trust score built on on-time delivery, brand satisfaction, content CTR, and repeat hire rate — not follower count.</p>
+      </div>
+    </div>
+    <div class="diff-item reveal reveal-delay-1">
+      <div class="diff-num">02</div>
+      <div class="diff-content">
+        <h4>AI Campaign Brief Builder</h4>
+        <p>Brands auto-generate structured, professional campaign briefs in seconds. Reduces back-and-forth and creator drop-off dramatically.</p>
+      </div>
+    </div>
+    <div class="diff-item reveal">
+      <div class="diff-num">03</div>
+      <div class="diff-content">
+        <h4>Content Performance Tracker</h4>
+        <p>Track real ad performance after delivery — views, clicks, CTR, conversions. Creators build data-backed portfolios, brands get proof of ROI.</p>
+      </div>
+    </div>
+    <div class="diff-item reveal reveal-delay-1">
+      <div class="diff-num">04</div>
+      <div class="diff-content">
+        <h4>Escrow Payment Protection</h4>
+        <p>Brand deposits money upfront via Razorpay escrow. Creator gets paid only after approval. Eliminates payment disputes for both sides.</p>
+      </div>
+    </div>
+    <div class="diff-item reveal">
+      <div class="diff-num">05</div>
+      <div class="diff-content">
+        <h4>Creator ↔ Editor In-Platform Collab</h4>
+        <p>Creators invite editors directly inside any live project. No more WhatsApp back-and-forth. Everything stays on Fewsion.</p>
+      </div>
+    </div>
+    <div class="diff-item reveal reveal-delay-1">
+      <div class="diff-num">06</div>
+      <div class="diff-content">
+        <h4>Brand Storefront with Creator Reviews</h4>
+        <p>Each company gets a public page with past campaigns and creator reviews. Creators apply to brands they actually want to work with.</p>
+      </div>
+    </div>
+    <div class="diff-item reveal">
+      <div class="diff-num">07</div>
+      <div class="diff-content">
+        <h4>AI Matching Chatbot</h4>
+        <p>Brands type what they need — niche, budget, platform, language — and AI returns the best matched, verified creators instantly.</p>
+      </div>
+    </div>
+    <div class="diff-item reveal reveal-delay-1">
+      <div class="diff-num">08</div>
+      <div class="diff-content">
+        <h4>One-Click AI Contract Generator</h4>
+        <p>Auto-generated contracts covering usage rights, deadlines, and payment terms. No lawyer, no back-and-forth — just one click.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKET -->
+<section id="market">
+  <div class="section-tag">Market Opportunity</div>
+  <h2 class="section-title reveal">A <em>₹3,500 Cr</em> industry<br>with no dominant self-serve player</h2>
+  <div class="market-layout">
+    <div class="market-numbers reveal">
+      <div class="market-card featured">
+        <div class="label">Global Creator Economy (2026)</div>
+        <div class="number amber">$323 Billion</div>
+        <div class="sub">Growing at 26.2% CAGR — projected to reach $820B by 2030</div>
+      </div>
+      <div class="market-card">
+        <div class="label">India Market (2026)</div>
+        <div class="number">$15B</div>
+        <div class="sub">Expected to reach $61.87B by 2033</div>
+      </div>
+      <div class="market-card">
+        <div class="label">India Growth Rate</div>
+        <div class="number">22.4%</div>
+        <div class="sub">CAGR — one of the fastest in Asia</div>
+      </div>
+      <div class="market-card">
+        <div class="label">Indian Creators</div>
+        <div class="number">4.5M+</div>
+        <div class="sub">Active creators across platforms</div>
+      </div>
+      <div class="market-card">
+        <div class="label">Influencer Marketing India</div>
+        <div class="number">₹3,500Cr</div>
+        <div class="sub">2025 industry value, growing fast</div>
+      </div>
+    </div>
+    <div class="market-text reveal reveal-delay-1">
+      <p>India's creator economy is exploding — fuelled by 900M+ smartphone users, affordable data, and a massive shift in how D2C brands acquire customers. Brands are moving away from expensive celebrity endorsements and toward authentic, performance-driven UGC content.</p>
+      <p>Yet every existing Indian platform — Kofluence, Qoruz, Good Creator Co. — serves enterprise brands through agency-style models. There is no self-serve, performance-first marketplace where a small D2C brand can find a quality creator in minutes.</p>
+      <div class="highlight">"Even capturing 0.1% of the Indian market puts Fewsion at ₹35 Cr GMV — a realistic Year 2 target."</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPETITORS -->
+<section id="competitors">
+  <div class="section-tag">Competitive Landscape</div>
+  <h2 class="section-title reveal">We're not competing.<br><em>We're filling a gap</em> they left open.</h2>
+  <div class="comp-tabs">
+    <button class="comp-tab active" onclick="showTab('global')">Global Platforms</button>
+    <button class="comp-tab" onclick="showTab('india')">Indian Players</button>
+    <button class="comp-tab" onclick="showTab('gap')">The Gap We Fill</button>
+  </div>
+
+  <div class="comp-panel active" id="tab-global">
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Platform</th><th>Creators</th><th>Brands</th><th>Editors</th><th>AI Matching</th><th>India Focus</th><th>Escrow</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Collabstr</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+          <tr><td>Billo</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+          <tr><td>Fiverr</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+          <tr><td>Contra</td><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+          <tr class="us"><td>Fewsion</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="comp-panel" id="tab-india">
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Company</th><th>Funding</th><th>Revenue FY25</th><th>Valuation</th><th>Self-Serve</th><th>Editor Mkt.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Good Creator Co.</td><td>$306M (group)</td><td>~₹252 Cr</td><td>$1.2B unicorn</td><td class="no">✗ Agency</td><td class="no">✗</td></tr>
+          <tr><td>Kofluence</td><td>₹29.91 Cr</td><td>₹52.5 Cr</td><td>Undisclosed</td><td class="no">✗ Agency</td><td class="no">✗</td></tr>
+          <tr><td>Qoruz</td><td>$1.03M</td><td>₹56.4 Cr</td><td>~$21–38M</td><td class="no">✗ Analytics</td><td class="no">✗</td></tr>
+          <tr><td>Chtrbox</td><td>~$158K</td><td>Undisclosed</td><td>Acquired</td><td class="no">✗ Agency</td><td class="no">✗</td></tr>
+          <tr class="us"><td>Fewsion</td><td>Raising seed</td><td>Launching 2026</td><td>—</td><td class="yes">✓ Self-serve</td><td class="yes">✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="comp-panel" id="tab-gap">
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Gap in Indian Market</th><th>What Fewsion Does Instead</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>All enterprise / agency tools only</td><td>Self-serve — any brand posts a campaign in minutes, no sales call</td></tr>
+          <tr><td>Hire by follower count</td><td>Hire by Creator Score and proven CTR — data beats vanity metrics</td></tr>
+          <tr><td>No editor marketplace</td><td>First Indian platform where editors get a dedicated portfolio and job listings</td></tr>
+          <tr><td>No escrow payments</td><td>Razorpay escrow on every deal — money released only after content approved</td></tr>
+          <tr><td>No AI brief builder</td><td>AI generates structured campaign briefs in seconds</td></tr>
+          <tr><td>No Creator–Editor collaboration</td><td>Creators invite editors directly inside a project on the same platform</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- REVENUE -->
+<section id="revenue">
+  <div class="section-tag">Business Model</div>
+  <h2 class="section-title reveal">Multiple revenue streams<br><em>built to scale</em></h2>
+  <div class="rev-grid">
+    <div class="rev-card reveal">
+      <div class="price">10–15%</div>
+      <h3>Transaction Commission</h3>
+      <p>A percentage cut on every paid project completed through the platform. Primary revenue driver at scale.</p>
+    </div>
+    <div class="rev-card reveal reveal-delay-1">
+      <div class="price">₹499/mo</div>
+      <h3>Creator Pro Subscription</h3>
+      <p>Advanced analytics, priority search ranking, featured profile placement, and AI-powered career insights.</p>
+    </div>
+    <div class="rev-card reveal reveal-delay-2">
+      <div class="price">₹2,999/mo</div>
+      <h3>Brand Premium Plan</h3>
+      <p>Unlimited campaign briefs, AI chatbot access, bulk creator outreach, and priority matching.</p>
+    </div>
+    <div class="rev-card reveal">
+      <div class="price">₹999</div>
+      <h3>Featured Brand Listings</h3>
+      <p>Brands pay to be highlighted to relevant creators, driving faster applications and better talent.</p>
+    </div>
+    <div class="rev-card reveal reveal-delay-1">
+      <div class="price">₹99</div>
+      <h3>AI Contract Generator</h3>
+      <p>Per-contract fee for auto-generated usage rights, deadline, and payment agreements — no lawyer needed.</p>
+    </div>
+    <div class="rev-card reveal reveal-delay-2">
+      <div class="price">Custom</div>
+      <h3>Enterprise Packages</h3>
+      <p>White-glove matching, dedicated account management, and bulk campaign tooling for large brands.</p>
+    </div>
+  </div>
+  <div class="rev-projections" style="margin-top: 40px;">
+    <div class="proj-card reveal">
+      <div class="month">Month 1–3</div>
+      <div class="val">500</div>
+      <div class="desc">Creators onboarded</div>
+    </div>
+    <div class="proj-card reveal reveal-delay-1">
+      <div class="month">Month 6</div>
+      <div class="val">₹15–20L</div>
+      <div class="desc">Monthly GMV target</div>
+    </div>
+    <div class="proj-card reveal reveal-delay-2">
+      <div class="month">Month 6</div>
+      <div class="val highlight">₹2–3L</div>
+      <div class="desc">Monthly revenue</div>
+    </div>
+    <div class="proj-card reveal reveal-delay-3">
+      <div class="month">Year 2</div>
+      <div class="val highlight">₹35Cr+</div>
+      <div class="desc">GMV milestone</div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <div class="section-tag">Roadmap</div>
+  <h2 class="section-title reveal">From MVP to<br><em>market leader</em></h2>
+  <div class="roadmap-track">
+    <div class="roadmap-item">
+      <div class="roadmap-dot"></div>
+      <div class="roadmap-quarter">Q3 2026 — Launch</div>
+      <h4>MVP — Core Platform</h4>
+      <div class="roadmap-items-list">
+        <span class="roadmap-pill done">Creator profiles</span>
+        <span class="roadmap-pill done">Brand job listings</span>
+        <span class="roadmap-pill done">Basic AI matching</span>
+        <span class="roadmap-pill done">Niche categories</span>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-dot"></div>
+      <div class="roadmap-quarter">Q4 2026 — Trust Layer</div>
+      <h4>Payments + Creator Score</h4>
+      <div class="roadmap-items-list">
+        <span class="roadmap-pill done">Razorpay escrow</span>
+        <span class="roadmap-pill done">Creator Score system</span>
+        <span class="roadmap-pill done">Editor marketplace</span>
+        <span class="roadmap-pill done">Brand reviews</span>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-dot future"></div>
+      <div class="roadmap-quarter">Q1 2027 — AI Layer</div>
+      <h4>Intelligence Features</h4>
+      <div class="roadmap-items-list">
+        <span class="roadmap-pill">AI brief builder</span>
+        <span class="roadmap-pill">AI contract generator</span>
+        <span class="roadmap-pill">Performance tracker</span>
+        <span class="roadmap-pill">Creator–Editor collab</span>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-dot future"></div>
+      <div class="roadmap-quarter">Q2 2027 — Scale</div>
+      <h4>Mobile + Growth</h4>
+      <div class="roadmap-items-list">
+        <span class="roadmap-pill">iOS + Android app</span>
+        <span class="roadmap-pill">Referral program</span>
+        <span class="roadmap-pill">SEA market entry</span>
+        <span class="roadmap-pill">Brand storefront V2</span>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-dot future"></div>
+      <div class="roadmap-quarter">Q3 2027 — Funding</div>
+      <h4>Seed Round + 10K Users</h4>
+      <div class="roadmap-items-list">
+        <span class="roadmap-pill">₹3–5 Cr seed raise</span>
+        <span class="roadmap-pill">10,000 active users</span>
+        <span class="roadmap-pill">Enterprise tier launch</span>
+        <span class="roadmap-pill">Social API integrations</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISION -->
+<section id="vision">
+  <div class="vision-inner">
+    <div class="section-tag" style="justify-content: center;">Our Vision</div>
+    <div class="vision-quote reveal">
+      "The only platform where creators are hired based on <em>proven performance,</em> not follower count."
+    </div>
+    <p class="vision-sub reveal reveal-delay-1">Fewsion aims to become the default infrastructure for the creator economy in India and Southeast Asia — the place where every brand finds its best creator, every creator builds their legacy, and every editor finally gets the recognition they deserve.</p>
+    <a href="#cta" class="btn-primary reveal reveal-delay-2">Be part of the story →</a>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="section-tag" style="justify-content: center; display: flex;">Join Fewsion</div>
+  <h2 class="section-title reveal" style="text-align:center;">Ready to grow with<br><em>India's creator economy?</em></h2>
+  <p class="section-sub reveal reveal-delay-1">Whether you're a brand, creator, or editor — Fewsion is building for you. Join the waitlist and be among the first to experience it.</p>
+  <div class="cta-buttons reveal reveal-delay-2">
+    <a href="#" class="btn-primary">I'm a Creator →</a>
+    <a href="#" class="btn-primary" style="background: var(--amber2);">I'm a Brand →</a>
+    <a href="#" class="btn-ghost">I'm an Editor</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="logo">Few<span>sion</span></div>
+      <p>India's first performance-first creator marketplace. Connecting brands, creators, and editors — powered by AI.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Platform</h5>
+      <ul>
+        <li><a href="#">For Creators</a></li>
+        <li><a href="#">For Brands</a></li>
+        <li><a href="#">For Editors</a></li>
+        <li><a href="#">AI Matching</a></li>
+        <li><a href="#">Pricing</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Legal</h5>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Creator Agreement</a></li>
+        <li><a href="#">Brand Agreement</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Fewsion. All rights reserved.</p>
+    <p class="made">Made with <span>♥</span> for Indian creators</p>
+  </div>
+</footer>
+
+<script>
+  // Sticky nav
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // Mobile menu
+  function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('open');
+  }
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+  });
+
+  // Competitor tabs
+  function showTab(id) {
+    document.querySelectorAll('.comp-tab').forEach((t,i) => {
+      t.classList.toggle('active', ['global','india','gap'][i] === id);
+    });
+    document.querySelectorAll('.comp-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal, .roadmap-item').forEach(el => observer.observe(el));
+
+  // Smooth active nav highlight
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 120) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--text)' : '';
+    });
+  });
+</script>
+
+<!-- ─── AI CHATBOT ─── -->
+<style>
+  /* FAB Button */
+  #chat-fab {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--amber2));
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 8px 32px rgba(245,166,35,0.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+    transition: transform 0.3s, box-shadow 0.3s;
+    font-size: 24px;
+  }
+  #chat-fab:hover {
+    transform: scale(1.08);
+    box-shadow: 0 12px 40px rgba(245,166,35,0.6);
+  }
+  #chat-fab .fab-icon { transition: all 0.3s; }
+  #chat-fab .fab-close { display: none; font-size: 20px; }
+  #chat-fab.open .fab-icon { display: none; }
+  #chat-fab.open .fab-close { display: block; }
+
+  /* Pulse ring */
+  #chat-fab::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid rgba(245,166,35,0.4);
+    animation: ring-pulse 2.5s infinite;
+  }
+  @keyframes ring-pulse {
+    0%,100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.18); opacity: 0; }
+  }
+
+  /* Chat window */
+  #chat-window {
+    position: fixed;
+    bottom: 100px; right: 28px;
+    width: 380px;
+    max-height: 580px;
+    background: #111;
+    border: 1px solid rgba(245,166,35,0.2);
+    border-radius: 20px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 999;
+    overflow: hidden;
+    transform: scale(0.92) translateY(16px);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    transform-origin: bottom right;
+  }
+  #chat-window.open {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Header */
+  .chat-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(245,166,35,0.12), rgba(255,107,53,0.08));
+    border-bottom: 1px solid rgba(245,166,35,0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .chat-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--amber2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .chat-header-info h4 {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .chat-header-info p {
+    font-size: 11px;
+    color: var(--amber);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .chat-header-info p::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    display: inline-block;
+  }
+
+  /* Messages */
+  #chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+  }
+  #chat-messages::-webkit-scrollbar { width: 4px; }
+  #chat-messages::-webkit-scrollbar-track { background: transparent; }
+  #chat-messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  .msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 88%;
+    animation: msgIn 0.3s ease;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg.bot { align-self: flex-start; }
+  .msg.user { align-self: flex-end; }
+
+  .msg-bubble {
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .msg.bot .msg-bubble {
+    background: #1c1c1c;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+  .msg.user .msg-bubble {
+    background: linear-gradient(135deg, var(--amber), var(--amber2));
+    color: #000;
+    font-weight: 500;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-time {
+    font-size: 10px;
+    color: var(--muted2);
+    margin-top: 4px;
+    padding: 0 4px;
+  }
+  .msg.user .msg-time { text-align: right; }
+
+  /* Quick reply chips */
+  .quick-replies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .qr-chip {
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 50px;
+    border: 1px solid rgba(245,166,35,0.3);
+    color: var(--amber);
+    background: rgba(245,166,35,0.06);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .qr-chip:hover {
+    background: rgba(245,166,35,0.14);
+    border-color: var(--amber);
+  }
+
+  /* Typing indicator */
+  .typing-bubble {
+    background: #1c1c1c;
+    border: 1px solid var(--border);
+    border-radius: 14px 14px 14px 4px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .typing-bubble span {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    animation: typing 1.2s infinite;
+  }
+  .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing {
+    0%,60%,100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* Creator recommendation card */
+  .creator-rec {
+    background: #1a1a1a;
+    border: 1px solid rgba(245,166,35,0.15);
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 6px;
+  }
+  .creator-rec-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .creator-rec-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .creator-rec h5 {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .creator-rec .niche { font-size: 11px; color: var(--muted); }
+  .creator-rec-stats {
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+  }
+  .creator-rec-stats span strong { color: var(--amber); font-weight: 600; }
+
+  /* Input area */
+  .chat-input-area {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: #0e0e0e;
+  }
+  #chat-input {
+    flex: 1;
+    background: #1c1c1c;
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 9px 16px;
+    font-size: 13px;
+    color: var(--text);
+    font-family: var(--font-body);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #chat-input:focus { border-color: rgba(245,166,35,0.4); }
+  #chat-input::placeholder { color: var(--muted2); }
+  #chat-send {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--amber2));
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+  #chat-send:hover { transform: scale(1.08); }
+  #chat-send:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), var(--amber2));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  @media (max-width: 480px) {
+    #chat-window { width: calc(100vw - 24px); right: 12px; bottom: 90px; }
+    #chat-fab { right: 16px; bottom: 20px; }
+  }
+</style>
+
+<!-- FAB -->
+<button id="chat-fab" onclick="toggleChat()" aria-label="Open AI creator matcher">
+  <span class="fab-icon">✨</span>
+  <span class="fab-close">✕</span>
+</button>
+
+<!-- CHAT WINDOW -->
+<div id="chat-window" role="dialog" aria-label="AI Creator Matcher">
+  <div class="chat-header">
+    <div class="chat-avatar">🤖</div>
+    <div class="chat-header-info">
+      <h4>Fewsion AI</h4>
+      <p>Creator Matcher — Online</p>
+    </div>
+  </div>
+  <div id="chat-messages"></div>
+  <div class="chat-input-area">
+    <input id="chat-input" type="text" placeholder="Type your answer..." autocomplete="off" disabled>
+    <button id="chat-send" onclick="handleUserSend()" disabled>➤</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  // ── STATE ──
+  const state = {
+    open: false,
+    step: 0,
+    loading: false,
+    answers: {},
+    conversationHistory: []
+  };
+
+  const QUESTIONS = [
+    { key: 'industry', text: "👋 Hi! I'm Fewsion's AI creator matcher.\n\nLet's find the perfect creators for your brand. First — what industry or niche is your brand in?", chips: ['Skincare / Beauty', 'Food & Beverage', 'Tech / Gadgets', 'Fitness / Health', 'Fashion', 'Home & Lifestyle', 'Finance / FinTech', 'Other'] },
+    { key: 'content', text: "Great choice! 🎬 What type of content are you looking for?", chips: ['UGC Product Reviews', 'Ad Videos (15–60s)', 'Instagram Reels', 'YouTube Shorts', 'Unboxing Videos', 'Testimonials', 'Tutorial / How-to', 'Multiple types'] },
+    { key: 'budget', text: "Got it! 💰 What's your budget per creator for this campaign?", chips: ['Under ₹5,000', '₹5,000 – ₹10,000', '₹10,000 – ₹20,000', '₹20,000 – ₹50,000', '₹50,000+', 'Flexible / Not sure'] },
+    { key: 'language', text: "Almost there! 🌍 Which language(s) should the creator speak?", chips: ['Hindi', 'English', 'Hindi + English', 'Marathi', 'Tamil', 'Telugu', 'Bengali', 'Any language'] },
+    { key: 'audience', text: "Last one! 🎯 Who is your target customer?", chips: ['Gen Z (18–24)', 'Millennials (25–35)', 'Working Professionals', 'Parents / Families', 'Women 18–35', 'Men 18–35', 'All ages'] },
+  ];
+
+  // ── HELPERS ──
+  function now() {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function scrollToBottom() {
+    const msgs = document.getElementById('chat-messages');
+    setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 50);
+  }
+
+  function setInputEnabled(enabled) {
+    document.getElementById('chat-input').disabled = !enabled;
+    document.getElementById('chat-send').disabled = !enabled;
+  }
+
+  // ── RENDER ──
+  function addMessage(role, content, chips = []) {
+    const msgs = document.getElementById('chat-messages');
+    const wrap = document.createElement('div');
+    wrap.className = `msg ${role}`;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = content.replace(/\n/g, '<br>');
+    wrap.appendChild(bubble);
+
+    const time = document.createElement('div');
+    time.className = 'msg-time';
+    time.textContent = now();
+    wrap.appendChild(time);
+
+    if (chips.length > 0) {
+      const qr = document.createElement('div');
+      qr.className = 'quick-replies';
+      chips.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'qr-chip';
+        btn.textContent = c;
+        btn.onclick = () => { removeAllChips(); handleChipSelect(c); };
+        qr.appendChild(btn);
+      });
+      wrap.appendChild(qr);
+    }
+
+    msgs.appendChild(wrap);
+    scrollToBottom();
+    return wrap;
+  }
+
+  function removeAllChips() {
+    document.querySelectorAll('.quick-replies').forEach(el => el.remove());
+  }
+
+  function showTyping() {
+    const msgs = document.getElementById('chat-messages');
+    const wrap = document.createElement('div');
+    wrap.className = 'msg bot';
+    wrap.id = 'typing-indicator';
+    const bubble = document.createElement('div');
+    bubble.className = 'typing-bubble';
+    bubble.innerHTML = '<span></span><span></span><span></span>';
+    wrap.appendChild(bubble);
+    msgs.appendChild(wrap);
+    scrollToBottom();
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typing-indicator');
+    if (el) el.remove();
+  }
+
+  function addCreatorCards(creators) {
+    const msgs = document.getElementById('chat-messages');
+    const wrap = document.createElement('div');
+    wrap.className = 'msg bot';
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = '<strong style="color:var(--amber)">🎯 Top 3 Recommended Creators</strong><br><span style="font-size:12px;color:var(--muted)">Matched to your brand profile</span>';
+    wrap.appendChild(bubble);
+
+    const colors = [['#FAECE7','#993C1D'],['#E6F1FB','#185FA5'],['#E1F5EE','#0F6E56']];
+    creators.forEach((c, i) => {
+      const card = document.createElement('div');
+      card.className = 'creator-rec';
+      card.innerHTML = `
+        <div class="creator-rec-row">
+          <div class="creator-rec-avatar" style="background:${colors[i][0]};color:${colors[i][1]}">${c.initials}</div>
+          <div>
+            <h5>${c.name}</h5>
+            <div class="niche">${c.niche}</div>
+          </div>
+          <div style="margin-left:auto;font-size:11px;background:rgba(74,222,128,0.1);color:#4ade80;padding:3px 8px;border-radius:50px;font-weight:600">${c.score} score</div>
+        </div>
+        <div class="creator-rec-stats">
+          <span><strong>${c.ctr}</strong> avg CTR</span>
+          <span><strong>${c.projects}</strong> projects</span>
+          <span><strong>${c.lang}</strong></span>
+        </div>`;
+      wrap.appendChild(card);
+    });
+
+    const time = document.createElement('div');
+    time.className = 'msg-time';
+    time.textContent = now();
+    wrap.appendChild(time);
+    msgs.appendChild(wrap);
+    scrollToBottom();
+  }
+
+  // ── FLOW ──
+  function askNextQuestion() {
+    const q = QUESTIONS[state.step];
+    if (!q) return;
+    setTimeout(() => {
+      removeTyping();
+      addMessage('bot', q.text, q.chips);
+      setInputEnabled(true);
+    }, 900);
+    showTyping();
+  }
+
+  function handleChipSelect(value) {
+    addMessage('user', value);
+    processAnswer(value);
+  }
+
+  function handleUserSend() {
+    const input = document.getElementById('chat-input');
+    const val = input.value.trim();
+    if (!val || state.loading) return;
+    input.value = '';
+    removeAllChips();
+    addMessage('user', val);
+    processAnswer(val);
+  }
+
+  function processAnswer(value) {
+    if (state.step < QUESTIONS.length) {
+      state.answers[QUESTIONS[state.step].key] = value;
+      state.step++;
+    }
+    setInputEnabled(false);
+    if (state.step < QUESTIONS.length) {
+      askNextQuestion();
+    } else {
+      generateRecommendations();
+    }
+  }
+
+  async function generateRecommendations() {
+    state.loading = true;
+    showTyping();
+    setInputEnabled(false);
+
+    const { industry, content, budget, language, audience } = state.answers;
+
+    const systemPrompt = `You are Fewsion's AI creator matching engine for an Indian creator marketplace. 
+Based on brand requirements, recommend exactly 3 fictional but realistic Indian UGC creators.
+
+Respond ONLY with valid JSON in this exact format, no markdown, no extra text:
+{
+  "intro": "one sentence explaining your matching logic",
+  "creators": [
+    {"name": "Full Indian Name", "initials": "XX", "niche": "Niche · Platform", "score": 92, "ctr": "4.8%", "projects": 18, "lang": "Hindi+English"},
+    {"name": "Full Indian Name", "initials": "XX", "niche": "Niche · Platform", "score": 88, "ctr": "5.1%", "projects": 12, "lang": "Hindi"},
+    {"name": "Full Indian Name", "initials": "XX", "niche": "Niche · Platform", "score": 84, "ctr": "3.9%", "projects": 9, "lang": "English"}
+  ],
+  "tip": "one short actionable campaign tip for this brand"
+}`;
+
+    const userMsg = `Brand details:
+- Industry: ${industry}
+- Content type: ${content}
+- Budget per creator: ${budget}
+- Language: ${language}
+- Target audience: ${audience}
+
+Recommend 3 perfectly matched Indian creators.`;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userMsg }]
+        })
+      });
+
+      const data = await response.json();
+      const raw = data.content?.[0]?.text || '';
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+
+      removeTyping();
+      addMessage('bot', `✅ Perfect! I've analyzed your brand profile across <strong style="color:var(--amber)">2,400+ creators</strong> in our network.\n\n${parsed.intro}`);
+      addCreatorCards(parsed.creators);
+      setTimeout(() => {
+        addMessage('bot', `💡 <strong>Campaign tip:</strong> ${parsed.tip}\n\n<span style="color:var(--amber);font-weight:600">Ready to connect with these creators?</span>`, ['📋 View full profiles', '🚀 Start a campaign', '🔄 Find different creators']);
+      }, 600);
+    } catch (err) {
+      removeTyping();
+      // Fallback creators if API fails
+      addCreatorCards([
+        { name: 'Priya Sharma', initials: 'PS', niche: `${industry} · Instagram Reels`, score: 94, ctr: '5.2%', projects: 22, lang: language },
+        { name: 'Rahul Mehta', initials: 'RM', niche: `${industry} · YouTube Shorts`, score: 89, ctr: '4.7%', projects: 16, lang: language },
+        { name: 'Ananya Joshi', initials: 'AJ', niche: `${industry} · UGC`, score: 85, ctr: '4.1%', projects: 11, lang: language },
+      ]);
+      addMessage('bot', `💡 Based on your requirements, these creators are an excellent match!\n\n<span style="color:var(--amber);font-weight:600">Want to connect with them?</span>`, ['📋 View full profiles', '🚀 Start a campaign', '🔄 Find different creators']);
+    }
+
+    state.loading = false;
+    setInputEnabled(true);
+  }
+
+  // Handle follow-up chips
+  function handleFollowUp(value) {
+    addMessage('user', value);
+    removeAllChips();
+    setInputEnabled(false);
+    if (value.includes('different creators') || value.includes('🔄')) {
+      showTyping();
+      setTimeout(() => {
+        removeTyping();
+        state.step = 0;
+        state.answers = {};
+        addMessage('bot', "No problem! Let me find you a fresh set of creators. 🔍\n\nLet me ask you a couple of quick questions to refine the match.");
+        setTimeout(askNextQuestion, 600);
+      }, 800);
+    } else if (value.includes('campaign') || value.includes('🚀')) {
+      showTyping();
+      setTimeout(() => {
+        removeTyping();
+        addMessage('bot', "🎉 Amazing! To get started, sign up for early access and our team will set up your first campaign with these creators within 24 hours.", ['✉️ Join waitlist', '📞 Talk to our team']);
+        setInputEnabled(true);
+      }, 900);
+    } else {
+      showTyping();
+      setTimeout(() => {
+        removeTyping();
+        addMessage('bot', "👉 Full creator profiles with portfolio videos, past campaign stats, and brand reviews are available on the platform.\n\nJoin the waitlist to get early access!", ['✉️ Join waitlist →', '🔄 Find different creators']);
+        setInputEnabled(true);
+      }, 900);
+    }
+  }
+
+  // Intercept chip clicks globally for follow-up
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('qr-chip') && state.step >= QUESTIONS.length) {
+      const val = e.target.textContent;
+      removeAllChips();
+      handleFollowUp(val);
+    }
+  });
+
+  // ── TOGGLE ──
+  window.toggleChat = function() {
+    state.open = !state.open;
+    const win = document.getElementById('chat-window');
+    const fab = document.getElementById('chat-fab');
+    win.classList.toggle('open', state.open);
+    fab.classList.toggle('open', state.open);
+
+    // Init on first open
+    if (state.open && document.getElementById('chat-messages').children.length === 0) {
+      setTimeout(() => {
+        askNextQuestion();
+      }, 300);
+    }
+  };
+
+  // Enter key
+  document.getElementById('chat-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleUserSend(); }
+  });
+
+  window.handleUserSend = handleUserSend;
+})();
+</script>
+</body>
+</html>

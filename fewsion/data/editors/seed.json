@@ -1,0 +1,46 @@
+{
+  "_schema": {
+    "version": "1.0.0",
+    "description": "Seed editor data for development and demo UI."
+  },
+  "editors": [
+    {
+      "id":          "editor_vikram-sharma",
+      "displayName": "Vikram Sharma",
+      "initials":    "VS",
+      "skills":      ["Ad Edits", "Reels", "Motion Graphics", "Colour Grading"],
+      "tools":       ["Premiere Pro", "After Effects", "DaVinci Resolve"],
+      "location":    "Delhi, NCR",
+      "rating":      4.9,
+      "turnaround":  "24–48h",
+      "projectCount": 47,
+      "totalEarned": 175000,
+      "rateCard": {
+        "reel_basic":    2500,
+        "reel_motion":   4500,
+        "ad_edit":       3500,
+        "youtube_short": 2000
+      },
+      "status": "active"
+    },
+    {
+      "id":          "editor_preet-kaur",
+      "displayName": "Preet Kaur",
+      "initials":    "PK",
+      "skills":      ["Short-form", "Subtitles", "Sound Design", "Transitions"],
+      "tools":       ["CapCut Pro", "Premiere Pro", "Audition"],
+      "location":    "Chandigarh, Punjab",
+      "rating":      4.7,
+      "turnaround":  "24h",
+      "projectCount": 62,
+      "totalEarned": 155000,
+      "rateCard": {
+        "reel_basic":    1800,
+        "reel_motion":   3200,
+        "ad_edit":       2800,
+        "youtube_short": 1500
+      },
+      "status": "active"
+    }
+  ]
+}

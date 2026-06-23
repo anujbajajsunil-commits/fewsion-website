@@ -1,0 +1,32 @@
+{
+  "name": "fewsion-website",
+  "version": "1.0.0",
+  "description": "Fewsion — India's first performance-first creator marketplace. Marketing website.",
+  "private": true,
+  "homepage": "https://fewsion.in",
+  "repository": {
+    "type": "git",
+    "url":  "https://github.com/YOUR_USERNAME/fewsion-website.git"
+  },
+  "scripts": {
+    "dev":      "npx serve . -p 3000 --no-clipboard",
+    "lint:html": "html-validate '*.html' --config .htmlvalidate.json",
+    "lint:json": "node scripts/validate-json.js",
+    "validate": "npm run lint:html && npm run lint:json",
+    "preview":  "npx serve . -p 5000",
+    "seed:export": "node scripts/export-seed.js"
+  },
+  "devDependencies": {
+    "html-validate": "^8.0.0",
+    "serve":         "^14.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "fewsion", "creator-economy", "india", "ugc", "marketplace",
+    "influencer-marketing", "static-site"
+  ],
+  "author": "Fewsion Team",
+  "license": "UNLICENSED"
+}

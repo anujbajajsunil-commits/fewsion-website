@@ -1,0 +1,104 @@
+{
+  "_schema": {
+    "version": "1.0.0",
+    "description": "Seed creator data for development. Used in demo UI and AI matching prototypes.",
+    "fields": {
+      "id":           "string — creator_{slug}",
+      "displayName":  "string",
+      "initials":     "string — 2 chars for avatar fallback",
+      "niche":        "string[]",
+      "platforms":    "string[]",
+      "languages":    "string[]",
+      "location":     "string — city, state",
+      "score":        "number — 0–100, Fewsion Creator Score",
+      "metrics": {
+        "avgCtr":        "number — percent",
+        "deliveryRate":  "number — percent",
+        "satisfaction":  "number — 0–5",
+        "repeatHireRate":"number — percent",
+        "projectCount":  "number",
+        "totalEarned":   "number — INR"
+      },
+      "tags":         "string[]",
+      "rateCard":     "object — contentType: INR",
+      "status":       "enum: active | inactive | paused"
+    }
+  },
+  "creators": [
+    {
+      "id":          "creator_riya-kapoor",
+      "displayName": "Riya Kapoor",
+      "initials":    "RK",
+      "niche":       ["skincare", "beauty"],
+      "platforms":   ["instagram"],
+      "languages":   ["hindi", "english"],
+      "location":    "Mumbai, Maharashtra",
+      "score":       94,
+      "metrics": {
+        "avgCtr":         5.2,
+        "deliveryRate":   96,
+        "satisfaction":   4.6,
+        "repeatHireRate": 78,
+        "projectCount":   23,
+        "totalEarned":    210000
+      },
+      "tags":        ["UGC Reviews", "Reels", "D2C Brands"],
+      "rateCard": {
+        "ugc_review":   10000,
+        "reel":         12000,
+        "tutorial":     15000
+      },
+      "status": "active"
+    },
+    {
+      "id":          "creator_arjun-mehta",
+      "displayName": "Arjun Mehta",
+      "initials":    "AM",
+      "niche":       ["tech", "gadgets", "edtech"],
+      "platforms":   ["youtube", "instagram"],
+      "languages":   ["hindi", "english"],
+      "location":    "Bangalore, Karnataka",
+      "score":       88,
+      "metrics": {
+        "avgCtr":         4.8,
+        "deliveryRate":   100,
+        "satisfaction":   4.9,
+        "repeatHireRate": 65,
+        "projectCount":   14,
+        "totalEarned":    145000
+      },
+      "tags":        ["Tech Reviews", "Unboxing", "Long-form"],
+      "rateCard": {
+        "ugc_review":   8000,
+        "tutorial":     12000,
+        "unboxing":     9000
+      },
+      "status": "active"
+    },
+    {
+      "id":          "creator_neha-kulkarni",
+      "displayName": "Neha Kulkarni",
+      "initials":    "NK",
+      "niche":       ["food", "lifestyle", "wellness"],
+      "platforms":   ["instagram", "youtube_shorts"],
+      "languages":   ["hindi", "marathi", "english"],
+      "location":    "Pune, Maharashtra",
+      "score":       91,
+      "metrics": {
+        "avgCtr":         4.1,
+        "deliveryRate":   93,
+        "satisfaction":   4.7,
+        "repeatHireRate": 82,
+        "projectCount":   31,
+        "totalEarned":    280000
+      },
+      "tags":        ["Food UGC", "Recipe Reels", "Lifestyle"],
+      "rateCard": {
+        "ugc_review":   7000,
+        "reel":         9000,
+        "tutorial":     11000
+      },
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — Fewsion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="fewsion-auth.js"></script>
+<style>
+  :root{--black:#080808;--deep:#0e0e0e;--card:#141414;--card2:#1a1a1a;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--amber:#F5A623;--amber2:#FF6B35;--amber-glow:rgba(245,166,35,0.15);--text:#f0ece4;--muted:#888;--muted2:#555;--white:#ffffff;--green:#4ade80;--font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;--radius:16px;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{background:var(--black);color:var(--text);font-family:var(--font-body);overflow-x:hidden;display:flex;flex-direction:column;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.4;}
+
+  /* LAYOUT */
+  .auth-wrap{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;}
+
+  /* LEFT PANEL */
+  .auth-left{background:linear-gradient(160deg,#0d0d0d 0%,#080808 100%);border-right:1px solid var(--border);padding:48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;}
+  .auth-left::before{content:'';position:absolute;top:-20%;left:-10%;width:600px;height:600px;background:radial-gradient(circle,rgba(245,166,35,0.08) 0%,transparent 65%);pointer-events:none;}
+  .auth-left::after{content:'';position:absolute;bottom:-20%;right:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(255,107,53,0.07) 0%,transparent 65%);pointer-events:none;}
+  .al-logo{font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--white);text-decoration:none;letter-spacing:-.5px;position:relative;z-index:1;}
+  .al-logo span{color:var(--amber);}
+  .al-main{position:relative;z-index:1;}
+  .al-tag{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:20px;}
+  .al-heading{font-family:var(--font-display);font-size:clamp(32px,3.5vw,48px);font-weight:800;line-height:1.1;letter-spacing:-1.5px;color:var(--white);margin-bottom:20px;}
+  .al-heading em{font-style:normal;background:linear-gradient(135deg,var(--amber),var(--amber2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .al-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:380px;}
+  .al-stats{display:flex;gap:32px;position:relative;z-index:1;}
+  .al-stat .n{font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--white);letter-spacing:-1px;}
+  .al-stat .n span{color:var(--amber);}
+  .al-stat .l{font-size:12px;color:var(--muted);margin-top:2px;}
+
+  /* RIGHT PANEL */
+  .auth-right{background:var(--black);display:flex;align-items:center;justify-content:center;padding:48px 40px;}
+  .auth-box{width:100%;max-width:440px;}
+  .auth-title{font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--white);letter-spacing:-.8px;margin-bottom:6px;}
+  .auth-sub{font-size:14px;color:var(--muted);margin-bottom:32px;}
+  .auth-sub a{color:var(--amber);text-decoration:none;}
+  .auth-sub a:hover{text-decoration:underline;}
+
+  /* ROLE PICKER */
+  .role-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;}
+  .role-btn{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+  .role-btn:hover{border-color:var(--border2);}
+  .role-btn.active{border-color:var(--amber);background:rgba(245,166,35,0.06);}
+  .role-btn .icon{font-size:22px;margin-bottom:6px;}
+  .role-btn .rlabel{font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.03em;}
+  .role-btn.active .rlabel{color:var(--amber);}
+  .role-btn .tick{position:absolute;top:8px;right:8px;width:16px;height:16px;border-radius:50%;background:var(--amber);display:none;align-items:center;justify-content:center;font-size:9px;color:#000;font-weight:700;}
+  .role-btn.active .tick{display:flex;}
+
+  /* FORM */
+  .form-group{margin-bottom:18px;}
+  .form-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:block;}
+  .form-input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;font-size:14px;color:var(--text);font-family:var(--font-body);outline:none;transition:border-color .2s;}
+  .form-input:focus{border-color:rgba(245,166,35,.45);}
+  .form-input::placeholder{color:var(--muted2);}
+  .form-input.error{border-color:rgba(239,68,68,.5);}
+  .form-error{font-size:12px;color:#ef4444;margin-top:5px;display:none;}
+
+  /* DIVIDER */
+  .or-divider{display:flex;align-items:center;gap:12px;margin:20px 0;font-size:12px;color:var(--muted2);}
+  .or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  /* SOCIAL BTNS */
+  .social-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+  .social-btn{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:12px;font-size:13px;font-weight:500;color:var(--text);font-family:var(--font-body);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:border-color .2s,background .2s;}
+  .social-btn:hover{border-color:var(--border2);background:var(--card2);}
+
+  /* SUBMIT */
+  .btn-submit{width:100%;background:linear-gradient(135deg,var(--amber),var(--amber2));color:#000;font-family:var(--font-display);font-size:15px;font-weight:700;padding:15px;border-radius:50px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;letter-spacing:.01em;}
+  .btn-submit:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(245,166,35,.3);}
+  .btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid var(--border2);border-radius:50px;padding:12px 24px;font-size:13px;color:var(--text);opacity:0;transition:all .3s;z-index:1000;white-space:nowrap;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.success{border-color:rgba(74,222,128,.3);color:var(--green);}
+  .toast.error{border-color:rgba(239,68,68,.3);color:#ef4444;}
+
+  /* CHECKBOX */
+  .check-row{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+  .check-row input[type=checkbox]{accent-color:var(--amber);width:15px;height:15px;}
+  .check-row label{font-size:13px;color:var(--muted);}
+  .check-row a{color:var(--amber);text-decoration:none;}
+
+  /* FORGOT */
+  .forgot-link{font-size:12px;color:var(--muted);text-decoration:none;float:right;margin-bottom:8px;}
+  .forgot-link:hover{color:var(--text);}
+
+  @media(max-width:900px){.auth-wrap{grid-template-columns:1fr;}.auth-left{display:none;}}
+  @media(max-width:480px){.auth-right{padding:32px 20px;}.role-picker{gap:8px;}}
+</style>
+</head>
+<body>
+<div class="auth-wrap">
+  <!-- LEFT -->
+  <div class="auth-left">
+    <a class="al-logo" href="index.html">Few<span>sion</span></a>
+    <div class="al-main">
+      <div class="al-tag">Welcome back</div>
+      <h2 class="al-heading">India's performance-<br>first <em>creator platform</em></h2>
+      <p class="al-sub">Connect brands with verified UGC creators and editors — powered by AI matching and escrow-protected payments.</p>
+    </div>
+    <div class="al-stats">
+      <div class="al-stat"><div class="n">4.5<span>M+</span></div><div class="l">Active Creators</div></div>
+      <div class="al-stat"><div class="n">2,400<span>+</span></div><div class="l">Brand Campaigns</div></div>
+      <div class="al-stat"><div class="n">4.8<span>★</span></div><div class="l">Avg Rating</div></div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="auth-right">
+    <div class="auth-box">
+      <h1 class="auth-title">Sign in to Fewsion</h1>
+      <p class="auth-sub">New here? <a href="signup.html">Create a free account →</a></p>
+
+      <!-- ROLE PICKER -->
+      <div class="role-picker" id="rolePicker">
+        <div class="role-btn active" onclick="selectRole('brand',this)">
+          <div class="tick">✓</div>
+          <div class="icon">🏢</div>
+          <div class="rlabel">Brand</div>
+        </div>
+        <div class="role-btn" onclick="selectRole('creator',this)">
+          <div class="tick">✓</div>
+          <div class="icon">🎬</div>
+          <div class="rlabel">Creator</div>
+        </div>
+        <div class="role-btn" onclick="selectRole('editor',this)">
+          <div class="tick">✓</div>
+          <div class="icon">✂️</div>
+          <div class="rlabel">Editor</div>
+        </div>
+      </div>
+
+      <!-- SOCIAL -->
+      <div class="social-btns">
+        <button class="social-btn" onclick="socialLogin('google')">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Google
+        </button>
+        <button class="social-btn" onclick="socialLogin('linkedin')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </button>
+      </div>
+      <div class="or-divider">or continue with email</div>
+
+      <!-- FORM -->
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input class="form-input" id="emailInput" type="email" placeholder="you@company.com" autocomplete="email">
+        <div class="form-error" id="emailError">Please enter a valid email address</div>
+      </div>
+      <div class="form-group">
+        <a class="forgot-link" href="#">Forgot password?</a>
+        <label class="form-label">Password</label>
+        <input class="form-input" id="passInput" type="password" placeholder="••••••••" autocomplete="current-password">
+        <div class="form-error" id="passError">Password must be at least 6 characters</div>
+      </div>
+
+      <div class="check-row">
+        <input type="checkbox" id="remember" checked>
+        <label for="remember">Keep me signed in for 30 days</label>
+      </div>
+
+      <button class="btn-submit" id="loginBtn" onclick="handleLogin()">Sign in →</button>
+
+      <p style="font-size:12px;color:var(--muted2);text-align:center;margin-top:20px;">By signing in you agree to our <a href="#" style="color:var(--muted);text-decoration:underline;">Terms</a> and <a href="#" style="color:var(--muted);text-decoration:underline;">Privacy Policy</a>.</p>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  // Redirect if already logged in
+  FewsionAuth.redirectIfLoggedIn();
+
+  let selectedRole = 'brand';
+
+  function selectRole(role, el) {
+    selectedRole = role;
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function socialLogin(provider) {
+    showToast(`Signing in with ${provider.charAt(0).toUpperCase()+provider.slice(1)}...`);
+    setTimeout(() => {
+      // Demo: create a user based on selected role
+      const names = { brand: 'Arjun Desai', creator: 'Priya Sharma', editor: 'Kabir Mehta' };
+      const companies = { brand: 'BrewBox India', creator: null, editor: null };
+      const user = {
+        role: selectedRole,
+        name: names[selectedRole],
+        email: names[selectedRole].toLowerCase().replace(' ','') + '@example.com',
+        company: companies[selectedRole],
+        avatar: names[selectedRole].split(' ').map(n=>n[0]).join(''),
+        joinedAt: new Date().toISOString(),
+        plan: 'free'
+      };
+      FewsionAuth.login(user);
+      window.location.href = selectedRole + '-dashboard.html';
+    }, 1200);
+  }
+
+  function handleLogin() {
+    const email = document.getElementById('emailInput').value.trim();
+    const pass = document.getElementById('passInput').value;
+    let valid = true;
+
+    // Validate
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      document.getElementById('emailInput').classList.add('error');
+      document.getElementById('emailError').style.display = 'block';
+      valid = false;
+    } else {
+      document.getElementById('emailInput').classList.remove('error');
+      document.getElementById('emailError').style.display = 'none';
+    }
+    if (!pass || pass.length < 6) {
+      document.getElementById('passInput').classList.add('error');
+      document.getElementById('passError').style.display = 'block';
+      valid = false;
+    } else {
+      document.getElementById('passInput').classList.remove('error');
+      document.getElementById('passError').style.display = 'none';
+    }
+    if (!valid) return;
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.textContent = 'Signing in...';
+
+    setTimeout(() => {
+      const roleNames = { brand: 'Brand Account', creator: 'Creator Profile', editor: 'Editor Profile' };
+      const user = {
+        role: selectedRole,
+        name: email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),
+        email,
+        avatar: email.slice(0,2).toUpperCase(),
+        joinedAt: new Date().toISOString(),
+        plan: 'free'
+      };
+      FewsionAuth.login(user);
+      showToast('Welcome back! Redirecting...', 'success');
+      setTimeout(() => window.location.href = selectedRole + '-dashboard.html', 800);
+    }, 1000);
+  }
+
+  // Enter key
+  document.addEventListener('keydown', e => { if(e.key==='Enter') handleLogin(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join Fewsion — Sign Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="fewsion-auth.js"></script>
+<style>
+  :root{--black:#080808;--deep:#0e0e0e;--card:#141414;--card2:#1a1a1a;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--amber:#F5A623;--amber2:#FF6B35;--amber-glow:rgba(245,166,35,0.15);--text:#f0ece4;--muted:#888;--muted2:#555;--white:#ffffff;--green:#4ade80;--font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;--radius:16px;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{background:var(--black);color:var(--text);font-family:var(--font-body);overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.4;}
+
+  /* LAYOUT — step-based single column */
+  .page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;position:relative;}
+  .page::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(245,166,35,0.09) 0%,transparent 70%);pointer-events:none;}
+
+  /* TOP NAV */
+  .top-nav{position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;z-index:100;border-bottom:1px solid var(--border);background:rgba(8,8,8,0.85);backdrop-filter:blur(16px);}
+  .logo{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--white);text-decoration:none;letter-spacing:-.5px;}
+  .logo span{color:var(--amber);}
+  .login-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;}
+  .login-link:hover{color:var(--text);}
+  .login-link strong{color:var(--amber);}
+
+  /* STEP PROGRESS */
+  .step-progress{display:flex;align-items:center;gap:0;margin-bottom:40px;margin-top:80px;}
+  .sp-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);transition:all .3s;}
+  .sp-dot.done{background:var(--amber);}
+  .sp-dot.active{background:var(--amber);width:24px;border-radius:4px;}
+  .sp-line{width:32px;height:2px;background:var(--border);transition:background .3s;}
+  .sp-line.done{background:var(--amber);}
+
+  /* CARD */
+  .signup-card{width:100%;max-width:520px;animation:fadeUp .4s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+  .step-label{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:12px;}
+  .step-title{font-family:var(--font-display);font-size:clamp(24px,4vw,36px);font-weight:800;letter-spacing:-.8px;color:var(--white);margin-bottom:8px;line-height:1.1;}
+  .step-title em{font-style:normal;color:var(--amber);}
+  .step-sub{font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.6;}
+
+  /* ROLE CARDS */
+  .role-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px;}
+  .role-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:24px 16px;text-align:center;cursor:pointer;transition:all .2s;}
+  .role-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+  .role-card.active{border-color:var(--amber);background:rgba(245,166,35,0.05);}
+  .role-card .rc-icon{font-size:32px;margin-bottom:10px;}
+  .role-card .rc-name{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;}
+  .role-card .rc-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+  .role-card.active .rc-name{color:var(--amber);}
+
+  /* FORM ELEMENTS */
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .form-group{margin-bottom:16px;}
+  .form-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:block;}
+  .form-input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;font-size:14px;color:var(--text);font-family:var(--font-body);outline:none;transition:border-color .2s;}
+  .form-input:focus{border-color:rgba(245,166,35,.4);}
+  .form-input::placeholder{color:var(--muted2);}
+  .form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;}
+
+  /* NICHE CHIPS */
+  .niche-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .niche-chip{font-size:12px;padding:7px 14px;border-radius:50px;border:1.5px solid var(--border);color:var(--muted);background:var(--card);cursor:pointer;transition:all .2s;}
+  .niche-chip:hover{border-color:var(--border2);}
+  .niche-chip.selected{border-color:var(--amber);color:var(--amber);background:var(--amber-glow);}
+
+  /* PASSWORD STRENGTH */
+  .pass-strength{margin-top:8px;}
+  .ps-bar{height:3px;border-radius:3px;background:var(--border);overflow:hidden;margin-bottom:4px;}
+  .ps-fill{height:100%;border-radius:3px;width:0%;transition:width .3s,background .3s;}
+  .ps-text{font-size:11px;color:var(--muted2);}
+
+  /* BUTTONS */
+  .btn-next{width:100%;background:linear-gradient(135deg,var(--amber),var(--amber2));color:#000;font-family:var(--font-display);font-size:15px;font-weight:700;padding:15px;border-radius:50px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;margin-top:8px;}
+  .btn-next:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(245,166,35,.3);}
+  .btn-next:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn-back{width:100%;background:transparent;color:var(--muted);font-family:var(--font-body);font-size:14px;padding:12px;border-radius:50px;border:1px solid var(--border);cursor:pointer;margin-top:8px;transition:border-color .2s,color .2s;}
+  .btn-back:hover{border-color:var(--border2);color:var(--text);}
+
+  /* PERKS */
+  .perks{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+  .perk{display:flex;gap:12px;align-items:center;}
+  .perk-icon{width:32px;height:32px;border-radius:8px;background:var(--amber-glow);border:1px solid rgba(245,166,35,.2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .perk-text{font-size:13px;color:var(--muted);line-height:1.5;}
+  .perk-text strong{color:var(--text);font-weight:600;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid rgba(74,222,128,.3);border-radius:50px;padding:12px 24px;font-size:13px;color:var(--green);opacity:0;transition:all .3s;z-index:1000;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:600px){.role-cards{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}.signup-card{padding:0 4px;}}
+</style>
+</head>
+<body>
+
+<div class="top-nav">
+  <a class="logo" href="index.html">Few<span>sion</span></a>
+  <a class="login-link" href="login.html">Already have an account? <strong>Sign in →</strong></a>
+</div>
+
+<div class="page">
+  <!-- PROGRESS -->
+  <div class="step-progress" id="stepProgress">
+    <div class="sp-dot active" id="dot0"></div>
+    <div class="sp-line" id="line01"></div>
+    <div class="sp-dot" id="dot1"></div>
+    <div class="sp-line" id="line12"></div>
+    <div class="sp-dot" id="dot2"></div>
+    <div class="sp-line" id="line23"></div>
+    <div class="sp-dot" id="dot3"></div>
+  </div>
+
+  <!-- STEP 0 — ROLE -->
+  <div class="signup-card" id="step0">
+    <div class="step-label">Step 1 of 4</div>
+    <h1 class="step-title">I want to join<br>Fewsion as a <em id="roleLabel">Brand</em></h1>
+    <p class="step-sub">Choose the role that best describes you. You can add other roles later.</p>
+    <div class="role-cards">
+      <div class="role-card active" id="rc-brand" onclick="pickRole('brand')">
+        <div class="rc-icon">🏢</div>
+        <div class="rc-name">Brand</div>
+        <div class="rc-desc">Post campaigns, discover creators, run UGC at scale</div>
+      </div>
+      <div class="role-card" id="rc-creator" onclick="pickRole('creator')">
+        <div class="rc-icon">🎬</div>
+        <div class="rc-name">Creator</div>
+        <div class="rc-desc">Get matched to brand deals, build your performance portfolio</div>
+      </div>
+      <div class="role-card" id="rc-editor" onclick="pickRole('editor')">
+        <div class="rc-icon">✂️</div>
+        <div class="rc-name">Editor</div>
+        <div class="rc-desc">Find editing projects from brands and creators</div>
+      </div>
+    </div>
+    <button class="btn-next" onclick="goStep(1)">Continue as <span id="roleContinueLabel">Brand</span> →</button>
+  </div>
+
+  <!-- STEP 1 — ACCOUNT INFO -->
+  <div class="signup-card" id="step1" style="display:none;">
+    <div class="step-label">Step 2 of 4</div>
+    <h1 class="step-title">Create your<br><em>account</em></h1>
+    <p class="step-sub">Your profile is free forever. No credit card needed.</p>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">First name</label><input class="form-input" id="firstName" type="text" placeholder="Arjun"></div>
+      <div class="form-group"><label class="form-label">Last name</label><input class="form-input" id="lastName" type="text" placeholder="Desai"></div>
+    </div>
+    <div class="form-group"><label class="form-label" id="companyLabel">Brand / Company name</label><input class="form-input" id="companyName" type="text" placeholder="e.g. BrewBox India"></div>
+    <div class="form-group"><label class="form-label">Email address</label><input class="form-input" id="signupEmail" type="email" placeholder="you@company.com"></div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" id="signupPass" type="password" placeholder="Create a strong password" oninput="checkPass(this.value)">
+      <div class="pass-strength"><div class="ps-bar"><div class="ps-fill" id="psFill"></div></div><div class="ps-text" id="psText">Enter a password</div></div>
+    </div>
+    <button class="btn-next" onclick="goStep(2)">Continue →</button>
+    <button class="btn-back" onclick="goStep(0)">← Back</button>
+  </div>
+
+  <!-- STEP 2 — PROFILE DETAILS -->
+  <div class="signup-card" id="step2" style="display:none;">
+    <div class="step-label">Step 3 of 4</div>
+    <h1 class="step-title">Tell us about<br><em id="step2Title">your brand</em></h1>
+    <p class="step-sub" id="step2Sub">This helps creators find and trust you.</p>
+
+    <!-- BRAND FIELDS -->
+    <div id="brandFields">
+      <div class="form-group"><label class="form-label">Industry / Niche</label><select class="form-input form-select" id="brandIndustry"><option value="">Select your industry</option><option>Skincare / Beauty</option><option>Food & Beverage</option><option>Tech / Gadgets</option><option>Fitness / Health</option><option>Fashion</option><option>Home & Lifestyle</option><option>Finance / FinTech</option><option>E-commerce</option><option>Other</option></select></div>
+      <div class="form-group"><label class="form-label">Monthly UGC budget</label><select class="form-input form-select" id="brandBudget"><option value="">Select range</option><option>Under ₹10,000</option><option>₹10,000 – ₹50,000</option><option>₹50,000 – ₹2,00,000</option><option>₹2,00,000+</option></select></div>
+      <div class="form-group"><label class="form-label">Brand website (optional)</label><input class="form-input" type="url" placeholder="https://yourbrand.com"></div>
+    </div>
+
+    <!-- CREATOR FIELDS -->
+    <div id="creatorFields" style="display:none;">
+      <div class="form-group"><label class="form-label">Primary content niche</label>
+        <div class="niche-chips" id="nicheChips">
+          <span class="niche-chip" onclick="toggleChip(this)">Beauty</span><span class="niche-chip" onclick="toggleChip(this)">Fitness</span><span class="niche-chip" onclick="toggleChip(this)">Tech</span><span class="niche-chip" onclick="toggleChip(this)">Food</span><span class="niche-chip" onclick="toggleChip(this)">Travel</span><span class="niche-chip" onclick="toggleChip(this)">Finance</span><span class="niche-chip" onclick="toggleChip(this)">Gaming</span><span class="niche-chip" onclick="toggleChip(this)">Fashion</span><span class="niche-chip" onclick="toggleChip(this)">Parenting</span><span class="niche-chip" onclick="toggleChip(this)">Education</span>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Primary platform</label><select class="form-input form-select"><option>Instagram Reels</option><option>YouTube Shorts</option><option>UGC (off-platform)</option><option>Multiple</option></select></div>
+      <div class="form-group"><label class="form-label">Content language</label><select class="form-input form-select"><option>Hindi + English</option><option>Hindi only</option><option>English only</option><option>Regional language</option></select></div>
+    </div>
+
+    <!-- EDITOR FIELDS -->
+    <div id="editorFields" style="display:none;">
+      <div class="form-group"><label class="form-label">Editing specialisation</label>
+        <div class="niche-chips" id="editorChips">
+          <span class="niche-chip" onclick="toggleChip(this)">UGC Edits</span><span class="niche-chip" onclick="toggleChip(this)">Ad Videos</span><span class="niche-chip" onclick="toggleChip(this)">Reels</span><span class="niche-chip" onclick="toggleChip(this)">Motion Graphics</span><span class="niche-chip" onclick="toggleChip(this)">Color Grading</span><span class="niche-chip" onclick="toggleChip(this)">Captions</span><span class="niche-chip" onclick="toggleChip(this)">Thumbnails</span>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Software you use</label>
+        <div class="niche-chips">
+          <span class="niche-chip" onclick="toggleChip(this)">Premiere Pro</span><span class="niche-chip" onclick="toggleChip(this)">Final Cut</span><span class="niche-chip" onclick="toggleChip(this)">DaVinci Resolve</span><span class="niche-chip" onclick="toggleChip(this)">CapCut</span><span class="niche-chip" onclick="toggleChip(this)">After Effects</span>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Typical turnaround</label><select class="form-input form-select"><option>Same day</option><option>24 hours</option><option>48 hours</option><option>3–5 days</option></select></div>
+    </div>
+
+    <button class="btn-next" onclick="goStep(3)">Continue →</button>
+    <button class="btn-back" onclick="goStep(1)">← Back</button>
+  </div>
+
+  <!-- STEP 3 — DONE / PERKS -->
+  <div class="signup-card" id="step3" style="display:none;">
+    <div class="step-label">You're all set! 🎉</div>
+    <h1 class="step-title">Welcome to<br><em>Fewsion</em></h1>
+    <p class="step-sub">Here's what's waiting for you inside your new dashboard.</p>
+    <div class="perks" id="perksList"></div>
+    <button class="btn-next" id="dashboardBtn" onclick="completeSignup()">Enter my dashboard →</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Account created!</div>
+
+<script>
+  FewsionAuth.redirectIfLoggedIn();
+  let currentRole = 'brand';
+  let currentStep = 0;
+
+  const roleData = {
+    brand: {
+      label:'Brand', companyLabel:'Brand / Company name',
+      step2Title:'your brand', step2Sub:'This helps creators find and trust you.',
+      perks:[
+        {icon:'🤖',title:'AI Brief Builder',desc:'Generate campaign briefs in 3 minutes'},
+        {icon:'🎯',title:'Performance Creator Search',desc:'Filter by verified CTR, not follower count'},
+        {icon:'🔒',title:'Escrow-Protected Campaigns',desc:'Only pay when you approve content'},
+      ]
+    },
+    creator: {
+      label:'Creator', companyLabel:'Channel / Creator handle',
+      step2Title:'your content', step2Sub:'This helps brands find you for the right campaigns.',
+      perks:[
+        {icon:'📊',title:'Performance Portfolio',desc:'Showcase real CTR and engagement to brands'},
+        {icon:'💰',title:'Guaranteed Payments',desc:'Escrow-protected, released within 24hrs'},
+        {icon:'🤖',title:'AI Brand Matching',desc:'Get matched to campaigns that fit your niche'},
+      ]
+    },
+    editor: {
+      label:'Editor', companyLabel:'Studio / Agency name (optional)',
+      step2Title:'your editing work', step2Sub:'This helps brands and creators find you.',
+      perks:[
+        {icon:'🎬',title:'Editor Portfolio',desc:'Showcase your showreel to brands and creators'},
+        {icon:'🤝',title:'Creator Collaboration',desc:'Get invited into live projects in-platform'},
+        {icon:'💰',title:'Escrow-Protected Pay',desc:'Get paid within 24hrs of project approval'},
+      ]
+    }
+  };
+
+  function pickRole(role) {
+    currentRole = role;
+    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('rc-'+role).classList.add('active');
+    document.getElementById('roleLabel').textContent = roleData[role].label;
+    document.getElementById('roleContinueLabel').textContent = roleData[role].label;
+  }
+
+  function toggleChip(el) { el.classList.toggle('selected'); }
+
+  function checkPass(v) {
+    const fill = document.getElementById('psFill');
+    const text = document.getElementById('psText');
+    const scores = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/, /.{8,}/];
+    const strength = scores.filter(r => r.test(v)).length;
+    const colors = ['#ef4444','#ef4444','#f97316','#eab308','#4ade80'];
+    const labels = ['Too short','Weak','Fair','Good','Strong'];
+    const pct = [0, 20, 40, 65, 90, 100];
+    fill.style.width = (v.length ? pct[strength] : 0) + '%';
+    fill.style.background = strength > 0 ? colors[strength-1] : '';
+    text.textContent = v.length ? labels[strength-1] || 'Strong' : 'Enter a password';
+  }
+
+  function goStep(n) {
+    // Validate current step
+    if (n > currentStep) {
+      if (currentStep === 1) {
+        const fn = document.getElementById('firstName').value.trim();
+        const ln = document.getElementById('lastName').value.trim();
+        const em = document.getElementById('signupEmail').value.trim();
+        const pw = document.getElementById('signupPass').value;
+        if (!fn || !ln || !em || pw.length < 6) { showToast('Please fill all fields correctly.'); return; }
+      }
+    }
+    document.getElementById('step'+currentStep).style.display = 'none';
+    currentStep = n;
+    const stepEl = document.getElementById('step'+n);
+    stepEl.style.display = 'block';
+    stepEl.style.animation = 'none';
+    void stepEl.offsetWidth;
+    stepEl.style.animation = '';
+
+    // Update progress dots
+    for (let i = 0; i <= 3; i++) {
+      const dot = document.getElementById('dot'+i);
+      dot.classList.remove('active','done');
+      if (i < n) dot.classList.add('done');
+      else if (i === n) dot.classList.add('active');
+    }
+    for (let i = 0; i <= 2; i++) {
+      const line = document.getElementById('line'+i+(i+1));
+      if (line) line.classList.toggle('done', i < n);
+    }
+
+    // Configure step 2 fields
+    if (n === 2) {
+      const rd = roleData[currentRole];
+      document.getElementById('step2Title').textContent = rd.step2Title;
+      document.getElementById('step2Sub').textContent = rd.step2Sub;
+      document.getElementById('brandFields').style.display = currentRole === 'brand' ? 'block' : 'none';
+      document.getElementById('creatorFields').style.display = currentRole === 'creator' ? 'block' : 'none';
+      document.getElementById('editorFields').style.display = currentRole === 'editor' ? 'block' : 'none';
+    }
+
+    // Configure step 1 company label
+    if (n === 1) {
+      document.getElementById('companyLabel').textContent = roleData[currentRole].companyLabel;
+    }
+
+    // Populate perks
+    if (n === 3) {
+      const perks = roleData[currentRole].perks;
+      document.getElementById('perksList').innerHTML = perks.map(p => `
+        <div class="perk">
+          <div class="perk-icon">${p.icon}</div>
+          <div class="perk-text"><strong>${p.title}</strong> — ${p.desc}</div>
+        </div>`).join('');
+    }
+  }
+
+  function completeSignup() {
+    const firstName = document.getElementById('firstName').value || 'User';
+    const lastName = document.getElementById('lastName').value || '';
+    const email = document.getElementById('signupEmail').value || 'user@example.com';
+    const user = {
+      role: currentRole,
+      name: firstName + (lastName ? ' ' + lastName : ''),
+      email,
+      avatar: (firstName[0] + (lastName[0] || '')).toUpperCase(),
+      joinedAt: new Date().toISOString(),
+      plan: 'free',
+      isNew: true
+    };
+    FewsionAuth.login(user);
+    document.getElementById('toast').classList.add('show');
+    setTimeout(() => window.location.href = currentRole + '-dashboard.html', 900);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.borderColor = 'rgba(239,68,68,.3)';
+    t.style.color = '#ef4444';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>

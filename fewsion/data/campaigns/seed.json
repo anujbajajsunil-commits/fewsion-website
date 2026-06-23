@@ -1,0 +1,83 @@
+{
+  "_schema": {
+    "version": "1.0.0",
+    "description": "Seed campaign data for development and demo UI. Do NOT use in production.",
+    "fields": {
+      "id":           "string — camp_{slug}",
+      "brandId":      "ref: brands",
+      "title":        "string",
+      "niche":        "string",
+      "contentType":  "enum: ugc_review | reel | tutorial | unboxing | testimonial",
+      "platform":     "enum: instagram | youtube | youtube_shorts | twitter",
+      "budget":       "number — INR per creator",
+      "slots":        "number — creator slots available",
+      "status":       "enum: draft | live | paused | closed",
+      "createdAt":    "ISO 8601"
+    }
+  },
+  "campaigns": [
+    {
+      "id":          "camp_glow-republic-spf",
+      "brandId":     "brand_glow-republic",
+      "title":       "SPF Moisturiser Launch Campaign",
+      "niche":       "skincare",
+      "contentType": "ugc_review",
+      "platform":    "instagram",
+      "budget":      12000,
+      "slots":       5,
+      "deadline":    "2026-08-15",
+      "status":      "live",
+      "createdAt":   "2026-06-01T08:00:00Z",
+      "brief": {
+        "goal":       "Drive trial purchases for new SPF moisturiser",
+        "tone":       "authentic, warm, glowing",
+        "dos":        ["Show first-use reaction", "Highlight texture", "Name the product naturally"],
+        "donts":      ["No scripted feel", "No heavy filters"],
+        "deliverables": ["60s Reel", "raw + edited file"],
+        "revisions":  2
+      }
+    },
+    {
+      "id":          "camp_boldcraft-protein",
+      "brandId":     "brand_boldcraft",
+      "title":       "Whey Protein 30-Day Challenge",
+      "niche":       "fitness",
+      "contentType": "tutorial",
+      "platform":    "youtube_shorts",
+      "budget":      8500,
+      "slots":       8,
+      "deadline":    "2026-09-01T00:00:00Z",
+      "status":      "live",
+      "createdAt":   "2026-06-10T08:00:00Z",
+      "brief": {
+        "goal":       "Show 30-day fitness transformation with product",
+        "tone":       "energetic, motivational",
+        "dos":        ["Before/after framing", "Mention flavour profile"],
+        "donts":      ["No medical claims"],
+        "deliverables": ["45–60s short", "thumbnail image"],
+        "revisions":  1
+      }
+    },
+    {
+      "id":          "camp_leaflink-tea",
+      "brandId":     "brand_leaflink",
+      "title":       "Morning Ritual Tea UGC",
+      "niche":       "wellness",
+      "contentType": "ugc_review",
+      "platform":    "instagram",
+      "budget":      6000,
+      "slots":       10,
+      "deadline":    "2026-08-30T00:00:00Z",
+      "status":      "live",
+      "createdAt":   "2026-06-15T08:00:00Z",
+      "brief": {
+        "goal":       "Establish product as a morning ritual brand",
+        "tone":       "calm, mindful, cozy",
+        "dos":        ["Show morning setting", "Brew the tea on camera"],
+        "donts":      ["No evening/night settings"],
+        "deliverables": ["30s Reel"],
+        "revisions":  2
+      }
+    }
+  ]
+}
