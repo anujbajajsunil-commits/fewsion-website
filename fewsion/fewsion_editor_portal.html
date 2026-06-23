@@ -1,0 +1,588 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{padding:1.5rem 0}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.progress-bar{display:flex;gap:6px;margin-bottom:2rem}
+.pb-step{flex:1;height:4px;background:var(--color-border-tertiary);border-radius:2px;transition:background .3s}
+.pb-step.done{background:#1D9E75}
+.pb-step.current{background:#D85A30}
+.step{display:none}
+.step.active{display:block}
+.sec-title{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.sec-sub{font-size:14px;color:var(--color-text-secondary);margin-bottom:1.5rem;line-height:1.6}
+.q-card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px}
+.q-label{font-size:13px;color:var(--color-text-secondary);margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.bdg{font-size:11px;padding:2px 8px;border-radius:4px}
+.bdg-coral{background:#FAECE7;color:#712B13}
+.bdg-amber{background:#FAEEDA;color:#633806}
+.bdg-teal{background:#E1F5EE;color:#085041}
+input[type=text],input[type=url],input[type=number],select,textarea{width:100%;padding:8px 12px;border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:14px;background:var(--color-background-secondary);color:var(--color-text-primary);font-family:var(--font-sans)}
+textarea{resize:vertical;min-height:76px}
+.pill-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.pill{padding:6px 14px;border:.5px solid var(--color-border-secondary);border-radius:20px;font-size:13px;cursor:pointer;background:var(--color-background-secondary);color:var(--color-text-primary);transition:all .15s;user-select:none}
+.pill.sc{background:#FAECE7;border-color:#D85A30;color:#712B13}
+.pill.sm{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.nav-row{display:flex;gap:10px;margin-top:1.5rem;flex-wrap:wrap}
+.btn-back{padding:10px 20px;background:var(--color-background-primary);border:.5px solid var(--color-border-primary);border-radius:var(--border-radius-md);font-size:14px;cursor:pointer;color:var(--color-text-primary);font-family:var(--font-sans)}
+.btn-back:hover{background:var(--color-background-secondary)}
+.btn-next{padding:10px 24px;background:#D85A30;border:none;border-radius:var(--border-radius-md);font-size:14px;cursor:pointer;color:#fff;font-family:var(--font-sans);font-weight:500}
+.btn-next:hover{background:#993C1D}
+.btn-ai{padding:10px 22px;background:#D85A30;border:none;border-radius:var(--border-radius-md);font-size:14px;cursor:pointer;color:#fff;font-family:var(--font-sans);font-weight:500}
+.btn-ai:hover{background:#993C1D}
+.spinner{width:40px;height:40px;border:3px solid var(--color-border-tertiary);border-top-color:#D85A30;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.analyzing{text-align:center;padding:2.5rem 0}
+.upload-zone{border:1.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:1.5rem;text-align:center;cursor:pointer;background:var(--color-background-secondary)}
+.upload-zone:hover{border-color:#D85A30}
+.upload-zone input{display:none}
+.work-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:13px}
+.work-item:last-child{border-bottom:none}
+.work-dot{width:6px;height:6px;border-radius:50%;background:#D85A30;flex-shrink:0}
+.profile-header-card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1.25rem}
+.profile-banner{background:#FAECE7;padding:1.5rem;display:flex;align-items:center;gap:16px;border-bottom:.5px solid var(--color-border-tertiary)}
+.avatar{width:60px;height:60px;border-radius:50%;background:#fff;border:.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:500;color:#712B13;flex-shrink:0}
+.score-ring-sm{position:relative;width:72px;height:72px;flex-shrink:0}
+.score-ring-sm svg{transform:rotate(-90deg)}
+.ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.tag{font-size:12px;padding:3px 10px;border-radius:12px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:.5px solid var(--color-border-tertiary)}
+.tag-coral{background:#FAECE7;color:#712B13;border-color:#F0997B}
+.tag-teal{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.profile-body{padding:1.25rem}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.info-row .lbl{font-size:12px;color:var(--color-text-secondary)}
+.info-row .val{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:1.25rem}
+.m-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px}
+.m-card .mv{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.m-card .ml{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.m-card .mbar{height:4px;border-radius:2px;background:var(--color-border-tertiary);margin-top:8px;overflow:hidden}
+.m-card .mfill{height:100%;border-radius:2px}
+.section-div{font-size:13px;font-weight:500;color:var(--color-text-secondary);margin:1.25rem 0 .75rem;display:flex;align-items:center;gap:8px}
+.section-div::after{content:'';flex:1;height:.5px;background:var(--color-border-tertiary)}
+.finding{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:13px;line-height:1.5}
+.finding:last-child{border-bottom:none;padding-bottom:0}
+.fi{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
+.fi-good{background:#E1F5EE;color:#085041}
+.fi-warn{background:#FAEEDA;color:#633806}
+.fi-coral{background:#FAECE7;color:#712B13}
+.analysis-card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem}
+.analysis-card h3{font-size:14px;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.ai-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 10px;border-radius:12px;background:#FAECE7;color:#712B13;border:.5px solid #F0997B;margin-bottom:10px}
+.action-btn{padding:8px 16px;border:.5px solid var(--color-border-primary);border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans)}
+.action-btn:hover{background:var(--color-background-secondary)}
+.err{color:var(--color-text-danger);font-size:13px;margin-top:8px}
+.portfolio-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.port-item{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;border:.5px solid var(--color-border-tertiary);font-size:13px;display:flex;align-items:flex-start;gap:8px}
+.port-icon{width:32px;height:32px;border-radius:var(--border-radius-md);background:#FAECE7;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.range-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.range-val{font-size:14px;font-weight:500;min-width:70px;color:var(--color-text-primary)}
+</style>
+
+<h2 class="sr-only">Fewsion editor portal — build your profile, showcase work, and get matched with creators and brands</h2>
+<div class="app">
+  <div class="progress-bar" id="pb">
+    <div class="pb-step current" id="pb0"></div>
+    <div class="pb-step" id="pb1"></div>
+    <div class="pb-step" id="pb2"></div>
+    <div class="pb-step" id="pb3"></div>
+    <div class="pb-step" id="pb4"></div>
+  </div>
+
+  <!-- Step 0: Identity -->
+  <div class="step active" id="step0">
+    <p class="sec-title">Your identity as an editor</p>
+    <p class="sec-sub">This is the first thing creators and brands see on your public profile.</p>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-user" aria-hidden="true"></i> Full name / editor alias <span class="bdg bdg-coral">Required</span></div>
+      <input type="text" id="editorName" placeholder="e.g. Rahul Edits, Priya Visuals, CutByKaran" />
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-map-pin" aria-hidden="true"></i> City & state</div>
+      <input type="text" id="editorCity" placeholder="e.g. Mumbai, Maharashtra" />
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-clock" aria-hidden="true"></i> Years of editing experience <span class="bdg bdg-amber">Affects score</span></div>
+      <div class="pill-group" id="expPills">
+        <span class="pill" onclick="sp(this,'exp')">Less than 1 year</span>
+        <span class="pill" onclick="sp(this,'exp')">1–2 years</span>
+        <span class="pill" onclick="sp(this,'exp')">2–4 years</span>
+        <span class="pill" onclick="sp(this,'exp')">4–7 years</span>
+        <span class="pill" onclick="sp(this,'exp')">7+ years</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-writing" aria-hidden="true"></i> One-line bio</div>
+      <input type="text" id="bio" placeholder="e.g. Specialise in fast-paced Reels and YouTube long-form for tech & lifestyle creators" />
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-language" aria-hidden="true"></i> Languages you work in</div>
+      <div class="pill-group" id="langPills">
+        <span class="pill" onclick="mp(this,'lang')">Hindi</span>
+        <span class="pill" onclick="mp(this,'lang')">English</span>
+        <span class="pill" onclick="mp(this,'lang')">Tamil</span>
+        <span class="pill" onclick="mp(this,'lang')">Telugu</span>
+        <span class="pill" onclick="mp(this,'lang')">Kannada</span>
+        <span class="pill" onclick="mp(this,'lang')">Marathi</span>
+        <span class="pill" onclick="mp(this,'lang')">Bengali</span>
+        <span class="pill" onclick="mp(this,'lang')">Hinglish</span>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-next" onclick="go(1)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 1: Skills & Tools -->
+  <div class="step" id="step1">
+    <p class="sec-title">Skills & tools</p>
+    <p class="sec-sub">Creators and brands filter editors by these — be specific.</p>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-cut" aria-hidden="true"></i> Content formats you specialise in <span class="bdg bdg-coral">Required</span></div>
+      <div class="pill-group" id="formatPills">
+        <span class="pill" onclick="mp(this,'format')">YouTube long-form</span>
+        <span class="pill" onclick="mp(this,'format')">YouTube Shorts</span>
+        <span class="pill" onclick="mp(this,'format')">Instagram Reels</span>
+        <span class="pill" onclick="mp(this,'format')">UGC ad videos</span>
+        <span class="pill" onclick="mp(this,'format')">Podcast video</span>
+        <span class="pill" onclick="mp(this,'format')">Brand ads / TVCs</span>
+        <span class="pill" onclick="mp(this,'format')">Talking head</span>
+        <span class="pill" onclick="mp(this,'format')">Vlog / travel</span>
+        <span class="pill" onclick="mp(this,'format')">Gaming montage</span>
+        <span class="pill" onclick="mp(this,'format')">Documentary style</span>
+        <span class="pill" onclick="mp(this,'format')">Product showcase</span>
+        <span class="pill" onclick="mp(this,'format')">Motion graphics</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-tool" aria-hidden="true"></i> Primary editing software <span class="bdg bdg-amber">Affects score</span></div>
+      <div class="pill-group" id="toolPills">
+        <span class="pill" onclick="mp(this,'tool')">Premiere Pro</span>
+        <span class="pill" onclick="mp(this,'tool')">Final Cut Pro</span>
+        <span class="pill" onclick="mp(this,'tool')">DaVinci Resolve</span>
+        <span class="pill" onclick="mp(this,'tool')">CapCut Pro</span>
+        <span class="pill" onclick="mp(this,'tool')">After Effects</span>
+        <span class="pill" onclick="mp(this,'tool')">Canva Video</span>
+        <span class="pill" onclick="mp(this,'tool')">Kdenlive</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-palette" aria-hidden="true"></i> Special skills</div>
+      <div class="pill-group" id="skillPills">
+        <span class="pill" onclick="mp(this,'skill')">Colour grading</span>
+        <span class="pill" onclick="mp(this,'skill')">Motion graphics</span>
+        <span class="pill" onclick="mp(this,'skill')">Sound design</span>
+        <span class="pill" onclick="mp(this,'skill')">Subtitles & captions</span>
+        <span class="pill" onclick="mp(this,'skill')">VFX / compositing</span>
+        <span class="pill" onclick="mp(this,'skill')">Thumbnail design</span>
+        <span class="pill" onclick="mp(this,'skill')">Script writing</span>
+        <span class="pill" onclick="mp(this,'skill')">AI video tools</span>
+        <span class="pill" onclick="mp(this,'skill')">Voiceover</span>
+        <span class="pill" onclick="mp(this,'skill')">Transitions & effects</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-category" aria-hidden="true"></i> Creator niches you've edited for <span class="bdg bdg-amber">Affects matching</span></div>
+      <div class="pill-group" id="nichePills">
+        <span class="pill" onclick="mp(this,'niche')">Tech & gadgets</span>
+        <span class="pill" onclick="mp(this,'niche')">Beauty & skincare</span>
+        <span class="pill" onclick="mp(this,'niche')">Finance</span>
+        <span class="pill" onclick="mp(this,'niche')">Fitness & health</span>
+        <span class="pill" onclick="mp(this,'niche')">Food & cooking</span>
+        <span class="pill" onclick="mp(this,'niche')">Gaming</span>
+        <span class="pill" onclick="mp(this,'niche')">Travel & lifestyle</span>
+        <span class="pill" onclick="mp(this,'niche')">Education</span>
+        <span class="pill" onclick="mp(this,'niche')">Fashion</span>
+        <span class="pill" onclick="mp(this,'niche')">Comedy & entertainment</span>
+        <span class="pill" onclick="mp(this,'niche')">Startup / business</span>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="go(0)">← Back</button>
+      <button class="btn-next" onclick="go(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Past work & experience -->
+  <div class="step" id="step2">
+    <p class="sec-title">Past work & experience</p>
+    <p class="sec-sub">This is what brands and creators actually verify. Be honest and specific.</p>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-number" aria-hidden="true"></i> Total videos edited so far <span class="bdg bdg-amber">Affects score</span></div>
+      <div class="pill-group" id="videoCountPills">
+        <span class="pill" onclick="sp(this,'videoCount')">Fewer than 20</span>
+        <span class="pill" onclick="sp(this,'videoCount')">20–50</span>
+        <span class="pill" onclick="sp(this,'videoCount')">50–150</span>
+        <span class="pill" onclick="sp(this,'videoCount')">150–500</span>
+        <span class="pill" onclick="sp(this,'videoCount')">500+</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-users" aria-hidden="true"></i> Creators / brands you've worked with <span class="bdg bdg-coral">Required</span></div>
+      <textarea id="pastClients" placeholder="e.g. Worked with @TechWithPriya (500K subs, YouTube), Noise India (product ad videos), 3 D2C fashion brands on Instagram Reels..."></textarea>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-eye" aria-hidden="true"></i> Best performing video you edited</div>
+      <input type="text" id="bestVideo" placeholder="e.g. YouTube video for @FinWithRaj — 2.3M views, 45K likes" />
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-star" aria-hidden="true"></i> Notable achievements or results <span class="bdg bdg-teal">Stand out signal</span></div>
+      <textarea id="achievements" placeholder="e.g. Edited a Reel that hit 10M views, helped creator grow from 20K to 200K subs in 6 months, brand ad video featured on company's homepage..."></textarea>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-link" aria-hidden="true"></i> Portfolio / showreel link <span class="bdg bdg-coral">Required</span></div>
+      <input type="url" id="portfolio" placeholder="https://drive.google.com/... or YouTube playlist or behance.net/..." />
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="go(1)">← Back</button>
+      <button class="btn-next" onclick="go(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Availability & rates -->
+  <div class="step" id="step3">
+    <p class="sec-title">Availability & collaboration preferences</p>
+    <p class="sec-sub">Helps creators and brands know if you're the right fit before reaching out.</p>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-clock" aria-hidden="true"></i> Turnaround time per video</div>
+      <div class="pill-group" id="turnPills">
+        <span class="pill" onclick="sp(this,'turn')">24 hours</span>
+        <span class="pill" onclick="sp(this,'turn')">2–3 days</span>
+        <span class="pill" onclick="sp(this,'turn')">3–5 days</span>
+        <span class="pill" onclick="sp(this,'turn')">1 week</span>
+        <span class="pill" onclick="sp(this,'turn')">Depends on scope</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-calendar" aria-hidden="true"></i> Availability</div>
+      <div class="pill-group" id="availPills">
+        <span class="pill" onclick="sp(this,'avail')">Full-time (open to retainer)</span>
+        <span class="pill" onclick="sp(this,'avail')">Part-time (2–3 projects/month)</span>
+        <span class="pill" onclick="sp(this,'avail')">Freelance (per project)</span>
+        <span class="pill" onclick="sp(this,'avail')">Weekends only</span>
+        <span class="pill" onclick="sp(this,'avail')">Currently unavailable</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-currency-rupee" aria-hidden="true"></i> Rate per video (short-form, up to 90 sec)</div>
+      <div class="range-row">
+        <input type="range" min="0" max="9" step="1" value="2" id="rateRange" oninput="updateRate()" />
+        <span class="range-val" id="rateVal">₹1,500–3,000</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-handshake" aria-hidden="true"></i> Preferred collaboration type</div>
+      <div class="pill-group" id="collabPills">
+        <span class="pill" onclick="mp(this,'collab')">One-off projects</span>
+        <span class="pill" onclick="mp(this,'collab')">Monthly retainer</span>
+        <span class="pill" onclick="mp(this,'collab')">Long-term contract</span>
+        <span class="pill" onclick="mp(this,'collab')">Brand campaigns</span>
+        <span class="pill" onclick="mp(this,'collab')">Bulk batch editing</span>
+        <span class="pill" onclick="mp(this,'collab')">Revenue share</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-message-circle" aria-hidden="true"></i> Anything else brands or creators should know?</div>
+      <textarea id="extraNote" placeholder="e.g. I specialise in dark, cinematic aesthetics. I provide 2 free revision rounds. Fast communication on WhatsApp..."></textarea>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="go(2)">← Back</button>
+      <button class="btn-ai" id="analyseBtn" onclick="startAnalysis()">Analyse & build profile ↗</button>
+    </div>
+    <div id="genErr" class="err" style="display:none"></div>
+  </div>
+
+  <!-- Step 4: Output -->
+  <div class="step" id="step4">
+    <div class="analyzing" id="loadState">
+      <div class="spinner"></div>
+      <p style="font-size:15px;font-weight:500;color:var(--color-text-primary)">Analysing your editor profile...</p>
+      <p style="font-size:13px;color:var(--color-text-secondary);margin-top:6px" id="loadMsg">Reviewing skills and experience signals</p>
+    </div>
+    <div id="profileOutput" style="display:none">
+      <div id="profileContent"></div>
+      <div class="nav-row" style="margin-top:1rem;flex-wrap:wrap">
+        <button class="action-btn" onclick="sendPrompt('Based on my editor profile, which type of creators on Fewsion would be the best match for me to collaborate with?')">Find matching creators ↗</button>
+        <button class="action-btn" onclick="sendPrompt('How can I improve my editor profile to get more brand deals and creator collabs on Fewsion?')">Get improvement tips ↗</button>
+        <button class="action-btn" onclick="sendPrompt('Write a short professional pitch I can send to creators or brands introducing myself as a video editor.')">Draft my pitch ↗</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const S={exp:'',lang:[],format:[],tool:[],skill:[],niche:[],videoCount:'',turn:'',avail:'',collab:[]};
+const rateLabels=['Under ₹500','₹500–1,000','₹1,500–3,000','₹3,000–6,000','₹6,000–10,000','₹10,000–20,000','₹20,000–40,000','₹40,000–75,000','₹75,000–1.5L','Negotiable'];
+
+function updateRate(){document.getElementById('rateVal').textContent=rateLabels[document.getElementById('rateRange').value]||'Negotiable';}
+
+function sp(el,g){
+  const cont=el.closest('.pill-group');
+  if(cont)cont.querySelectorAll('.pill').forEach(p=>p.classList.remove('sc','sm'));
+  el.classList.add('sc');
+  S[g]=el.textContent.trim();
+}
+function mp(el,g){
+  el.classList.toggle('sm');
+  S[g]=[...document.querySelectorAll('#'+g+'Pills .pill.sm')].map(p=>p.textContent.trim());
+}
+
+function go(n){
+  document.querySelectorAll('.step').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.pb-step').forEach((p,i)=>{
+    p.classList.remove('done','current');
+    if(i<n)p.classList.add('done');
+    else if(i===n)p.classList.add('current');
+  });
+}
+
+async function startAnalysis(){
+  const name=document.getElementById('editorName').value.trim();
+  const clients=document.getElementById('pastClients').value.trim();
+  const portfolio=document.getElementById('portfolio').value.trim();
+  if(!name||!clients||!portfolio){
+    const e=document.getElementById('genErr');
+    e.textContent='Please fill in your name, past clients/creators, and portfolio link before continuing.';
+    e.style.display='block';
+    return;
+  }
+  document.getElementById('genErr').style.display='none';
+  go(4);
+
+  const msgs=['Reviewing skills and experience signals','Evaluating niche alignment with creator demand','Scoring portfolio and track record','Calculating your editor rating','Building your profile card'];
+  let mi=0;
+  const msgEl=document.getElementById('loadMsg');
+  const int=setInterval(()=>{mi++;if(mi<msgs.length)msgEl.textContent=msgs[mi];},1800);
+
+  const data={
+    name,
+    city:document.getElementById('editorCity').value,
+    bio:document.getElementById('bio').value,
+    experience:S.exp,
+    languages:S.lang,
+    formats:S.format,
+    tools:S.tool,
+    skills:S.skill,
+    niches:S.niche,
+    videoCount:S.videoCount,
+    pastClients:clients,
+    bestVideo:document.getElementById('bestVideo').value,
+    achievements:document.getElementById('achievements').value,
+    portfolio,
+    turnaround:S.turn,
+    availability:S.avail,
+    rate:rateLabels[document.getElementById('rateRange').value],
+    collabTypes:S.collab,
+    extraNote:document.getElementById('extraNote').value
+  };
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:buildPrompt(data)}]})
+    });
+    const res=await resp.json();
+    clearInterval(int);
+    const tb=res.content.find(b=>b.type==='text');
+    if(!tb)throw new Error('no text');
+    const raw=tb.text.replace(/```json|```/g,'').trim();
+    renderProfile(data,JSON.parse(raw));
+  }catch(e){
+    clearInterval(int);
+    renderProfile(data,fallback(data));
+  }
+}
+
+function buildPrompt(d){
+  return `You are a talent evaluator for a creator economy platform in India. Score this video editor's profile and return ONLY valid JSON, no markdown, no preamble.
+
+Editor profile:
+- Name: ${d.name}
+- City: ${d.city||'not provided'}
+- Experience: ${d.experience||'not specified'}
+- Formats: ${d.formats.join(', ')||'none'}
+- Tools: ${d.tools.join(', ')||'none'}
+- Special skills: ${d.skills.join(', ')||'none'}
+- Niches edited for: ${d.niches.join(', ')||'none'}
+- Total videos edited: ${d.videoCount||'not specified'}
+- Past clients: ${d.pastClients}
+- Best video result: ${d.bestVideo||'not provided'}
+- Achievements: ${d.achievements||'not provided'}
+- Turnaround: ${d.turnaround||'not specified'}
+- Availability: ${d.availability||'not specified'}
+- Rate: ${d.rate}
+- Collab types: ${d.collabTypes.join(', ')||'any'}
+- Bio: ${d.bio||'not provided'}
+- Languages: ${d.languages.join(', ')||'not specified'}
+
+Score each dimension 0–100:
+- skill_score: breadth & depth of tools and skills (25% weight)
+- experience_score: years + volume of work done (25% weight)  
+- niche_score: how well niche coverage aligns with high-demand creator categories (20% weight)
+- track_record_score: quality of past work, achievements, notable results (20% weight)
+- availability_score: turnaround speed + availability type (10% weight)
+
+Weighted total = overall editor rating 0–100.
+
+Return exactly:
+{
+  "total_score": number,
+  "grade": "A+" | "A" | "B+" | "B" | "C+" | "C" | "D",
+  "grade_label": "short phrase like 'Top-tier editor' or 'Rising talent'",
+  "summary": "2-3 sentences an honest brand or creator would read to decide if they want to hire this editor",
+  "skill_score": number,
+  "experience_score": number,
+  "niche_score": number,
+  "track_record_score": number,
+  "availability_score": number,
+  "strengths": ["strength 1","strength 2","strength 3"],
+  "improvements": ["improvement 1","improvement 2"],
+  "best_fit_creators": ["creator type 1","creator type 2","creator type 3"],
+  "best_fit_brands": ["brand type 1","brand type 2"],
+  "standout_signal": "the single most impressive thing about this editor in one sentence"
+}`;
+}
+
+function fallback(d){
+  const expMap={'Less than 1 year':20,'1–2 years':40,'2–4 years':60,'4–7 years':80,'7+ years':95};
+  const volMap={'Fewer than 20':20,'20–50':40,'50–150':60,'150–500':80,'500+':95};
+  const exp=expMap[d.experience]||50;
+  const vol=volMap[d.videoCount]||50;
+  const skill=Math.min(95,40+d.tools.length*8+d.skills.length*4);
+  const niche=Math.min(95,40+d.niches.length*7);
+  const track=d.achievements?75:d.bestVideo?65:50;
+  const avail=d.turnaround==='24 hours'?95:d.turnaround==='2–3 days'?82:70;
+  const exp_score=Math.round((exp+vol)/2);
+  const total=Math.round(skill*.25+exp_score*.25+niche*.20+track*.20+avail*.10);
+  const grade=total>=90?'A+':total>=80?'A':total>=70?'B+':total>=60?'B':total>=50?'C+':'C';
+  return{
+    total_score:total,grade,
+    grade_label:total>=80?'Top-tier editor':total>=65?'Experienced talent':'Rising talent',
+    summary:`${d.name} brings hands-on editing experience across ${d.formats.slice(0,2).join(' and ')||'multiple formats'}. ${d.niches.length>2?'Strong niche versatility across '+d.niches.slice(0,3).join(', ')+'.':'Building niche depth in creator content.'} A solid choice for creators looking for reliable turnaround.`,
+    skill_score:skill,experience_score:exp_score,niche_score:niche,track_record_score:track,availability_score:avail,
+    strengths:['Clear format specialisation','Hands-on industry experience','Communicates availability upfront'],
+    improvements:['Add specific view/result metrics to past work','Include a showreel with diverse content examples'],
+    best_fit_creators:['Mid-tier YouTubers','Instagram lifestyle creators','D2C brand content teams'],
+    best_fit_brands:['D2C product brands','EdTech platforms','Consumer apps'],
+    standout_signal:d.achievements||'Consistent track record across multiple creator niches.'
+  };
+}
+
+function sc(s){return s>=85?'#D85A30':s>=70?'#1D9E75':s>=50?'#BA7517':'#A32D2D';}
+function gc(g){
+  if(g.startsWith('A'))return{bg:'#E1F5EE',c:'#085041'};
+  if(g.startsWith('B'))return{bg:'#FAECE7',c:'#712B13'};
+  return{bg:'#FAEEDA',c:'#633806'};
+}
+
+function renderProfile(d,r){
+  const total=Math.min(100,Math.max(0,Math.round(r.total_score)));
+  const circ=2*Math.PI*28;
+  const offset=circ-(total/100)*circ;
+  const gcol=gc(r.grade);
+  const initials=d.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+
+  const metrics=[
+    {label:'Skills & tools',val:r.skill_score},
+    {label:'Experience',val:r.experience_score},
+    {label:'Niche coverage',val:r.niche_score},
+    {label:'Track record',val:r.track_record_score},
+    {label:'Availability',val:r.availability_score}
+  ];
+
+  document.getElementById('profileContent').innerHTML=`
+    <div class="profile-header-card">
+      <div class="profile-banner">
+        <div class="avatar">${initials}</div>
+        <div style="flex:1">
+          <p style="font-size:17px;font-weight:500;color:#712B13">${d.name}</p>
+          <p style="font-size:13px;color:#993C1D;margin-top:2px">${d.bio||'Video editor'}</p>
+          <div class="tag-row">
+            ${d.city?`<span class="tag tag-coral"><i class="ti ti-map-pin" style="font-size:11px" aria-hidden="true"></i> ${d.city}</span>`:''}
+            ${d.experience?`<span class="tag tag-coral"><i class="ti ti-clock" style="font-size:11px" aria-hidden="true"></i> ${d.experience}</span>`:''}
+            ${d.availability?`<span class="tag tag-teal">${d.availability}</span>`:''}
+          </div>
+        </div>
+        <div style="text-align:center;flex-shrink:0">
+          <div class="score-ring-sm">
+            <svg width="72" height="72" viewBox="0 0 72 72">
+              <circle cx="36" cy="36" r="28" fill="none" stroke="var(--color-border-tertiary)" stroke-width="6"/>
+              <circle cx="36" cy="36" r="28" fill="none" stroke="${sc(total)}" stroke-width="6" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" stroke-linecap="round"/>
+            </svg>
+            <div class="ring-label">
+              <span style="font-size:20px;font-weight:500;color:var(--color-text-primary)">${total}</span>
+              <span style="font-size:10px;color:var(--color-text-secondary)">/100</span>
+            </div>
+          </div>
+          <span style="display:inline-block;font-size:11px;padding:3px 10px;border-radius:12px;background:${gcol.bg};color:${gcol.c};margin-top:4px">Grade ${r.grade}</span>
+        </div>
+      </div>
+      <div class="profile-body">
+        <div class="ai-chip"><i class="ti ti-sparkles" style="font-size:12px" aria-hidden="true"></i> AI-generated profile summary</div>
+        <p style="font-size:13px;line-height:1.65;margin-bottom:12px">${r.summary}</p>
+        ${r.standout_signal?`<div style="background:#FAECE7;border-radius:var(--border-radius-md);padding:10px 12px;font-size:13px;color:#712B13;display:flex;align-items:flex-start;gap:8px"><i class="ti ti-award" style="font-size:16px;flex-shrink:0;margin-top:1px" aria-hidden="true"></i><span>${r.standout_signal}</span></div>`:''}
+        <div class="info-grid" style="margin-top:12px">
+          <div class="info-row"><span class="lbl">Turnaround</span><span class="val">${d.turnaround||'—'}</span></div>
+          <div class="info-row"><span class="lbl">Rate (short-form)</span><span class="val">${d.rate||'—'}</span></div>
+          <div class="info-row"><span class="lbl">Videos edited</span><span class="val">${d.videoCount||'—'}</span></div>
+          <div class="info-row"><span class="lbl">Languages</span><span class="val">${d.languages.slice(0,2).join(', ')||'—'}</span></div>
+        </div>
+        <div class="tag-row">
+          ${d.formats.slice(0,4).map(f=>`<span class="tag tag-coral">${f}</span>`).join('')}
+          ${d.tools.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}
+        </div>
+        ${d.portfolio?`<div style="margin-top:10px"><a href="${d.portfolio}" style="font-size:13px;color:#D85A30;display:inline-flex;align-items:center;gap:6px;text-decoration:none"><i class="ti ti-external-link" style="font-size:14px" aria-hidden="true"></i> View portfolio / showreel</a></div>`:''}
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      ${metrics.map(m=>`
+        <div class="m-card">
+          <div class="mv">${Math.round(m.val)}</div>
+          <div class="ml">${m.label}</div>
+          <div class="mbar"><div class="mfill" style="width:${Math.round(m.val)}%;background:${sc(m.val)}"></div></div>
+        </div>`).join('')}
+    </div>
+
+    <div class="analysis-card">
+      <h3><i class="ti ti-circle-check" style="font-size:16px;color:#1D9E75" aria-hidden="true"></i> Strengths</h3>
+      ${(r.strengths||[]).map(s=>`<div class="finding"><div class="fi fi-good">✓</div><span>${s}</span></div>`).join('')}
+    </div>
+
+    <div class="analysis-card">
+      <h3><i class="ti ti-alert-circle" style="font-size:16px;color:#BA7517" aria-hidden="true"></i> Areas to improve</h3>
+      ${(r.improvements||[]).map(i=>`<div class="finding"><div class="fi fi-warn">!</div><span>${i}</span></div>`).join('')}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
+      <div class="analysis-card" style="margin-bottom:0">
+        <h3><i class="ti ti-user-star" style="font-size:16px;color:#D85A30" aria-hidden="true"></i> Best-fit creators</h3>
+        <div class="tag-row" style="margin-top:4px">
+          ${(r.best_fit_creators||[]).map(c=>`<span class="tag tag-coral">${c}</span>`).join('')}
+        </div>
+      </div>
+      <div class="analysis-card" style="margin-bottom:0">
+        <h3><i class="ti ti-building-store" style="font-size:16px;color:#1D9E75" aria-hidden="true"></i> Best-fit brands</h3>
+        <div class="tag-row" style="margin-top:4px">
+          ${(r.best_fit_brands||[]).map(b=>`<span class="tag tag-teal">${b}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="analysis-card" style="background:var(--color-background-secondary)">
+      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Preferred collaborations</p>
+      <div class="tag-row">
+        ${d.collabTypes.map(c=>`<span class="tag">${c}</span>`).join('')}
+        ${!d.collabTypes.length?'<span style="font-size:13px;color:var(--color-text-secondary)">Not specified</span>':''}
+      </div>
+      ${d.extraNote?`<p style="font-size:13px;margin-top:10px;line-height:1.6;color:var(--color-text-primary)">${d.extraNote}</p>`:''}
+    </div>
+  `;
+
+  document.getElementById('loadState').style.display='none';
+  document.getElementById('profileOutput').style.display='block';
+}
+</script>

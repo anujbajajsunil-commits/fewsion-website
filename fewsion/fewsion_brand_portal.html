@@ -1,0 +1,598 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{padding:1.5rem 0}
+.progress-bar{display:flex;gap:6px;margin-bottom:2rem}
+.pb-step{flex:1;height:4px;background:var(--color-border-tertiary);border-radius:2px;transition:background .3s}
+.pb-step.done{background:#1D9E75}
+.pb-step.current{background:#534AB7}
+.step{display:none}
+.step.active{display:block}
+.sec-title{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.sec-sub{font-size:14px;color:var(--color-text-secondary);margin-bottom:1.5rem;line-height:1.6}
+.q-card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px}
+.q-label{font-size:13px;color:var(--color-text-secondary);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.badge{font-size:11px;padding:2px 8px;border-radius:4px}
+.badge-purple{background:#EEEDFE;color:#3C3489}
+.badge-amber{background:#FAEEDA;color:#633806}
+.badge-teal{background:#E1F5EE;color:#085041}
+input[type=text],input[type=url],input[type=email],input[type=number],select,textarea{width:100%;padding:8px 12px;border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:14px;background:var(--color-background-secondary);color:var(--color-text-primary);font-family:var(--font-sans)}
+textarea{resize:vertical;min-height:80px}
+.pill-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.pill{padding:6px 14px;border:.5px solid var(--color-border-secondary);border-radius:20px;font-size:13px;cursor:pointer;background:var(--color-background-secondary);color:var(--color-text-primary);transition:all .15s;user-select:none}
+.pill.sel-purple{background:#EEEDFE;border-color:#534AB7;color:#3C3489}
+.pill.sel-teal{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.nav-row{display:flex;gap:10px;margin-top:1.5rem}
+.btn-back{padding:10px 20px;background:var(--color-background-primary);border:.5px solid var(--color-border-primary);border-radius:var(--border-radius-md);font-size:14px;cursor:pointer;color:var(--color-text-primary);font-family:var(--font-sans)}
+.btn-back:hover{background:var(--color-background-secondary)}
+.btn-next{padding:10px 24px;background:#534AB7;border:none;border-radius:var(--border-radius-md);font-size:14px;cursor:pointer;color:#fff;font-family:var(--font-sans);font-weight:500}
+.btn-next:hover{background:#3C3489}
+.btn-next:disabled{background:var(--color-border-tertiary);color:var(--color-text-secondary);cursor:not-allowed}
+.btn-ai{padding:10px 22px;background:#1D9E75;border:none;border-radius:var(--border-radius-md);font-size:14px;cursor:pointer;color:#fff;font-family:var(--font-sans);font-weight:500}
+.btn-ai:hover{background:#0F6E56}
+.spinner{width:40px;height:40px;border:3px solid var(--color-border-tertiary);border-top-color:#534AB7;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.analyzing{text-align:center;padding:2.5rem 0}
+.storefront-wrap{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1.5rem}
+.storefront-header{background:#EEEDFE;padding:1.5rem;display:flex;align-items:center;gap:16px;border-bottom:.5px solid var(--color-border-tertiary)}
+.brand-logo{width:56px;height:56px;border-radius:var(--border-radius-md);background:#fff;border:.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:500;color:#3C3489;flex-shrink:0}
+.storefront-body{padding:1.25rem}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.info-row{font-size:13px;display:flex;flex-direction:column;gap:2px}
+.info-row .lbl{color:var(--color-text-secondary);font-size:12px}
+.info-row .val{color:var(--color-text-primary);font-weight:500}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.tag{font-size:12px;padding:3px 10px;border-radius:12px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:.5px solid var(--color-border-tertiary)}
+.tag-purple{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.tag-teal{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.campaign-card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem}
+.campaign-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.campaign-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.status-badge{font-size:11px;padding:3px 10px;border-radius:12px;background:#E1F5EE;color:#085041;border:.5px solid #5DCAA5;white-space:nowrap}
+.metrics-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin:12px 0}
+.m-chip{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center}
+.m-chip .mv{font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.m-chip .ml{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.brief-section{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;margin-top:10px}
+.brief-section p{font-size:13px;color:var(--color-text-primary);line-height:1.6}
+.brief-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.ai-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 10px;border-radius:12px;background:#EEEDFE;color:#3C3489;border:.5px solid #AFA9EC;margin-bottom:10px}
+.section-divider{font-size:13px;font-weight:500;color:var(--color-text-secondary);margin:1.5rem 0 .75rem;display:flex;align-items:center;gap:8px}
+.section-divider::after{content:'';flex:1;height:.5px;background:var(--color-border-tertiary)}
+.action-btn{padding:8px 16px;border:.5px solid var(--color-border-primary);border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans)}
+.action-btn:hover{background:var(--color-background-secondary)}
+.err{color:var(--color-text-danger);font-size:13px;margin-top:8px}
+.range-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.range-row input[type=range]{flex:1}
+.range-val{font-size:14px;font-weight:500;min-width:80px;color:var(--color-text-primary)}
+</style>
+
+<h2 class="sr-only">Fewsion brand portal — list your campaign requirements and get an AI-generated brief</h2>
+<div class="app">
+  <div class="progress-bar" id="pb">
+    <div class="pb-step current" id="pb0"></div>
+    <div class="pb-step" id="pb1"></div>
+    <div class="pb-step" id="pb2"></div>
+    <div class="pb-step" id="pb3"></div>
+    <div class="pb-step" id="pb4"></div>
+  </div>
+
+  <!-- Step 0: Company identity -->
+  <div class="step active" id="step0">
+    <p class="sec-title">Company profile</p>
+    <p class="sec-sub">This becomes your public brand storefront — creators see this before applying.</p>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-building" aria-hidden="true"></i> Brand / company name <span class="badge badge-purple">Required</span></div>
+      <input type="text" id="brandName" placeholder="e.g. Mamaearth, boAt, Atomberg" />
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-briefcase" aria-hidden="true"></i> Industry / category <span class="badge badge-purple">Required</span></div>
+      <div class="pill-group" id="industryPills">
+        <span class="pill" onclick="tp(this,'industry')">Beauty & skincare</span>
+        <span class="pill" onclick="tp(this,'industry')">Consumer electronics</span>
+        <span class="pill" onclick="tp(this,'industry')">Food & beverage</span>
+        <span class="pill" onclick="tp(this,'industry')">Fashion & apparel</span>
+        <span class="pill" onclick="tp(this,'industry')">Health & wellness</span>
+        <span class="pill" onclick="tp(this,'industry')">Fintech & BFSI</span>
+        <span class="pill" onclick="tp(this,'industry')">EdTech</span>
+        <span class="pill" onclick="tp(this,'industry')">Travel & hospitality</span>
+        <span class="pill" onclick="tp(this,'industry')">Home & lifestyle</span>
+        <span class="pill" onclick="tp(this,'industry')">Gaming & entertainment</span>
+        <span class="pill" onclick="tp(this,'industry')">Automotive</span>
+        <span class="pill" onclick="tp(this,'industry')">SaaS / B2B</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-world" aria-hidden="true"></i> Website</div>
+      <input type="url" id="website" placeholder="https://yourbrand.com" />
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-file-text" aria-hidden="true"></i> One-line brand description</div>
+      <input type="text" id="brandDesc" placeholder="e.g. India's leading natural personal care D2C brand" />
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-map-pin" aria-hidden="true"></i> Primary market</div>
+      <div class="pill-group" id="marketPills">
+        <span class="pill" onclick="tp(this,'market')">Pan India</span>
+        <span class="pill" onclick="tp(this,'market')">Metro cities</span>
+        <span class="pill" onclick="tp(this,'market')">Tier 2 & 3 cities</span>
+        <span class="pill" onclick="tp(this,'market')">South India</span>
+        <span class="pill" onclick="tp(this,'market')">North India</span>
+        <span class="pill" onclick="tp(this,'market')">Global / exports</span>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-next" onclick="go(1)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 1: Campaign basics -->
+  <div class="step" id="step1">
+    <p class="sec-title">Campaign basics</p>
+    <p class="sec-sub">Define what you're running and what success looks like.</p>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-speakerphone" aria-hidden="true"></i> Campaign name / product being promoted <span class="badge badge-purple">Required</span></div>
+      <input type="text" id="campaignName" placeholder="e.g. Summer glow serum launch" />
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-target" aria-hidden="true"></i> Campaign objective <span class="badge badge-purple">Required</span></div>
+      <div class="pill-group" id="objPills">
+        <span class="pill" onclick="tp(this,'obj')">Brand awareness</span>
+        <span class="pill" onclick="tp(this,'obj')">Product launch</span>
+        <span class="pill" onclick="tp(this,'obj')">Drive app installs</span>
+        <span class="pill" onclick="tp(this,'obj')">Generate UGC content</span>
+        <span class="pill" onclick="tp(this,'obj')">Sales & conversions</span>
+        <span class="pill" onclick="tp(this,'obj')">Community building</span>
+        <span class="pill" onclick="tp(this,'obj')">Event promotion</span>
+        <span class="pill" onclick="tp(this,'obj')">Rebranding</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-video" aria-hidden="true"></i> Content type needed <span class="badge badge-amber">Key for matching</span></div>
+      <div class="pill-group" id="ctypePills">
+        <span class="pill" onclick="tpm(this,'ctype')">Sponsored video (YouTube)</span>
+        <span class="pill" onclick="tpm(this,'ctype')">Instagram Reel</span>
+        <span class="pill" onclick="tpm(this,'ctype')">UGC ad video</span>
+        <span class="pill" onclick="tpm(this,'ctype')">Static posts</span>
+        <span class="pill" onclick="tpm(this,'ctype')">Stories</span>
+        <span class="pill" onclick="tpm(this,'ctype')">Blog / article</span>
+        <span class="pill" onclick="tpm(this,'ctype')">Podcast mention</span>
+        <span class="pill" onclick="tpm(this,'ctype')">LinkedIn post</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-calendar" aria-hidden="true"></i> Campaign timeline</div>
+      <div class="row2">
+        <div>
+          <div class="q-label" style="margin-bottom:4px">Start date</div>
+          <input type="text" id="startDate" placeholder="e.g. July 2026" />
+        </div>
+        <div>
+          <div class="q-label" style="margin-bottom:4px">Duration</div>
+          <select id="duration">
+            <option value="">Select...</option>
+            <option>1 week</option>
+            <option>2 weeks</option>
+            <option>1 month</option>
+            <option>2–3 months</option>
+            <option>Ongoing / always-on</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-currency-rupee" aria-hidden="true"></i> Total campaign budget (₹)</div>
+      <div class="range-row">
+        <input type="range" min="0" max="10" step="1" value="3" id="budgetRange" oninput="updateBudget()" />
+        <span class="range-val" id="budgetVal">₹1–5L</span>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="go(0)">← Back</button>
+      <button class="btn-next" onclick="go(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Creator requirements -->
+  <div class="step" id="step2">
+    <p class="sec-title">Creator requirements</p>
+    <p class="sec-sub">We match by performance, not just follower count. Set what actually matters to you.</p>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-users" aria-hidden="true"></i> Creator tier preference <span class="badge badge-amber">Key for matching</span></div>
+      <div class="pill-group" id="tierPills">
+        <span class="pill" onclick="tpm(this,'tier')">Nano (1K–10K)</span>
+        <span class="pill" onclick="tpm(this,'tier')">Micro (10K–100K)</span>
+        <span class="pill" onclick="tpm(this,'tier')">Mid-tier (100K–500K)</span>
+        <span class="pill" onclick="tpm(this,'tier')">Macro (500K–1M)</span>
+        <span class="pill" onclick="tpm(this,'tier')">Mega (1M+)</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-chart-line" aria-hidden="true"></i> Minimum engagement rate (%)</div>
+      <div class="range-row">
+        <input type="range" min="1" max="15" step="1" value="3" id="engRange" oninput="updateEng()" />
+        <span class="range-val" id="engVal">3%+</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-category" aria-hidden="true"></i> Creator niche <span class="badge badge-amber">Key for matching</span></div>
+      <div class="pill-group" id="creatorNichePills">
+        <span class="pill" onclick="tpm(this,'cniche')">Beauty & skincare</span>
+        <span class="pill" onclick="tpm(this,'cniche')">Tech & gadgets</span>
+        <span class="pill" onclick="tpm(this,'cniche')">Lifestyle</span>
+        <span class="pill" onclick="tpm(this,'cniche')">Fitness & health</span>
+        <span class="pill" onclick="tpm(this,'cniche')">Finance</span>
+        <span class="pill" onclick="tpm(this,'cniche')">Food & cooking</span>
+        <span class="pill" onclick="tpm(this,'cniche')">Travel</span>
+        <span class="pill" onclick="tpm(this,'cniche')">Gaming</span>
+        <span class="pill" onclick="tpm(this,'cniche')">Parenting</span>
+        <span class="pill" onclick="tpm(this,'cniche')">Education</span>
+        <span class="pill" onclick="tpm(this,'cniche')">Fashion</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-language" aria-hidden="true"></i> Language preference</div>
+      <div class="pill-group" id="langPills">
+        <span class="pill" onclick="tpm(this,'lang')">Hindi</span>
+        <span class="pill" onclick="tpm(this,'lang')">English</span>
+        <span class="pill" onclick="tpm(this,'lang')">Tamil</span>
+        <span class="pill" onclick="tpm(this,'lang')">Telugu</span>
+        <span class="pill" onclick="tpm(this,'lang')">Kannada</span>
+        <span class="pill" onclick="tpm(this,'lang')">Marathi</span>
+        <span class="pill" onclick="tpm(this,'lang')">Bengali</span>
+        <span class="pill" onclick="tpm(this,'lang')">Hinglish</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-users-group" aria-hidden="true"></i> No. of creators needed</div>
+      <div class="row2">
+        <select id="creatorCount">
+          <option value="">Select...</option>
+          <option>1–3</option>
+          <option>4–10</option>
+          <option>10–25</option>
+          <option>25–50</option>
+          <option>50+</option>
+        </select>
+        <select id="genderPref">
+          <option value="">Gender preference (optional)</option>
+          <option>No preference</option>
+          <option>Predominantly female</option>
+          <option>Predominantly male</option>
+          <option>Mixed</option>
+        </select>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="go(1)">← Back</button>
+      <button class="btn-next" onclick="go(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Brief & guidelines -->
+  <div class="step" id="step3">
+    <p class="sec-title">Campaign brief & brand guidelines</p>
+    <p class="sec-sub">The AI brief builder will generate a full brief from your inputs — just give it the raw material.</p>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-message-2" aria-hidden="true"></i> Key message / what should creators communicate? <span class="badge badge-purple">Required</span></div>
+      <textarea id="keyMessage" placeholder="e.g. Our new serum reduces dark spots in 4 weeks, made with 100% natural ingredients, cruelty-free..."></textarea>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-shield-check" aria-hidden="true"></i> Dos — what creators must include</div>
+      <textarea id="dos" placeholder="e.g. Show before/after, mention discount code, tag @BrandHandle, include link in bio..."></textarea>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-ban" aria-hidden="true"></i> Don'ts — what to avoid</div>
+      <textarea id="donts" placeholder="e.g. No competitor mentions, no false medical claims, no offensive humour..."></textarea>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-mood-happy" aria-hidden="true"></i> Brand tone of voice</div>
+      <div class="pill-group" id="tonePills">
+        <span class="pill" onclick="tpm(this,'tone')">Friendly & warm</span>
+        <span class="pill" onclick="tpm(this,'tone')">Premium & aspirational</span>
+        <span class="pill" onclick="tpm(this,'tone')">Educational</span>
+        <span class="pill" onclick="tpm(this,'tone')">Playful & fun</span>
+        <span class="pill" onclick="tpm(this,'tone')">Bold & confident</span>
+        <span class="pill" onclick="tpm(this,'tone')">Minimalist & clean</span>
+        <span class="pill" onclick="tpm(this,'tone')">Authentic & raw</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-label"><i class="ti ti-discount" aria-hidden="true"></i> Promo code / offer for creators to share (optional)</div>
+      <input type="text" id="promoCode" placeholder="e.g. GLOW20 for 20% off" />
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="go(2)">← Back</button>
+      <button class="btn-ai" id="generateBtn" onclick="startGenerate()">Generate brief & storefront ↗</button>
+    </div>
+    <div id="genErr" class="err" style="display:none"></div>
+  </div>
+
+  <!-- Step 4: Output -->
+  <div class="step" id="step4">
+    <div class="analyzing" id="genLoading">
+      <div class="spinner"></div>
+      <p style="font-size:15px;font-weight:500;color:var(--color-text-primary)">Building your brand storefront...</p>
+      <p style="font-size:13px;color:var(--color-text-secondary);margin-top:6px" id="genMsg">Crafting AI-powered campaign brief</p>
+    </div>
+    <div id="storefrontOutput" style="display:none">
+      <div id="storefrontContent"></div>
+      <div class="nav-row" style="margin-top:1rem;flex-wrap:wrap">
+        <button class="action-btn" onclick="sendPrompt('Based on this brand campaign brief, what type of Indian creators on Instagram and YouTube would be the best fit? Give me specific profile types.')">Find matching creators ↗</button>
+        <button class="action-btn" onclick="sendPrompt('Can you write a full outreach message I can send to creators for this campaign?')">Draft creator outreach ↗</button>
+        <button class="action-btn" onclick="sendPrompt('What KPIs and metrics should I track for this influencer campaign?')">Suggest KPIs ↗</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const S={industry:'',market:'',obj:'',ctype:[],tier:[],cniche:[],lang:[],tone:[]};
+const budgetLabels=['Under ₹50K','₹50K–1L','₹1–5L','₹5–10L','₹10–25L','₹25–50L','₹50L–1Cr','₹1–2Cr','₹2–5Cr','₹5Cr+','Flexible'];
+
+function updateBudget(){const v=document.getElementById('budgetRange').value;document.getElementById('budgetVal').textContent=budgetLabels[v];}
+function updateEng(){const v=document.getElementById('engRange').value;document.getElementById('engVal').textContent=v+'%+';}
+
+function tp(el,group){
+  document.querySelectorAll('#'+group+'Pills .pill').forEach(p=>{p.classList.remove('sel-purple','sel-teal')});
+  el.classList.add('sel-purple');
+  S[group]=el.textContent.trim();
+}
+function tpm(el,group){
+  el.classList.toggle('sel-teal');
+  S[group]=[...document.querySelectorAll('[id$="'+group+'Pills"] .pill.sel-teal, #'+group+'Pills .pill.sel-teal')].map(p=>p.textContent.trim());
+  if(!S[group].length)S[group]=[...document.querySelectorAll('.pill.sel-teal')].filter(p=>p.closest('[id*="'+group+'"]')).map(p=>p.textContent.trim());
+}
+
+function go(n){
+  document.querySelectorAll('.step').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.pb-step').forEach((p,i)=>{
+    p.classList.remove('done','current');
+    if(i<n)p.classList.add('done');
+    else if(i===n)p.classList.add('current');
+  });
+}
+
+function getBudget(){return budgetLabels[document.getElementById('budgetRange').value];}
+function getEng(){return document.getElementById('engRange').value+'%+';}
+
+async function startGenerate(){
+  const bn=document.getElementById('brandName').value.trim();
+  const cn=document.getElementById('campaignName').value.trim();
+  const km=document.getElementById('keyMessage').value.trim();
+  if(!bn||!cn||!km){
+    const e=document.getElementById('genErr');
+    e.textContent='Please fill in brand name, campaign name, and key message.';
+    e.style.display='block';
+    return;
+  }
+  document.getElementById('genErr').style.display='none';
+  go(4);
+
+  const msgs=['Crafting AI-powered campaign brief','Analysing creator fit signals','Building brand storefront','Generating match criteria'];
+  let mi=0;
+  const msgEl=document.getElementById('genMsg');
+  const int=setInterval(()=>{mi++;if(mi<msgs.length)msgEl.textContent=msgs[mi];},2000);
+
+  const brandData={
+    brandName:bn,
+    industry:S.industry||'Not specified',
+    website:document.getElementById('website').value,
+    brandDesc:document.getElementById('brandDesc').value,
+    market:S.market||'Not specified',
+    campaignName:cn,
+    objective:S.obj||'Not specified',
+    contentTypes:S.ctype,
+    startDate:document.getElementById('startDate').value,
+    duration:document.getElementById('duration').value,
+    budget:getBudget(),
+    creatorTiers:S.tier,
+    minEngagement:getEng(),
+    creatorNiches:S.cniche,
+    languages:S.lang,
+    creatorCount:document.getElementById('creatorCount').value,
+    genderPref:document.getElementById('genderPref').value,
+    keyMessage:km,
+    dos:document.getElementById('dos').value,
+    donts:document.getElementById('donts').value,
+    tone:S.tone,
+    promoCode:document.getElementById('promoCode').value
+  };
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:buildPrompt(brandData)}]
+      })
+    });
+    const data=await resp.json();
+    clearInterval(int);
+    const tb=data.content.find(b=>b.type==='text');
+    if(!tb)throw new Error('no text');
+    const raw=tb.text.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(raw);
+    renderStorefront(brandData,parsed);
+  }catch(e){
+    clearInterval(int);
+    renderStorefront(brandData,fallbackBrief(brandData));
+  }
+}
+
+function buildPrompt(b){
+  return `You are a campaign strategist for an influencer marketplace. A brand has submitted their campaign requirements. Generate a structured campaign brief and storefront summary. Return ONLY valid JSON, no markdown, no preamble.
+
+Brand data:
+- Brand: ${b.brandName} | Industry: ${b.industry}
+- Description: ${b.brandDesc||'not provided'}
+- Market: ${b.market}
+- Campaign: ${b.campaignName}
+- Objective: ${b.objective}
+- Content types: ${b.contentTypes.join(', ')||'not specified'}
+- Timeline: ${b.startDate||'TBD'} | Duration: ${b.duration||'not specified'}
+- Budget: ${b.budget}
+- Creator tiers: ${b.creatorTiers.join(', ')||'any'}
+- Min engagement: ${b.minEngagement}
+- Creator niches: ${b.creatorNiches.join(', ')||'any'}
+- Languages: ${b.languages.join(', ')||'any'}
+- Creator count: ${b.creatorCount||'not specified'}
+- Key message: ${b.keyMessage}
+- Dos: ${b.dos||'not specified'}
+- Donts: ${b.donts||'not specified'}
+- Tone: ${b.tone.join(', ')||'not specified'}
+- Promo code: ${b.promoCode||'none'}
+
+Return this JSON:
+{
+  "campaign_tagline": "punchy 1-line tagline for this campaign",
+  "brief_summary": "2-3 sentence polished campaign brief summary that creators will read",
+  "ideal_creator_profile": "2 sentences describing the ideal creator for this campaign",
+  "content_guidelines": ["guideline 1", "guideline 2", "guideline 3", "guideline 4"],
+  "deliverables": ["deliverable 1", "deliverable 2", "deliverable 3"],
+  "success_metrics": ["metric 1", "metric 2", "metric 3"],
+  "brand_safety_notes": "1-2 sentences on brand safety requirements",
+  "estimated_reach": "estimated total reach range based on tiers and count",
+  "campaign_fit_score": number between 60-99 representing how well-defined this campaign is,
+  "fit_label": "string like 'Well-defined campaign' or 'Strong brief' or 'Highly targeted'",
+  "tips": ["one actionable tip to improve this campaign", "second tip"]
+}`;
+}
+
+function fallbackBrief(b){
+  return {
+    campaign_tagline:`${b.campaignName} — made for real people`,
+    brief_summary:`${b.brandName} is looking for authentic creators to promote ${b.campaignName}. The campaign focuses on ${b.objective||'brand awareness'} targeting ${b.market} audiences. Creators will produce ${b.contentTypes.join(' and ')||'content'} that resonates with their communities.`,
+    ideal_creator_profile:`Creators in the ${b.creatorNiches.join(', ')||'lifestyle'} niche with a minimum ${b.minEngagement} engagement rate. ${b.creatorTiers.length?'Targeting '+b.creatorTiers.join(', ')+' tier creators.':'Open to all tiers.'}`,
+    content_guidelines:['Authentically integrate the product into existing content','Follow brand tone guidelines throughout','Include all required disclosures (#ad or #sponsored)','Submit content draft for approval before publishing'],
+    deliverables:[b.contentTypes[0]||'1 sponsored post','Story mentions with swipe-up link','Performance report after 7 days'],
+    success_metrics:['Reach and impressions','Engagement rate','Click-through to brand website'],
+    brand_safety_notes:`All content must align with ${b.brandName}'s values. Avoid competitor mentions and any claims not pre-approved by the brand.`,
+    estimated_reach:b.creatorTiers.includes('Macro (500K–1M)')||b.creatorTiers.includes('Mega (1M+)')?'5M–20M+':'500K–5M',
+    campaign_fit_score:74,
+    fit_label:'Good campaign foundation',
+    tips:['Add specific KPIs to attract performance-focused creators','Include sample content or mood board for clearer creative direction']
+  };
+}
+
+function scoreColor(s){return s>=85?'#1D9E75':s>=70?'#534AB7':'#BA7517';}
+
+function renderStorefront(b,r){
+  const initials=b.brandName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const score=Math.min(99,Math.max(60,Math.round(r.campaign_fit_score)));
+  const circ=2*Math.PI*28;
+  const offset=circ-(score/100)*circ;
+
+  document.getElementById('storefrontContent').innerHTML=`
+    <div class="storefront-wrap">
+      <div class="storefront-header">
+        <div class="brand-logo">${initials}</div>
+        <div style="flex:1">
+          <p style="font-size:17px;font-weight:500;color:#3C3489">${b.brandName}</p>
+          <p style="font-size:13px;color:#534AB7;margin-top:2px">${b.brandDesc||b.industry}</p>
+          <div class="tag-row" style="margin-top:6px">
+            ${b.industry?`<span class="tag tag-purple">${b.industry}</span>`:''}
+            ${b.market?`<span class="tag tag-purple"><i class="ti ti-map-pin" style="font-size:11px" aria-hidden="true"></i> ${b.market}</span>`:''}
+            ${b.website?`<a href="${b.website}" style="text-decoration:none"><span class="tag tag-purple"><i class="ti ti-external-link" style="font-size:11px" aria-hidden="true"></i> Website</span></a>`:''}
+          </div>
+        </div>
+        <div style="text-align:center;flex-shrink:0">
+          <div style="position:relative;width:70px;height:70px;margin:0 auto">
+            <svg width="70" height="70" viewBox="0 0 70 70" style="transform:rotate(-90deg)">
+              <circle cx="35" cy="35" r="28" fill="none" stroke="var(--color-border-tertiary)" stroke-width="6"/>
+              <circle cx="35" cy="35" r="28" fill="none" stroke="${scoreColor(score)}" stroke-width="6" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" stroke-linecap="round"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">${score}</span>
+              <span style="font-size:10px;color:var(--color-text-secondary)">/100</span>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--color-text-secondary);margin-top:4px">${r.fit_label}</p>
+        </div>
+      </div>
+      <div class="storefront-body">
+        <div class="info-grid">
+          <div class="info-row"><span class="lbl">Budget</span><span class="val">${b.budget}</span></div>
+          <div class="info-row"><span class="lbl">Duration</span><span class="val">${b.duration||'TBD'}</span></div>
+          <div class="info-row"><span class="lbl">Creators needed</span><span class="val">${b.creatorCount||'Open'}</span></div>
+          <div class="info-row"><span class="lbl">Est. reach</span><span class="val">${r.estimated_reach}</span></div>
+        </div>
+        <div class="tag-row">
+          ${b.contentTypes.map(c=>`<span class="tag tag-teal"><i class="ti ti-video" style="font-size:11px" aria-hidden="true"></i> ${c}</span>`).join('')}
+          ${b.languages.map(l=>`<span class="tag"><i class="ti ti-language" style="font-size:11px" aria-hidden="true"></i> ${l}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="campaign-card">
+      <div class="campaign-header">
+        <div>
+          <div class="ai-chip"><i class="ti ti-sparkles" style="font-size:12px" aria-hidden="true"></i> AI-generated brief</div>
+          <div class="campaign-title">${b.campaignName}</div>
+          <p style="font-size:13px;color:var(--color-text-secondary);margin-top:2px;font-style:italic">${r.campaign_tagline}</p>
+        </div>
+        <span class="status-badge">Open for applications</span>
+      </div>
+
+      <div class="brief-section" style="margin-bottom:10px">
+        <div class="brief-label">Campaign overview</div>
+        <p>${r.brief_summary}</p>
+      </div>
+
+      <div class="brief-section" style="margin-bottom:10px">
+        <div class="brief-label">Ideal creator profile</div>
+        <p>${r.ideal_creator_profile}</p>
+      </div>
+
+      <div class="metrics-row">
+        ${b.creatorTiers.slice(0,4).map(t=>`<div class="m-chip"><div class="mv" style="font-size:13px">${t.split('(')[0].trim()}</div><div class="ml">tier</div></div>`).join('')}
+        <div class="m-chip"><div class="mv">${b.minEngagement}</div><div class="ml">min eng rate</div></div>
+      </div>
+    </div>
+
+    <div class="section-divider"><i class="ti ti-list-check" style="font-size:14px" aria-hidden="true"></i> Content guidelines</div>
+    <div class="campaign-card" style="margin-bottom:1rem">
+      ${r.content_guidelines.map(g=>`
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:13px;line-height:1.5">
+          <div style="width:18px;height:18px;border-radius:50%;background:#EEEDFE;color:#3C3489;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px">✓</div>
+          <span>${g}</span>
+        </div>`).join('')}
+      ${r.content_guidelines.length?'':'<p style="font-size:13px;color:var(--color-text-secondary)">No specific guidelines added.</p>'}
+    </div>
+
+    <div class="section-divider"><i class="ti ti-package" style="font-size:14px" aria-hidden="true"></i> Deliverables & KPIs</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem">
+      <div class="campaign-card" style="margin-bottom:0">
+        <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Deliverables</p>
+        ${r.deliverables.map(d=>`<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 0"><i class="ti ti-circle-dot" style="font-size:13px;color:#534AB7" aria-hidden="true"></i>${d}</div>`).join('')}
+      </div>
+      <div class="campaign-card" style="margin-bottom:0">
+        <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Success metrics</p>
+        ${r.success_metrics.map(m=>`<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 0"><i class="ti ti-chart-bar" style="font-size:13px;color:#1D9E75" aria-hidden="true"></i>${m}</div>`).join('')}
+      </div>
+    </div>
+
+    ${r.tips&&r.tips.length?`
+    <div class="section-divider"><i class="ti ti-bulb" style="font-size:14px" aria-hidden="true"></i> Tips to strengthen this campaign</div>
+    <div class="campaign-card" style="background:var(--color-background-secondary);margin-bottom:1.5rem">
+      ${r.tips.map(t=>`
+        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:13px;line-height:1.5">
+          <div style="width:18px;height:18px;border-radius:50%;background:#FAEEDA;color:#633806;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px">!</div>
+          <span>${t}</span>
+        </div>`).join('')}
+    </div>`:''}
+
+    <div class="campaign-card" style="background:var(--color-background-secondary)">
+      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:4px">Brand safety note</p>
+      <p style="font-size:13px;line-height:1.6">${r.brand_safety_notes}</p>
+      ${b.promoCode?`<div style="margin-top:10px;display:inline-flex;align-items:center;gap:8px;background:var(--color-background-primary);border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:6px 12px;font-size:13px"><i class="ti ti-discount" style="font-size:14px;color:#534AB7" aria-hidden="true"></i> Promo code: <strong>${b.promoCode}</strong></div>`:''}
+    </div>
+  `;
+
+  document.getElementById('genLoading').style.display='none';
+  document.getElementById('storefrontOutput').style.display='block';
+}
+</script>
