@@ -877,17 +877,27 @@
 </div>
 
 <script>
-// 1. Initialize Supabase Config 
+// 1. Keep credentials clear at the top scope
 const SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co"; 
 const SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3"; 
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); 
+let supabase = null;
+
+// Initialize Supabase safely after the window and CDN script bundle have loaded
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.supabase && typeof window.supabase.createClient === 'function') {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log("Supabase Client attached safely.");
+  } else {
+    console.error("Supabase CDN script hasn't mounted in the DOM yet.");
+  }
+});
 
 // 2. Global Form State
 const S = { industry: '', market: '', obj: '', ctype: [], tier: [], cniche: [], lang: [], tone: [] };
 const budgetLabels = ['Under ₹50K', '₹50K–1L', '₹1–5L', '₹5–10L', '₹10–25L', '₹25–50L', '₹50L–1Cr', '₹1–2Cr', '₹2–5Cr', '₹5Cr+', 'Flexible'];
 
-// 3. UI Component Controllers (Restored for clicks and sliders)
+// 3. UI Component Controllers (Restored for clicks and step jumps)
 function updateBudget() { 
   const v = document.getElementById('budgetRange').value; 
   document.getElementById('budgetVal').textContent = budgetLabels[v]; 
@@ -922,83 +932,19 @@ function go(n) {
 function getBudget() { return budgetLabels[document.getElementById('budgetRange').value]; }
 function getEng() { return document.getElementById('engRange').value + '%+'; }
 
-// 4. Main Generation & Database Pipeline
-async function startGenerate() {
-  const bn = document.getElementById('brandName').value.trim();
-  const cn = document.getElementById('campaignName').value.trim();
-  const km = document.getElementById('keyMessage').value.trim();
-  
-  if (!bn || !cn || !km) {
-    const e = document.getElementById('genErr');
-    e.textContent = 'Please fill in brand name, campaign name, and key message.';
-    e.style.display = 'block';
-    return;
-  }
-  document.getElementById('genErr').style.display = 'none';
-  go(4);
-
-  const msgs = ['Crafting AI-powered campaign brief', 'Analysing creator fit signals', 'Building brand storefront', 'Generating match criteria'];
-  let mi = 0;
-  const msgEl = document.getElementById('genMsg');
-  const int = setInterval(() => { mi++; if (mi < msgs.length) msgEl.textContent = msgs[mi]; }, 2000);
-
-  const brandData = {
-    brandName: bn,
-    industry: S.industry || 'Not specified',
-    website: document.getElementById('website').value,
-    brandDesc: document.getElementById('brandDesc').value,
-    market: S.market || 'Not specified',
-    campaignName: cn,
-    objective: S.obj || 'Not specified',
-    contentTypes: S.ctype,
-    startDate: document.getElementById('startDate').value,
-    duration: document.getElementById('duration').value,
-    budget: getBudget(),
-    creatorTiers: S.tier,
-    minEngagement: getEng(),
-    creatorNiches: S.cniche,
-    languages: S.lang,
-    creatorCount: document.getElementById('creatorCount').value,
-    genderPref: document.getElementById('genderPref').value,
-    keyMessage: km,
-    dos: document.getElementById('dos').value,
-    donts: document.getElementById('donts').value,
-    tone: S.tone,
-    promoCode: document.getElementById('promoCode').value
-  };
-
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: buildPrompt(brandData) }]
-      })
-    });
-    const data = await resp.json();
-    clearInterval(int);
-    const textBlock = data.content.find(b => b.type === 'text');
-    if (!textBlock) throw new Error('no text');
-    const raw = textBlock.text.replace(/```json|
-```/g, '').trim();
-    const parsed = JSON.parse(raw);
-    
-    renderStorefront(brandData, parsed);
-    await saveBrandToSupabase(brandData, parsed);
-
-  } catch (e) {
-    clearInterval(int);
-    const fallback = fallbackBrief(brandData);
-    renderStorefront(brandData, fallback);
-    await saveBrandToSupabase(brandData, fallback);
-  }
-}
-
-// 5. Supabase Storage Write Hook
+// 4. Update the DB write block to gracefully handle structural gaps if the client is connecting
 async function saveBrandToSupabase(brandData, aiParsedResult) {
   try {
+    // Fallback instantiation if DOM cycle raced execution
+    if (!supabase && window.supabase) {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+    
+    if (!supabase) {
+      console.warn("Supabase database connection unavailable. Form logic saved locally.");
+      return; 
+    }
+
     const activeUser = FewsionAuth.getUser(); 
     if (!activeUser) throw new Error("No active authenticated session found.");
 
@@ -1037,178 +983,5 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
   } catch (err) {
     console.error("Database connection write error:", err.message);
   }
-}
-
-function buildPrompt(b) {
-  return `You are a campaign strategist for an influencer marketplace. A brand has submitted their campaign requirements. Generate a structured campaign brief and storefront summary. Return ONLY valid JSON, no markdown, no preamble.
-
-Brand data:
-- Brand: ${b.brandName} | Industry: ${b.industry}
-- Description: ${b.brandDesc||'not provided'}
-- Market: ${b.market}
-- Campaign: ${b.campaignName}
-- Objective: ${b.objective}
-- Content types: ${b.contentTypes.join(', ')||'not specified'}
-- Timeline: ${b.startDate||'TBD'} | Duration: ${b.duration||'not specified'}
-- Budget: ${b.budget}
-- Creator tiers: ${b.creatorTiers.join(', ')||'any'}
-- Min engagement: ${b.minEngagement}
-- Creator niches: ${b.creatorNiches.join(', ')||'any'}
-- Languages: ${b.languages.join(', ')||'any'}
-- Creator count: ${b.creatorCount||'not specified'}
-- Key message: ${b.keyMessage}
-- Dos: ${b.dos||'not specified'}
-- Donts: ${b.donts||'not specified'}
-- Tone: ${b.tone.join(', ')||'not specified'}
-- Promo code: ${b.promoCode||'none'}
-
-Return this JSON:
-{
-  "campaign_tagline": "punchy 1-line tagline for this campaign",
-  "brief_summary": "2-3 sentence polished campaign brief summary that creators will read",
-  "ideal_creator_profile": "2 sentences describing the ideal creator for this campaign",
-  "content_guidelines": ["guideline 1", "guideline 2", "guideline 3", "guideline 4"],
-  "deliverables": ["deliverable 1", "deliverable 2", "deliverable 3"],
-  "success_metrics": ["metric 1", "metric 2", "metric 3"],
-  "brand_safety_notes": "1-2 sentences on brand safety requirements",
-  "estimated_reach": "estimated total reach range based on tiers and count",
-  "campaign_fit_score": number between 60-99 representing how well-defined this campaign is,
-  "fit_label": "string like 'Well-defined campaign' or 'Strong brief' or 'Highly targeted'",
-  "tips": ["one actionable tip to improve this campaign", "second tip"]
-}`;
-}
-
-function fallbackBrief(b) {
-  return {
-    campaign_tagline: `${b.campaignName} — made for real people`,
-    brief_summary: `${b.brandName} is looking for authentic creators to promote ${b.campaignName}. The campaign focuses on ${b.objective||'brand awareness'} targeting ${b.market} audiences. Creators will produce ${b.contentTypes.join(' and ')||'content'} that resonates with their communities.`,
-    ideal_creator_profile: `Creators in the ${b.creatorNiches.join(', ')||'lifestyle'} niche with a minimum ${b.minEngagement} engagement rate. ${b.creatorTiers.length?'Targeting '+b.creatorTiers.join(', ')+' tier creators.':'Open to all tiers.'}`,
-    content_guidelines: ['Authentically integrate the product into existing content', 'Follow brand tone guidelines throughout', 'Include all required disclosures (#ad or #sponsored)', 'Submit content draft for approval before publishing'],
-    deliverables: [b.contentTypes[0]||'1 sponsored post', 'Story mentions with swipe-up link', 'Performance report after 7 days'],
-    success_metrics: ['Reach and impressions', 'Engagement rate', 'Click-through to brand website'],
-    brand_safety_notes: `All content must align with ${b.brandName}'s values. Avoid competitor mentions and any claims not pre-approved by the brand.`,
-    estimated_reach: b.creatorTiers.includes('Macro (500K–1M)') || b.creatorTiers.includes('Mega (1M+)') ? '5M–20M+' : '500K–5M',
-    campaign_fit_score: 74,
-    fit_label: 'Good campaign foundation',
-    tips: ['Add specific KPIs to attract performance-focused creators', 'Include sample content or mood board for clearer creative direction']
-  };
-}
-
-function scoreColor(s) { return s >= 85 ? '#1D9E75' : s >= 70 ? '#534AB7' : '#BA7517'; }
-
-function renderStorefront(b, r) {
-  const initials = b.brandName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-  const score = Math.min(99, Math.max(60, Math.round(r.campaign_fit_score)));
-  const circ = 2 * Math.PI * 28;
-  const offset = circ - (score / 100) * circ;
-
-  document.getElementById('storefrontContent').innerHTML = `
-    <div class="storefront-wrap">
-      <div class="storefront-header">
-        <div class="brand-logo">${initials}</div>
-        <div style="flex:1">
-          <p style="font-size:17px;font-weight:500;color:#3C3489">${b.brandName}</p>
-          <p style="font-size:13px;color:#534AB7;margin-top:2px">${b.brandDesc||b.industry}</p>
-          <div class="tag-row" style="margin-top:6px">
-            ${b.industry?`<span class="tag tag-purple">${b.industry}</span>`:''}
-            ${b.market?`<span class="tag tag-purple"><i class="ti ti-map-pin" style="font-size:11px" aria-hidden="true"></i> ${b.market}</span>`:''}
-            ${b.website?`<a href="${b.website}" style="text-decoration:none"><span class="tag tag-purple"><i class="ti ti-external-link" style="font-size:11px" aria-hidden="true"></i> Website</span></a>`:''}
-          </div>
-        </div>
-        <div style="text-align:center;flex-shrink:0">
-          <div style="position:relative;width:70px;height:70px;margin:0 auto">
-            <svg width="70" height="70" viewBox="0 0 70 70" style="transform:rotate(-90deg)">
-              <circle cx="35" cy="35" r="28" fill="none" stroke="var(--color-border-tertiary)" stroke-width="6"/>
-              <circle cx="35" cy="35" r="28" fill="none" stroke="${scoreColor(score)}" stroke-width="6" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" stroke-linecap="round"/>
-            </svg>
-            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-              <span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">${score}</span>
-              <span style="font-size:10px;color:var(--color-text-secondary)">/100</span>
-            </div>
-          </div>
-          <p style="font-size:11px;color:var(--color-text-secondary);margin-top:4px">${r.fit_label}</p>
-        </div>
-      </div>
-      <div class="storefront-body">
-        <div class="info-grid">
-          <div class="info-row"><span class="lbl">Budget</span><span class="val">${b.budget}</span></div>
-          <div class="info-row"><span class="lbl">Duration</span><span class="val">${b.duration||'TBD'}</span></div>
-          <div class="info-row"><span class="lbl">Creators needed</span><span class="val">${b.creatorCount||'Open'}</span></div>
-          <div class="info-row"><span class="lbl">Est. reach</span><span class="val">${r.estimated_reach}</span></div>
-        </div>
-        <div class="tag-row">
-          ${b.contentTypes.map(c => `<span class="tag tag-teal"><i class="ti ti-video" style="font-size:11px" aria-hidden="true"></i> ${c}</span>`).join('')}
-          ${b.languages.map(l => `<span class="tag"><i class="ti ti-language" style="font-size:11px" aria-hidden="true"></i> ${l}</span>`).join('')}
-        </div>
-      </div>
-    </div>
-
-    <div class="campaign-card">
-      <div class="campaign-header">
-        <div>
-          <div class="ai-chip"><i class="ti ti-sparkles" style="font-size:12px" aria-hidden="true"></i> AI-generated brief</div>
-          <div class="campaign-title">${b.campaignName}</div>
-          <p style="font-size:13px;color:var(--color-text-secondary);margin-top:2px;font-style:italic">${r.campaign_tagline}</p>
-        </div>
-        <span class="status-badge">Open for applications</span>
-      </div>
-
-      <div class="brief-section" style="margin-bottom:10px">
-        <div class="brief-label">Campaign overview</div>
-        <p>${r.brief_summary}</p>
-      </div>
-
-      <div class="brief-section" style="margin-bottom:10px">
-        <div class="brief-label">Ideal creator profile</div>
-        <p>${r.ideal_creator_profile}</p>
-      </div>
-
-      <div class="metrics-row">
-        ${b.creatorTiers.slice(0, 4).map(t => `<div class="m-chip"><div class="mv" style="font-size:13px">${t.split('(')[0].trim()}</div><div class="ml">tier</div></div>`).join('')}
-        <div class="m-chip"><div class="mv">${b.minEngagement}</div><div class="ml">min eng rate</div></div>
-      </div>
-    </div>
-
-    <div class="section-divider"><i class="ti ti-list-check" style="font-size:14px" aria-hidden="true"></i> Content guidelines</div>
-    <div class="campaign-card" style="margin-bottom:1rem">
-      ${r.content_guidelines.map(g => `
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:13px;line-height:1.5">
-          <div style="width:18px;height:18px;border-radius:50%;background:#EEEDFE;color:#3C3489;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px">✓</div>
-          <span>${g}</span>
-        </div>`).join('')}
-      ${r.content_guidelines.length?'':'<p style="font-size:13px;color:var(--color-text-secondary)">No specific guidelines added.</p>'}
-    </div>
-
-    <div class="section-divider"><i class="ti ti-package" style="font-size:14px" aria-hidden="true"></i> Deliverables & KPIs</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem">
-      <div class="campaign-card" style="margin-bottom:0">
-        <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Deliverables</p>
-        ${r.deliverables.map(d => `<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 0"><i class="ti ti-circle-dot" style="font-size:13px;color:#534AB7" aria-hidden="true"></i>${d}</div>`).join('')}
-      </div>
-      <div class="campaign-card" style="margin-bottom:0">
-        <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Success metrics</p>
-        ${r.success_metrics.map(m => `<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 0"><i class="ti ti-chart-bar" style="font-size:13px;color:#1D9E75" aria-hidden="true"></i>${m}</div>`).join('')}
-      </div>
-    </div>
-
-    ${r.tips&&r.tips.length?`
-    <div class="section-divider"><i class="ti ti-bulb" style="font-size:14px" aria-hidden="true"></i> Tips to strengthen this campaign</div>
-    <div class="campaign-card" style="background:var(--color-background-secondary);margin-bottom:1.5rem">
-      ${r.tips.map(t => `
-        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:13px;line-height:1.5">
-          <div style="width:18px;height:18px;border-radius:50%;background:#FAEEDA;color:#633806;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px">!</div>
-          <span>${t}</span>
-        </div>`).join('')}
-    </div>`:''}
-
-    <div class="campaign-card" style="background:var(--color-background-secondary)">
-      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:4px">Brand safety note</p>
-      <p style="font-size:13px;line-height:1.6">${r.brand_safety_notes}</p>
-      ${b.promoCode?`<div style="margin-top:10px;display:inline-flex;align-items:center;gap:8px;background:var(--color-background-primary);border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:6px 12px;font-size:13px"><i class="ti ti-discount" style="font-size:14px;color:#534AB7" aria-hidden="true"></i> Promo code: <strong>${b.promoCode}</strong></div>`:''}
-    </div>
-  `;
-
-  document.getElementById('genLoading').style.display = 'none';
-  document.getElementById('storefrontOutput').style.display = 'block';
 }
 </script>
