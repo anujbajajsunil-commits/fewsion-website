@@ -875,19 +875,18 @@
     </div>
   </div>
 </div>
-
 <script>
-// 1. Production API Configuration 
+// 1. Production API Configuration (Declared ONCE)
 const SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co"; 
 const SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3"; 
 
-let supabase = null;
+// Use window scope initialization to eliminate variable collisions
+let supabaseClientInstance = null;
 
-// Initialize Supabase seamlessly using the correct case-sensitive CDN exposure namespacing
 window.addEventListener('DOMContentLoaded', () => {
   try {
     if (window.supabase && typeof window.supabase.createClient === 'function') {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      supabaseClientInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       console.log("Supabase Database connection fully online.");
     } else {
       console.error("Supabase CDN failed to mount properly in the header.");
@@ -896,102 +895,172 @@ window.addEventListener('DOMContentLoaded', () => {
     console.error("Initialization exception:", err.message);
   }
 });
-const S={industry:'',market:'',obj:'',ctype:[],tier:[],cniche:[],lang:[],tone:[]};
-const budgetLabels=['Under ₹50K','₹50K–1L','₹1–5L','₹5–10L','₹10–25L','₹25–50L','₹50L–1Cr','₹1–2Cr','₹2–5Cr','₹5Cr+','Flexible'];
 
-function updateBudget(){const v=document.getElementById('budgetRange').value;document.getElementById('budgetVal').textContent=budgetLabels[v];}
-function updateEng(){const v=document.getElementById('engRange').value;document.getElementById('engVal').textContent=v+'%+';}
+// 2. Global Onboarding Form State
+const S = { industry: '', market: '', obj: '', ctype: [], tier: [], cniche: [], lang: [], tone: [] };
+const budgetLabels = ['Under ₹50K', '₹50K–1L', '₹1–5L', '₹5–10L', '₹10–25L', '₹25–50L', '₹50L–1Cr', '₹1–2Cr', '₹2–5Cr', '₹5Cr+', 'Flexible'];
 
-function tp(el,group){
-  document.querySelectorAll('#'+group+'Pills .pill').forEach(p=>{p.classList.remove('sel-purple','sel-teal')});
+// 3. Form Controllers & View Steppers
+function updateBudget() { 
+  const v = document.getElementById('budgetRange').value; 
+  document.getElementById('budgetVal').textContent = budgetLabels[v]; 
+}
+
+function updateEng() { 
+  const v = document.getElementById('engRange').value; 
+  document.getElementById('engVal').textContent = v + '%+'; 
+}
+
+function tp(el, group) {
+  document.querySelectorAll('#' + group + 'Pills .pill').forEach(p => { p.classList.remove('sel-purple', 'sel-teal') });
   el.classList.add('sel-purple');
-  S[group]=el.textContent.trim();
-}
-function tpm(el,group){
-  el.classList.toggle('sel-teal');
-  S[group]=[...document.querySelectorAll('[id$="'+group+'Pills"] .pill.sel-teal, #'+group+'Pills .pill.sel-teal')].map(p=>p.textContent.trim());
-  if(!S[group].length)S[group]=[...document.querySelectorAll('.pill.sel-teal')].filter(p=>p.closest('[id*="'+group+'"]')).map(p=>p.textContent.trim());
+  S[group] = el.textContent.trim();
 }
 
-function go(n){
-  document.querySelectorAll('.step').forEach((s,i)=>s.classList.toggle('active',i===n));
-  document.querySelectorAll('.pb-step').forEach((p,i)=>{
-    p.classList.remove('done','current');
-    if(i<n)p.classList.add('done');
-    else if(i===n)p.classList.add('current');
+function tpm(el, group) {
+  el.classList.toggle('sel-teal');
+  S[group] = [...document.querySelectorAll('[id$="' + group + 'Pills"] .pill.sel-teal, #' + group + 'Pills .pill.sel-teal')].map(p => p.textContent.trim());
+  if (!S[group].length) S[group] = [...document.querySelectorAll('.pill.sel-teal')].filter(p => p.closest('[id*="' + group + '"]')).map(p => p.textContent.trim());
+}
+
+function go(n) {
+  document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', i === n));
+  document.querySelectorAll('.pb-step').forEach((p, i) => {
+    p.classList.remove('done', 'current');
+    if (i < n) p.classList.add('done');
+    else if (i === n) p.classList.add('current');
   });
 }
 
-function getBudget(){return budgetLabels[document.getElementById('budgetRange').value];}
-function getEng(){return document.getElementById('engRange').value+'%+';}
+function getBudget() { return budgetLabels[document.getElementById('budgetRange').value]; }
+function getEng() { return document.getElementById('engRange').value + '%+'; }
 
+// 4. Main Generation Pipeline Controller
 async function startGenerate(){
-  const bn=document.getElementById('brandName').value.trim();
-  const cn=document.getElementById('campaignName').value.trim();
-  const km=document.getElementById('keyMessage').value.trim();
-  if(!bn||!cn||!km){
-    const e=document.getElementById('genErr');
-    e.textContent='Please fill in brand name, campaign name, and key message.';
-    e.style.display='block';
+  const bn = document.getElementById('brandName').value.trim();
+  const cn = document.getElementById('campaignName').value.trim();
+  const km = document.getElementById('keyMessage').value.trim();
+  
+  if (!bn || !cn || !km) {
+    const e = document.getElementById('genErr');
+    e.textContent = 'Please fill in brand name, campaign name, and key message.';
+    e.style.display = 'block';
     return;
   }
-  document.getElementById('genErr').style.display='none';
+  document.getElementById('genErr').style.display = 'none';
   go(4);
 
-  const msgs=['Crafting AI-powered campaign brief','Analysing creator fit signals','Building brand storefront','Generating match criteria'];
-  let mi=0;
-  const msgEl=document.getElementById('genMsg');
-  const int=setInterval(()=>{mi++;if(mi<msgs.length)msgEl.textContent=msgs[mi];},2000);
+  const msgs = ['Crafting AI-powered campaign brief', 'Analysing creator fit signals', 'Building brand storefront', 'Generating match criteria'];
+  let mi = 0;
+  const msgEl = document.getElementById('genMsg');
+  const int = setInterval(() => { mi++; if (mi < msgs.length) msgEl.textContent = msgs[mi]; }, 2000);
 
-  const brandData={
-    brandName:bn,
-    industry:S.industry||'Not specified',
-    website:document.getElementById('website').value,
-    brandDesc:document.getElementById('brandDesc').value,
-    market:S.market||'Not specified',
-    campaignName:cn,
-    objective:S.obj||'Not specified',
-    contentTypes:S.ctype,
-    startDate:document.getElementById('startDate').value,
-    duration:document.getElementById('duration').value,
-    budget:getBudget(),
-    creatorTiers:S.tier,
-    minEngagement:getEng(),
-    creatorNiches:S.cniche,
-    languages:S.lang,
-    creatorCount:document.getElementById('creatorCount').value,
-    genderPref:document.getElementById('genderPref').value,
-    keyMessage:km,
-    dos:document.getElementById('dos').value,
-    donts:document.getElementById('donts').value,
-    tone:S.tone,
-    promoCode:document.getElementById('promoCode').value
+  const brandData = {
+    brandName: bn,
+    industry: S.industry || 'Not specified',
+    website: document.getElementById('website').value,
+    brandDesc: document.getElementById('brandDesc').value,
+    market: S.market || 'Not specified',
+    campaignName: cn,
+    objective: S.obj || 'Not specified',
+    contentTypes: S.ctype,
+    startDate: document.getElementById('startDate').value,
+    duration: document.getElementById('duration').value,
+    budget: getBudget(),
+    creatorTiers: S.tier,
+    minEngagement: getEng(),
+    creatorNiches: S.cniche,
+    languages: S.lang,
+    creatorCount: document.getElementById('creatorCount').value,
+    genderPref: document.getElementById('genderPref').value,
+    keyMessage: km,
+    dos: document.getElementById('dos').value,
+    donts: document.getElementById('donts').value,
+    tone: S.tone,
+    promoCode: document.getElementById('promoCode').value
   };
 
-  try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:buildPrompt(brandData)}]
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: buildPrompt(brandData) }]
       })
     });
-    const data=await resp.json();
+    const data = await resp.json();
     clearInterval(int);
-    const tb=data.content.find(b=>b.type==='text');
-    if(!tb)throw new Error('no text');
-    const raw=tb.text.replace(/```json|```/g,'').trim();
-    const parsed=JSON.parse(raw);
-    renderStorefront(brandData,parsed);
-  }catch(e){
+    const textBlock = data.content.find(b => b.type === 'text');
+    if (!textBlock) throw new Error('no text');
+    const raw = textBlock.text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(raw);
+    
+    renderStorefront(brandData, parsed);
+    await saveBrandToSupabase(brandData, parsed);
+
+  } catch (e) {
     clearInterval(int);
-    renderStorefront(brandData,fallbackBrief(brandData));
+    const fallback = fallbackBrief(brandData);
+    renderStorefront(brandData, fallback);
+    await saveBrandToSupabase(brandData, fallback);
   }
 }
 
-function buildPrompt(b){
+// 5. Database Async Storage Pipeline Hook
+async function saveBrandToSupabase(brandData, aiParsedResult) {
+  try {
+    if (!supabaseClientInstance && window.supabase) {
+      supabaseClientInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+    
+    if (!supabaseClientInstance) {
+      console.warn("Database pipeline unreachable. Local memory caching active.");
+      return; 
+    }
+
+    const activeUser = FewsionAuth.getUser(); 
+    if (!activeUser) throw new Error("No active authenticated session found.");
+
+    const { data, error } = await supabaseClientInstance
+      .from('brand_profiles')
+      .insert([{
+        user_id: activeUser.id, 
+        brand_name: brandData.brandName,
+        industry: brandData.industry,
+        website_url: brandData.website,
+        brand_description: brandData.brandDesc,
+        primary_market: brandData.market,
+        campaign_name: brandData.campaignName,
+        campaign_objective: brandData.objective,
+        content_types_needed: brandData.contentTypes, 
+        start_date: brandData.startDate,
+        duration: brandData.duration,
+        budget_range: brandData.budget,
+        creator_tier_preferences: brandData.creatorTiers,
+        min_engagement_rate: parseFloat(brandData.minEngagement) || 0.00,
+        creator_niches: brandData.creatorNiches,
+        language_preferences: brandData.languages,
+        creator_count: brandData.creatorCount,
+        gender_preference: brandData.genderPref,
+        key_message: brandData.keyMessage,
+        dos: brandData.dos,
+        donts: brandData.donts,
+        brand_tone: brandData.tone,
+        promo_code: brandData.promoCode,
+        ai_fit_score: parseInt(aiParsedResult.campaign_fit_score) || 70
+      }]);
+
+    if (error) throw error;
+    console.log("Brand profile successfully recorded in Supabase!");
+
+  } catch (err) {
+    console.error("Database connection write error:", err.message);
+  }
+}
+
+function buildPrompt(b) {
   return `You are a campaign strategist for an influencer marketplace. A brand has submitted their campaign requirements. Generate a structured campaign brief and storefront summary. Return ONLY valid JSON, no markdown, no preamble.
 
 Brand data:
@@ -1030,31 +1099,31 @@ Return this JSON:
 }`;
 }
 
-function fallbackBrief(b){
+function fallbackBrief(b) {
   return {
-    campaign_tagline:`${b.campaignName} — made for real people`,
-    brief_summary:`${b.brandName} is looking for authentic creators to promote ${b.campaignName}. The campaign focuses on ${b.objective||'brand awareness'} targeting ${b.market} audiences. Creators will produce ${b.contentTypes.join(' and ')||'content'} that resonates with their communities.`,
-    ideal_creator_profile:`Creators in the ${b.creatorNiches.join(', ')||'lifestyle'} niche with a minimum ${b.minEngagement} engagement rate. ${b.creatorTiers.length?'Targeting '+b.creatorTiers.join(', ')+' tier creators.':'Open to all tiers.'}`,
-    content_guidelines:['Authentically integrate the product into existing content','Follow brand tone guidelines throughout','Include all required disclosures (#ad or #sponsored)','Submit content draft for approval before publishing'],
-    deliverables:[b.contentTypes[0]||'1 sponsored post','Story mentions with swipe-up link','Performance report after 7 days'],
-    success_metrics:['Reach and impressions','Engagement rate','Click-through to brand website'],
-    brand_safety_notes:`All content must align with ${b.brandName}'s values. Avoid competitor mentions and any claims not pre-approved by the brand.`,
-    estimated_reach:b.creatorTiers.includes('Macro (500K–1M)')||b.creatorTiers.includes('Mega (1M+)')?'5M–20M+':'500K–5M',
-    campaign_fit_score:74,
-    fit_label:'Good campaign foundation',
-    tips:['Add specific KPIs to attract performance-focused creators','Include sample content or mood board for clearer creative direction']
+    campaign_tagline: `${b.campaignName} — made for real people`,
+    brief_summary: `${b.brandName} is looking for authentic creators to promote ${b.campaignName}. The campaign focuses on ${b.objective||'brand awareness'} targeting ${b.market} audiences. Creators will produce ${b.contentTypes.join(' and ')||'content'} that resonates with their communities.`,
+    ideal_creator_profile: `Creators in the ${b.creatorNiches.join(', ')||'lifestyle'} niche with a minimum ${b.minEngagement} engagement rate. ${b.creatorTiers.length?'Targeting '+b.creatorTiers.join(', ')+' tier creators.':'Open to all tiers.'}`,
+    content_guidelines: ['Authentically integrate the product into existing content', 'Follow brand tone guidelines throughout', 'Include all required disclosures (#ad or #sponsored)', 'Submit content draft for approval before publishing'],
+    deliverables: [b.contentTypes[0]||'1 sponsored post', 'Story mentions with swipe-up link', 'Performance report after 7 days'],
+    success_metrics: ['Reach and impressions', 'Engagement rate', 'Click-through to brand website'],
+    brand_safety_notes: `All content must align with ${b.brandName}'s values. Avoid competitor mentions and any claims not pre-approved by the brand.`,
+    estimated_reach: b.creatorTiers.includes('Macro (500K–1M)') || b.creatorTiers.includes('Mega (1M+)') ? '5M–20M+' : '500K–5M',
+    campaign_fit_score: 74,
+    fit_label: 'Good campaign foundation',
+    tips: ['Add specific KPIs to attract performance-focused creators', 'Include sample content or mood board for clearer creative direction']
   };
 }
 
-function scoreColor(s){return s>=85?'#1D9E75':s>=70?'#534AB7':'#BA7517';}
+function scoreColor(s) { return s >= 85 ? '#1D9E75' : s >= 70 ? '#534AB7' : '#BA7517'; }
 
-function renderStorefront(b,r){
-  const initials=b.brandName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  const score=Math.min(99,Math.max(60,Math.round(r.campaign_fit_score)));
-  const circ=2*Math.PI*28;
-  const offset=circ-(score/100)*circ;
+function renderStorefront(b, r) {
+  const initials = b.brandName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  const score = Math.min(99, Math.max(60, Math.round(r.campaign_fit_score)));
+  const circ = 2 * Math.PI * 28;
+  const offset = circ - (score / 100) * circ;
 
-  document.getElementById('storefrontContent').innerHTML=`
+  document.getElementById('storefrontContent').innerHTML = `
     <div class="storefront-wrap">
       <div class="storefront-header">
         <div class="brand-logo">${initials}</div>
@@ -1089,8 +1158,8 @@ function renderStorefront(b,r){
           <div class="info-row"><span class="lbl">Est. reach</span><span class="val">${r.estimated_reach}</span></div>
         </div>
         <div class="tag-row">
-          ${b.contentTypes.map(c=>`<span class="tag tag-teal"><i class="ti ti-video" style="font-size:11px" aria-hidden="true"></i> ${c}</span>`).join('')}
-          ${b.languages.map(l=>`<span class="tag"><i class="ti ti-language" style="font-size:11px" aria-hidden="true"></i> ${l}</span>`).join('')}
+          ${b.contentTypes.map(c => `<span class="tag tag-teal"><i class="ti ti-video" style="font-size:11px" aria-hidden="true"></i> ${c}</span>`).join('')}
+          ${b.languages.map(l => `<span class="tag"><i class="ti ti-language" style="font-size:11px" aria-hidden="true"></i> ${l}</span>`).join('')}
         </div>
       </div>
     </div>
@@ -1116,14 +1185,14 @@ function renderStorefront(b,r){
       </div>
 
       <div class="metrics-row">
-        ${b.creatorTiers.slice(0,4).map(t=>`<div class="m-chip"><div class="mv" style="font-size:13px">${t.split('(')[0].trim()}</div><div class="ml">tier</div></div>`).join('')}
+        ${b.creatorTiers.slice(0, 4).map(t => `<div class="m-chip"><div class="mv" style="font-size:13px">${t.split('(')[0].trim()}</div><div class="ml">tier</div></div>`).join('')}
         <div class="m-chip"><div class="mv">${b.minEngagement}</div><div class="ml">min eng rate</div></div>
       </div>
     </div>
 
     <div class="section-divider"><i class="ti ti-list-check" style="font-size:14px" aria-hidden="true"></i> Content guidelines</div>
     <div class="campaign-card" style="margin-bottom:1rem">
-      ${r.content_guidelines.map(g=>`
+      ${r.content_guidelines.map(g => `
         <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:13px;line-height:1.5">
           <div style="width:18px;height:18px;border-radius:50%;background:#EEEDFE;color:#3C3489;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px">✓</div>
           <span>${g}</span>
@@ -1135,18 +1204,18 @@ function renderStorefront(b,r){
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem">
       <div class="campaign-card" style="margin-bottom:0">
         <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Deliverables</p>
-        ${r.deliverables.map(d=>`<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 0"><i class="ti ti-circle-dot" style="font-size:13px;color:#534AB7" aria-hidden="true"></i>${d}</div>`).join('')}
+        ${r.deliverables.map(d => `<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 0"><i class="ti ti-circle-dot" style="font-size:13px;color:#534AB7" aria-hidden="true"></i>${d}</div>`).join('')}
       </div>
       <div class="campaign-card" style="margin-bottom:0">
         <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Success metrics</p>
-        ${r.success_metrics.map(m=>`<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 0"><i class="ti ti-chart-bar" style="font-size:13px;color:#1D9E75" aria-hidden="true"></i>${m}</div>`).join('')}
+        ${r.success_metrics.map(m => `<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 0"><i class="ti ti-chart-bar" style="font-size:13px;color:#1D9E75" aria-hidden="true"></i>${m}</div>`).join('')}
       </div>
     </div>
 
     ${r.tips&&r.tips.length?`
     <div class="section-divider"><i class="ti ti-bulb" style="font-size:14px" aria-hidden="true"></i> Tips to strengthen this campaign</div>
     <div class="campaign-card" style="background:var(--color-background-secondary);margin-bottom:1.5rem">
-      ${r.tips.map(t=>`
+      ${r.tips.map(t => `
         <div style="display:flex;gap:10px;padding:8px 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:13px;line-height:1.5">
           <div style="width:18px;height:18px;border-radius:50%;background:#FAEEDA;color:#633806;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px">!</div>
           <span>${t}</span>
@@ -1160,7 +1229,7 @@ function renderStorefront(b,r){
     </div>
   `;
 
-  document.getElementById('genLoading').style.display='none';
-  document.getElementById('storefrontOutput').style.display='block';
+  document.getElementById('genLoading').style.display = 'none';
+  document.getElementById('storefrontOutput').style.display = 'block';
 }
 </script>
