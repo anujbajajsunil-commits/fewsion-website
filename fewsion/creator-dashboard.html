@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Dashboard — Fewsion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808; --deep: #0e0e0e; --card: #141414; --card2: #1a1a1a;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+    --amber: #F5A623; --amber2: #FF6B35; --amber-glow: rgba(245,166,35,0.08);
+    --text: #f0ece4; --muted: #888; --muted2: #555; --white: #ffffff;
+    --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+    --radius: 16px; --radius-sm: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--black); color: var(--text); font-family: var(--font-body); display: flex; min-height: 100vh; overflow-x: hidden; }
+  
+  /* Sidebar Layout */
+  aside { width: 260px; background: var(--deep); border-right: 1px solid var(--border); padding: 32px 24px; display: flex; flex-direction: column; gap: 40px; position: fixed; top: 0; bottom: 0; left: 0; }
+  .side-logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--white); text-decoration: none; }
+  .side-logo span { color: var(--amber); }
+  .side-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .side-menu a { display: flex; align-items: center; gap: 14px; padding: 12px 16px; color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; border-radius: var(--radius-sm); transition: background 0.2s, color 0.2s; }
+  .side-menu a:hover, .side-menu a.active { background: var(--card); color: var(--white); }
+  .side-menu a.active { border-left: 3px solid var(--amber); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .side-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); }
+  .user-badge { display: flex; align-items: center; gap: 12px; }
+  .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--amber), var(--amber2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; color: #000; font-size: 13px; }
+  .user-info .name { font-size: 13px; font-weight: 600; color: var(--white); }
+  .user-info .role { font-size: 11px; color: var(--amber); font-weight: 500; }
+
+  /* Main Workspace */
+  main { margin-left: 260px; flex: 1; padding: 40px 5%; max-width: 1400px; }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+  h1 { font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--white); letter-spacing: -0.5px; }
+  .btn-browse { background: var(--amber); color: #000; font-family: var(--font-display); font-size: 14px; font-weight: 700; padding: 10px 20px; border-radius: 50px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s; border: none; cursor: pointer; }
+  .btn-browse:hover { transform: translateY(-1px); }
+
+  /* Stats Grid */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .stat-value { font-family: var(--font-display); font-size: 32px; font-weight: 800; color: var(--white); }
+  .stat-change { font-size: 12px; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+  .stat-change.up { color: #4ade80; }
+
+  /* Dashboard Content Row */
+  .dashboard-row { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; }
+  .section-box { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+  .section-box h2 { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 20px; }
+
+  /* Deliverables List */
+  .campaign-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--deep); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; }
+  .campaign-info h3 { font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+  .campaign-meta { font-size: 12px; color: var(--muted); display: flex; gap: 16px; }
+  
+  /* Status Color Systems */
+  .status-tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 50px; }
+  .status-tag.review { background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.2); color: var(--amber); }
+  .status-tag.accepted { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: #4ade80; }
+
+  /* Activity / Notifications Feed */
+  .feed-item { display: flex; gap: 12px; font-size: 13.5px; line-height: 1.5; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .feed-item:last-child { border: none; margin-bottom: 0; padding-bottom: 0; }
+  .feed-icon { width: 24px; height: 24px; background: var(--amber-glow); border: 1px solid rgba(245,166,35,0.2); color: var(--amber); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+  .feed-text span { color: var(--white); font-weight: 500; }
+  .feed-time { font-size: 11px; color: var(--muted2); margin-top: 2px; }
+
+  @media (max-width: 1024px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    aside { display: none; }
+    main { margin-left: 0; padding-top: 20px; }
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <a class="side-logo" href="index.html">Few<span>sion</span></a>
+  <ul class="side-menu">
+    <li><a href="#" class="active">📊 Overview Space</a></li>
+    <li><a href="#">📣 My Applications</a></li>
+    <li><a href="#">📁 Portfolio Proof</a></li>
+    <li><a href="#">🎞️ Editor Pipeline</a></li>
+    <li><a href="#">⚙️ Creator Settings</a></li>
+  </ul>
+  <div class="side-footer">
+    <div class="user-badge">
+      <div class="user-avatar">RK</div>
+      <div class="user-info">
+        <div class="name">Riya Kapoor</div>
+        <div class="role">★ Score 94</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main>
+  <header>
+    <div>
+      <h1>Welcome back, Riya</h1>
+      <p style="color: var(--muted); font-size: 14px; margin-top: 4px;">Track active campaign deliverables and clear escrow releases.</p>
+    </div>
+    <button class="btn-browse">🔍 Browse Live Briefs</button>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Creator Score</div>
+      <div class="stat-value">94<span style="font-size:16px; color:var(--muted)">/100</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Gigs</div>
+      <div class="stat-value">2</div>
+      <div class="stat-change up">▲ 1 submission pending</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Portfolio CTR</div>
+      <div class="stat-value">5.2%</div>
+      <div class="stat-change up">▲ +0.4% above niche</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Escrow Secured</div>
+      <div class="stat-value">Scale</div>
+      <div style="font-size:12px; color:#4ade80; font-weight:600; margin-top:4px;">₹20,000 Safe</div>
+    </div>
+  </div>
+
+  <div class="dashboard-row">
+    <div class="section-box">
+      <h2>Your Active Deliverables</h2>
+      
+      <div class="campaign-item">
+        <div class="campaign-info">
+          <h3>Summer SPF Hydra-Gel Launch</h3>
+          <div class="campaign-meta">
+            <span>Brand: Glow Republic</span>
+            <span>Type: 60s Reel</span>
+            <span class="status-tag review">In Review</span>
+          </div>
+        </div>
+        <div style="font-size: 14px; text-align: right; color: var(--amber); font-weight: 600;">₹12,000</div>
+      </div>
+
+      <div class="campaign-item">
+        <div class="campaign-info">
+          <h3>Vitamin C Serum Raw Testimonials</h3>
+          <div class="campaign-meta">
+            <span>Brand: Glow Republic</span>
+            <span>Type: YT Short</span>
+            <span class="status-tag accepted">Approved (Payout Next)</span>
+          </div>
+        </div>
+        <div style="font-size: 14px; text-align: right; color: #4ade80; font-weight: 600;">₹8,000</div>
+      </div>
+    </div>
+
+    <div class="section-box">
+      <h2>System Notifications</h2>
+      
+      <div class="feed-item">
+        <div class="feed-icon">🔒</div>
+        <div class="feed-text">
+          <span>Glow Republic</span> locked ₹12,000 into Fewsion Escrow for your SPF contract.
+          <div class="feed-time">2 hours ago</div>
+        </div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-icon">🎞️</div>
+        <div class="feed-text">
+          Editor <span>Aman K.</span> uploaded Draft v2 to the video panel.
+          <div class="feed-time">4 hours ago</div>
+        </div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-icon">✨</div>
+        <div class="feed-text">
+          Your performance portfolio data synced successfully with <span>Meta Ads manager</span>.
+          <div class="feed-time">Yesterday</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>
