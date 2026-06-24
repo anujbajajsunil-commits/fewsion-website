@@ -41,7 +41,7 @@
 // Replace these two values with your actual Supabase project credentials.
 // The URL must be the project root (NOT the /rest/v1/ endpoint).
 // const FEWSION_SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co";
-const FEWSION_SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co/rest/v1/";
+const FEWSION_SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co";
 const FEWSION_SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3"; // anon/public key
 
 // ─── BOOT ──────────────────────────────────────────────────────────────────
