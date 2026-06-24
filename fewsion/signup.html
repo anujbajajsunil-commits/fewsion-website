@@ -216,7 +216,39 @@
 <div class="toast" id="toast">✓ Account created!</div>
 
 <script>
-  FewsionAuth.redirectIfLoggedIn();
+  const SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3";
+
+const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+  
+if (typeof FewsionAuth !== "undefined") {
+    FewsionAuth.redirectIfLoggedIn();
+}
+function completeSignup() {
+    const firstName = document.getElementById('firstName').value || 'User';
+    const lastName = document.getElementById('lastName').value || '';
+    const email = document.getElementById('signupEmail').value || 'user@example.com';
+
+    const user = {
+        role: currentRole,
+        name: firstName + (lastName ? ' ' + lastName : ''),
+        email,
+        avatar: (firstName[0] + (lastName[0] || '')).toUpperCase(),
+        joinedAt: new Date().toISOString(),
+        plan: 'free',
+        isNew: true
+    };
+
+    if (typeof FewsionAuth !== "undefined") {
+        FewsionAuth.login(user);
+    }
+
+    window.location.href = currentRole + '-dashboard.html';
+}
+  
   let currentRole = 'brand';
   let currentStep = 0;
 
@@ -330,23 +362,59 @@
     }
   }
 
-  function completeSignup() {
-    const firstName = document.getElementById('firstName').value || 'User';
-    const lastName = document.getElementById('lastName').value || '';
-    const email = document.getElementById('signupEmail').value || 'user@example.com';
-    const user = {
-      role: currentRole,
-      name: firstName + (lastName ? ' ' + lastName : ''),
-      email,
-      avatar: (firstName[0] + (lastName[0] || '')).toUpperCase(),
-      joinedAt: new Date().toISOString(),
-      plan: 'free',
-      isNew: true
-    };
-    FewsionAuth.login(user);
-    document.getElementById('toast').classList.add('show');
-    setTimeout(() => window.location.href = currentRole + '-dashboard.html', 900);
-  }
+ async function completeSignup() {
+
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPass').value;
+    const companyName = document.getElementById('companyName').value.trim();
+
+    const industry =
+        document.getElementById('brandIndustry')?.value || null;
+
+    const budget =
+        document.getElementById('brandBudget')?.value || null;
+
+    try {
+
+        // Create Auth User
+        const { data: authData, error: authError } =
+            await supabaseClient.auth.signUp({
+                email,
+                password
+            });
+
+        if (authError) throw authError;
+
+        // Insert profile
+        const { error: profileError } =
+            await supabaseClient
+                .from('users')
+                .insert({
+                    role: currentRole,
+                    first_name: firstName,
+                    last_name: lastName,
+                    company_name: companyName,
+                    email,
+                    industry,
+                    budget
+                });
+
+        if (profileError) throw profileError;
+
+        showToast("Account created successfully!");
+
+        setTimeout(() => {
+            window.location.href =
+                currentRole + "-dashboard.html";
+        }, 1000);
+
+    } catch (err) {
+        console.error(err);
+        showToast(err.message);
+    }
+}
 
   function showToast(msg) {
     const t = document.getElementById('toast');
@@ -357,5 +425,6 @@
     setTimeout(() => t.classList.remove('show'), 3000);
   }
 </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </body>
 </html>
