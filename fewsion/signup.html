@@ -474,93 +474,141 @@ function getSelectedChips(containerId) {
 // ─────────────────────────────────────────────────────────────────
 // COMPLETE SIGNUP — writes to Supabase
 // ─────────────────────────────────────────────────────────────────
-async function completeSignup() {
-  if (isSubmitting) return;
-  isSubmitting = true;
-  setDashBtn(true, 'Creating account…');
+// async function completeSignup() {
+//   if (isSubmitting) return;
+//   isSubmitting = true;
+//   setDashBtn(true, 'Creating account…');
  
-  const sb = FewsionAuth.client();
+//   const sb = FewsionAuth.client();
  
-  const firstName   = document.getElementById('firstName').value.trim();
-  const lastName    = document.getElementById('lastName').value.trim();
-  const email       = document.getElementById('signupEmail').value.trim();
-  const password    = document.getElementById('signupPass').value;
-  const companyName = document.getElementById('companyName').value.trim();
+//   const firstName   = document.getElementById('firstName').value.trim();
+//   const lastName    = document.getElementById('lastName').value.trim();
+//   const email       = document.getElementById('signupEmail').value.trim();
+//   const password    = document.getElementById('signupPass').value;
+//   const companyName = document.getElementById('companyName').value.trim();
  
-  // Role-specific extras
-  let roleExtras = {};
+//   // Role-specific extras
+//   let roleExtras = {};
  
-  if (currentRole === 'brand') {
-    roleExtras = {
-      industry: document.getElementById('brandIndustry').value || null,
-      budget:   document.getElementById('brandBudget').value || null,
-      website:  document.getElementById('brandWebsite').value.trim() || null,
-    };
-  } else if (currentRole === 'creator') {
-    roleExtras = {
-      niches:   getSelectedChips('nicheChips').join(', ') || null,
-      platform: document.getElementById('creatorPlatform').value || null,
-      language: document.getElementById('creatorLanguage').value || null,
-    };
-  } else if (currentRole === 'editor') {
-    roleExtras = {
-      specialisations: getSelectedChips('editorChips').join(', ') || null,
-      software:        getSelectedChips('softwareChips').join(', ') || null,
-      turnaround:      document.getElementById('editorTurnaround').value || null,
-    };
-  }
+//   if (currentRole === 'brand') {
+//     roleExtras = {
+//       industry: document.getElementById('brandIndustry').value || null,
+//       budget:   document.getElementById('brandBudget').value || null,
+//       website:  document.getElementById('brandWebsite').value.trim() || null,
+//     };
+//   } else if (currentRole === 'creator') {
+//     roleExtras = {
+//       niches:   getSelectedChips('nicheChips').join(', ') || null,
+//       platform: document.getElementById('creatorPlatform').value || null,
+//       language: document.getElementById('creatorLanguage').value || null,
+//     };
+//   } else if (currentRole === 'editor') {
+//     roleExtras = {
+//       specialisations: getSelectedChips('editorChips').join(', ') || null,
+//       software:        getSelectedChips('softwareChips').join(', ') || null,
+//       turnaround:      document.getElementById('editorTurnaround').value || null,
+//     };
+//   }
  
-  try {
-    // ── 1. Create auth user ──────────────────────────────────────
-    const { data: authData, error: authError } = await sb.auth.signUp({ email, password });
-    if (authError) throw authError;
+//   try {
+//     // ── 1. Create auth user ──────────────────────────────────────
+//     const { data: authData, error: authError } = await sb.auth.signUp({ email, password });
+//     if (authError) throw authError;
  
-    const userId = authData?.user?.id;
-    if (!userId) throw new Error('User creation failed — no user ID returned.');
+//     const userId = authData?.user?.id;
+//     if (!userId) throw new Error('User creation failed — no user ID returned.');
  
-    // ── 2. Insert profile row into `users` table ─────────────────
-    //    The `id` column should be a UUID that references auth.users(id).
-    //    Make sure your Supabase `users` table has RLS disabled (or an
-    //    INSERT policy for authenticated + service role). See README below.
-    const { error: profileError } = await sb
-      .from('users')
-      .insert({
-        id:           userId,
-        role:         currentRole,
-        first_name:   firstName,
-        last_name:    lastName,
-        company_name: companyName || null,
-        email,
-        ...roleExtras,
-        created_at:   new Date().toISOString(),
-      });
+//     // ── 2. Insert profile row into `users` table ─────────────────
+//     //    The `id` column should be a UUID that references auth.users(id).
+//     //    Make sure your Supabase `users` table has RLS disabled (or an
+//     //    INSERT policy for authenticated + service role). See README below.
+//     const { error: profileError } = await sb
+//       .from('users')
+//       .insert({
+//         id:           userId,
+//         role:         currentRole,
+//         first_name:   firstName,
+//         last_name:    lastName,
+//         company_name: companyName || null,
+//         email,
+//         ...roleExtras,
+//         created_at:   new Date().toISOString(),
+//       });
  
-    if (profileError) throw profileError;
+//     if (profileError) throw profileError;
  
-    // ── 3. Success ───────────────────────────────────────────────
-    showToast('Account created! Redirecting…', true);
-    setTimeout(() => {
-      window.location.href = currentRole + '-dashboard.html';
-    }, 1200);
+//     // ── 3. Success ───────────────────────────────────────────────
+//     showToast('Account created! Redirecting…', true);
+//     setTimeout(() => {
+//       window.location.href = currentRole + '-dashboard.html';
+//     }, 1200);
  
-  } catch (err) {
-    console.error('[Fewsion signup error]', err);
+//   } catch (err) {
+//     console.error('[Fewsion signup error]', err);
  
-    // Surface friendly messages for common cases
-    let msg = err.message || 'Something went wrong. Please try again.';
-    if (msg.includes('User already registered') || msg.includes('already been registered')) {
-      msg = 'This email is already registered. Try signing in instead.';
-    } else if (msg.includes('duplicate key') || msg.includes('unique constraint')) {
-      msg = 'A profile with this email already exists.';
-    } else if (msg.includes('invalid email')) {
-      msg = 'Please enter a valid email address.';
-    } else if (msg.includes('Password should be')) {
-      msg = 'Password must be at least 6 characters.';
+//     // Surface friendly messages for common cases
+//     let msg = err.message || 'Something went wrong. Please try again.';
+//     if (msg.includes('User already registered') || msg.includes('already been registered')) {
+//       msg = 'This email is already registered. Try signing in instead.';
+//     } else if (msg.includes('duplicate key') || msg.includes('unique constraint')) {
+//       msg = 'A profile with this email already exists.';
+//     } else if (msg.includes('invalid email')) {
+//       msg = 'Please enter a valid email address.';
+//     } else if (msg.includes('Password should be')) {
+//       msg = 'Password must be at least 6 characters.';
+//     }
+ 
+//     showToast(msg, false);
+//     setDashBtn(false, 'Create my account →');
+//     isSubmitting = false;
+//   }
+// }
+
+async function completeSignup(email, password, additionalData) {
+  // 1. Get the initialized Supabase client from your auth helper
+  const supabase = FewsionAuth.client();
+
+  // 2. Trigger the Supabase Auth signup
+  const { data: authData, error: authError } = await supabase.auth.signUp({
+    email: email,
+    password: password,
+  });
+
+  // 3. Handle Auth Errors gracefully
+  if (authError) {
+    if (authError.status === 422 || authError.message.toLowerCase().includes('already registered')) {
+      alert("This email is already registered. Try logging in instead!");
+    } else {
+      alert(`Signup Error: ${authError.message}`);
     }
- 
-    showToast(msg, false);
-    setDashBtn(false, 'Create my account →');
-    isSubmitting = false;
+    return; // Stop execution
+  }
+
+  // 4. Auth succeeded! Now insert profile data into your public.users table
+  const user = authData.user;
+  if (user) {
+    const { error: dbError } = await supabase
+      .from('users') // Your custom table from screenshot 1
+      .insert([
+        {
+          id: user.id, // Match the UUID from auth.users
+          email: email,
+          company_name: additionalData.companyName,
+          niches: additionalData.niches,
+          platform: additionalData.platform,
+          role: additionalData.role // e.g., 'Brand' or 'Creator'
+          // ... add other fields from your table here
+        }
+      ]);
+
+    if (dbError) {
+      console.error("Error creating database profile:", dbError.message);
+      alert("Account created, but failed to save profile details.");
+      return;
+    }
+
+    // 5. Success! Redirect to the appropriate dashboard
+    window.location.href = `${additionalData.role.toLowerCase()}-dashboard.html`;
   }
 }
  
