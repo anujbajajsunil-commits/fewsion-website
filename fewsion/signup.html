@@ -214,41 +214,24 @@
 </div>
 
 <div class="toast" id="toast">✓ Account created!</div>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
   const SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co/rest/v1/";
 const SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3";
 
-const supabaseClient = supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
+const {
+  createClient
+} = supabase;
+
+const supabaseClient =
+createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
 );
   
 if (typeof FewsionAuth !== "undefined") {
     FewsionAuth.redirectIfLoggedIn();
-}
-function completeSignup() {
-    const firstName = document.getElementById('firstName').value || 'User';
-    const lastName = document.getElementById('lastName').value || '';
-    const email = document.getElementById('signupEmail').value || 'user@example.com';
-
-    const user = {
-        role: currentRole,
-        name: firstName + (lastName ? ' ' + lastName : ''),
-        email,
-        avatar: (firstName[0] + (lastName[0] || '')).toUpperCase(),
-        joinedAt: new Date().toISOString(),
-        plan: 'free',
-        isNew: true
-    };
-
-    if (typeof FewsionAuth !== "undefined") {
-        FewsionAuth.login(user);
-    }
-
-    window.location.href = currentRole + '-dashboard.html';
-}
-  
+}  
   let currentRole = 'brand';
   let currentStep = 0;
 
@@ -416,15 +399,28 @@ function completeSignup() {
     }
 }
 
-  function showToast(msg) {
+  function showToast(msg, success = false) {
+
     const t = document.getElementById('toast');
+
     t.textContent = msg;
-    t.style.borderColor = 'rgba(239,68,68,.3)';
-    t.style.color = '#ef4444';
+
+    if(success){
+        t.style.borderColor = 'rgba(74,222,128,.3)';
+        t.style.color = '#4ade80';
+    } else {
+        t.style.borderColor = 'rgba(239,68,68,.3)';
+        t.style.color = '#ef4444';
+    }
+
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-  }
+
+    setTimeout(() => {
+        t.classList.remove('show');
+    }, 3000);
+} 
+  showToast("Account created successfully!", true);
 </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  
 </body>
 </html>
