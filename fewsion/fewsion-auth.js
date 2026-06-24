@@ -48,6 +48,9 @@ const FEWSION_SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3"; /
 // We load the Supabase CDN bundle before this script runs (see HTML), so
 // `window.supabase` is available. We create one shared client instance.
 const _sb = window.supabase.createClient(FEWSION_SUPABASE_URL, FEWSION_SUPABASE_KEY);
+console.log("Supabase URL:", FEWSION_SUPABASE_URL);
+console.log("Supabase Key:", FEWSION_SUPABASE_KEY);
+console.log("Supabase Client:", _sb);
 
 // ─── PUBLIC API ───────────────────────────────────────────────────────────
 window.FewsionAuth = {
