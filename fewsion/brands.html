@@ -41,7 +41,7 @@
   .hero-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--amber2); animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.4)} }
   h1 { font-family: var(--font-display); font-size: clamp(40px, 6vw, 76px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; color: var(--white); margin-bottom: 24px; }
-  h1 em { font-style: normal; background: linear-gradient(135deg, var(--amber) 0%, var(--amber2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  h1 em { font-style: normal; background: linear-gradient(135deg, var(--amber) 0%, var(--amber2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-clip: text; }
   .hero-sub { font-size: clamp(16px, 2vw, 19px); color: var(--muted); margin-bottom: 40px; font-weight: 300; line-height: 1.7; }
   .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
   .btn-primary { background: var(--amber); color: #000; font-family: var(--font-display); font-size: 15px; font-weight: 700; padding: 14px 32px; border-radius: 50px; border: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s; }
@@ -96,7 +96,6 @@
   .brief-field .field-val { background: #111; border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; font-size: 13.5px; color: var(--text); line-height: 1.5; }
   .brief-field .field-val.highlight { border-color: rgba(245,166,35,0.3); color: var(--amber); }
   .brief-generate { width: 100%; background: linear-gradient(135deg, var(--amber), var(--amber2)); color: #000; font-family: var(--font-display); font-size: 14px; font-weight: 700; padding: 13px; border-radius: 10px; border: none; cursor: pointer; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .brief-text { }
   .brief-text p { font-size: 16px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; font-weight: 300; }
   .check-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
   .check-list li { display: flex; align-items: center; gap: 12px; font-size: 15px; color: var(--text); }
@@ -154,6 +153,7 @@
   .footer-bottom p { font-size: 13px; color: var(--muted2); }
   .footer-bottom .made span { color: var(--amber); }
 
+  /* REVEAL CLASSES FOR INTERSECTION OBSERVER */
   .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.6s ease, transform 0.6s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
   .reveal-delay-1 { transition-delay: 0.1s; }
@@ -191,7 +191,7 @@
     <li><a href="editors.html">For Editors</a></li>
     <li><a href="pricing.html">Pricing</a></li>
     <li><a href="about.html">About</a></li>
-    <li><a href="#page-cta" class="nav-cta">Post a campaign</a></li>
+    <li><a href="signup.html?role=brand" class="nav-cta">Post a campaign</a></li>
   </ul>
   <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
     <span></span><span></span><span></span>
@@ -206,7 +206,7 @@
     <h1>Find creators by<br><em>performance,</em><br>not followers.</h1>
     <p class="hero-sub">Stop guessing. Fewsion matches your D2C brand with verified UGC creators using real CTR data, Creator Score, and AI-powered matching — not vanity metrics.</p>
     <div class="hero-btns">
-      <a href="#page-cta" class="btn-primary">Post your first campaign →</a>
+      <a href="signup.html?role=brand" class="btn-primary">Post your first campaign →</a>
       <a href="#brief" class="btn-ghost">See AI Brief Builder</a>
     </div>
   </div>
@@ -261,7 +261,6 @@
   </div>
 </section>
 
-<!-- FEATURES -->
 <section id="features" style="background: var(--deep);">
   <div class="section-tag">Brand Portal Features</div>
   <h2 class="section-title reveal">Everything to run<br><em>great UGC campaigns</em></h2>
@@ -300,7 +299,6 @@
   </div>
 </section>
 
-<!-- AI BRIEF BUILDER -->
 <section id="brief">
   <div class="brief-layout">
     <div class="brief-ui reveal">
@@ -331,7 +329,7 @@
       <div class="section-tag">AI Brief Builder</div>
       <h2 class="section-title">From idea to live<br>campaign in <em>5 minutes</em></h2>
       <p>Most brand-creator collab failures start with a bad brief. Vague goals, missing specs, and unclear expectations cause revisions, delays, and drop-off.</p>
-      <p>Fewsion's AI brief builder prompts you for the right information, then auto-generates a complete, professional brief that creators actually understand.</p>
+      <p>Fewsion's AI brief builder prompts you for the right information, then auto-generated a complete, professional brief that creators actually understand.</p>
       <ul class="check-list">
         <li>Content requirements, tone & visual references</li>
         <li>Platform-specific specs (aspect ratio, length, text)</li>
@@ -343,7 +341,6 @@
   </div>
 </section>
 
-<!-- METRICS -->
 <section id="metrics">
   <div class="section-tag">Why It Works</div>
   <h2 class="section-title reveal">Results brands<br><em>actually see</em></h2>
@@ -368,7 +365,6 @@
   </div>
 </section>
 
-<!-- COMPARE -->
 <section id="compare">
   <div class="section-tag">vs. The Alternatives</div>
   <h2 class="section-title reveal">Why not just use<br>an <em>agency?</em></h2>
@@ -429,7 +425,6 @@
   </table>
 </section>
 
-<!-- PRICING TEASER -->
 <section id="pricing-teaser" style="background:var(--deep);">
   <div class="section-tag">Simple Pricing</div>
   <h2 class="section-title reveal">No lock-in.<br><em>Pay as you grow.</em></h2>
@@ -483,7 +478,7 @@
   <h2>Post your first campaign.<br><em>Free. In 5 minutes.</em></h2>
   <p>No sales call. No minimum spend. Start finding performance-verified creators today.</p>
   <div class="cta-buttons">
-    <a href="#" class="btn-primary">Post a campaign →</a>
+    <a href="signup.html?role=brand" class="btn-primary">Post a campaign →</a>
     <a href="pricing.html" class="btn-ghost">Compare all plans</a>
   </div>
 </section>
@@ -505,12 +500,39 @@
 </footer>
 
 <script>
+  // 1. Navbar Scroll Background Change
   const navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 20));
-  function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
-  document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open')));
-  const observer = new IntersectionObserver((entries) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }), { threshold: 0.1 });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // 2. Mobile Hamburger Menu Toggle
+  function toggleMenu() {
+    const navLinks = document.getElementById('navLinks');
+    navLinks.classList.toggle('open');
+  }
+
+  // 3. Scroll Reveal Animations (Intersection Observer)
+  document.addEventListener('DOMContentLoaded', () => {
+    const revealElements = document.querySelectorAll('.reveal');
+
+    const revealCallback = (entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target); // Run animation once
+        }
+      });
+    };
+
+    const revealObserver = new IntersectionObserver(revealCallback, {
+      root: null,
+      threshold: 0.15, // Triggers when 15% of the element enters viewport
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+  });
 </script>
 </body>
 </html>
