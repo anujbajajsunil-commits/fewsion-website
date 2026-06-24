@@ -40,14 +40,14 @@
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 // Replace these two values with your actual Supabase project credentials.
 // The URL must be the project root (NOT the /rest/v1/ endpoint).
-// const FEWSION_SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co";
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+// Ensure the URL is exactly your project root without any extra appended strings or parameters
 const FEWSION_SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co";
 const FEWSION_SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3"; // anon/public key
 
 // ─── BOOT ──────────────────────────────────────────────────────────────────
-// We load the Supabase CDN bundle before this script runs (see HTML), so
-// `window.supabase` is available. We create one shared client instance.
 const _sb = window.supabase.createClient(FEWSION_SUPABASE_URL, FEWSION_SUPABASE_KEY);
+
 console.log("Supabase URL:", FEWSION_SUPABASE_URL);
 console.log("Supabase Key:", FEWSION_SUPABASE_KEY);
 console.log("Supabase Client:", _sb);
