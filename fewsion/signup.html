@@ -678,9 +678,7 @@ function showToast(msg, isSuccess = true) {
   toast.className = 'toast show' + (isSuccess ? '' : ' error-toast');
   setTimeout(() => { toast.classList.remove('show'); }, 4000);
 }
-</script>
-</body>
-</html>
+
  
 // ─────────────────────────────────────────────────────────────────
 // UI HELPERS
@@ -710,7 +708,9 @@ function showToast(msg, success = true) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 </script>
- 
+
+</body>
+</html>
 <!--
   ═══════════════════════════════════════════════════════════════
   SUPABASE SETUP GUIDE
@@ -772,5 +772,5 @@ function showToast(msg, success = true) {
        on public.users for select
        using (true);
 -->
-</body>
-</html>
+<!-- </body>
+</html> -->
