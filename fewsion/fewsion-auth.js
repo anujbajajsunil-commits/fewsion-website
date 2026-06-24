@@ -30,125 +30,73 @@
 //   }
 // };
 
+/**
+ * fewsion-auth.js
+ * Shared auth utilities for Fewsion — used by signup.html, login.html, dashboards.
+ *
+ * Exposes a global `FewsionAuth` object with helper methods.
+ */
 
-  // 1. Declare state variables first to fix the initialization error
-  let selectedRole = 'brand';
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+// Replace these two values with your actual Supabase project credentials.
+// The URL must be the project root (NOT the /rest/v1/ endpoint).
+const FEWSION_SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co";
+const FEWSION_SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3"; // anon/public key
 
-  // 2. Safely call your script checks after variables are declared
-  if (typeof FewsionAuth !== 'undefined') {
-    FewsionAuth.redirectIfLoggedIn();
-  } else {
-    console.error("Critical: fewsion-auth.js library is missing or failed to link in the HTML header.");
-  }
+// ─── BOOT ──────────────────────────────────────────────────────────────────
+// We load the Supabase CDN bundle before this script runs (see HTML), so
+// `window.supabase` is available. We create one shared client instance.
+const _sb = window.supabase.createClient(FEWSION_SUPABASE_URL, FEWSION_SUPABASE_KEY);
 
-  // 3. UI Interaction Controller
-  function selectRole(role, el) {
-    selectedRole = role;
-    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-  }
+// ─── PUBLIC API ───────────────────────────────────────────────────────────
+window.FewsionAuth = {
 
-  function showToast(msg, type='') {
-    const t = document.getElementById('toast');
-    if (t) {
-      t.textContent = msg;
-      t.className = 'toast ' + type + ' show';
-      setTimeout(() => t.classList.remove('show'), 3000);
+  /**
+   * Returns the Supabase client so other scripts can reuse the same instance.
+   */
+  client() {
+    return _sb;
+  },
+
+  /**
+   * Returns the current session user, or null if logged out.
+   */
+  async getUser() {
+    const { data: { user } } = await _sb.auth.getUser();
+    return user;
+  },
+
+  /**
+   * Fetches the `users` profile row for the current auth user.
+   * Returns { data, error }.
+   */
+  async getProfile(userId) {
+    return await _sb
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single();
+  },
+
+  /**
+   * If a user is already logged in AND has a complete profile, redirect them
+   * to their role dashboard immediately (call this at the top of signup.html).
+   */
+  async redirectIfLoggedIn() {
+    const user = await FewsionAuth.getUser();
+    if (!user) return;
+
+    const { data: profile } = await FewsionAuth.getProfile(user.id);
+    if (profile && profile.role) {
+      window.location.href = profile.role + "-dashboard.html";
     }
-  }
+  },
 
-  // Explicit routing rules for each platform role
-  function getRedirectUrl(role) {
-    switch(role) {
-      case 'brand':
-        return 'fewsion_brand_portal.html';
-      case 'creator':
-        return 'creator_profile_builder.html';
-      case 'editor':
-        return 'fewsion_editor_portal.html';
-      default:
-        return 'index.html'; // Fallback safeguard
-    }
-  }
-
-  function socialLogin(provider) {
-    showToast(`Signing in with ${provider.charAt(0).toUpperCase() + provider.slice(1)}...`);
-    setTimeout(() => {
-      const names = { brand: 'Arjun Desai', creator: 'Priya Sharma', editor: 'Kabir Mehta' };
-      const companies = { brand: 'BrewBox India', creator: null, editor: null };
-      const user = {
-        role: selectedRole,
-        name: names[selectedRole],
-        email: names[selectedRole].toLowerCase().replace(' ', '') + '@example.com',
-        company: companies[selectedRole],
-        avatar: names[selectedRole].split(' ').map(n => n[0]).join(''),
-        joinedAt: new Date().toISOString(),
-        plan: 'free'
-      };
-      
-      if (typeof FewsionAuth !== 'undefined') {
-        FewsionAuth.login(user);
-      }
-      
-      window.location.href = getRedirectUrl(selectedRole);
-    }, 1200);
-  }
-
-  function handleLogin() {
-    const email = document.getElementById('emailInput').value.trim();
-    const pass = document.getElementById('passInput').value;
-    let valid = true;
-
-    // Validate email
-    const emailInput = document.getElementById('emailInput');
-    const emailError = document.getElementById('emailError');
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      if(emailInput) emailInput.classList.add('error');
-      if(emailError) emailError.style.display = 'block';
-      valid = false;
-    } else {
-      if(emailInput) emailInput.classList.remove('error');
-      if(emailError) emailError.style.display = 'none';
-    }
-
-    // Validate password
-    const passInput = document.getElementById('passInput');
-    const passError = document.getElementById('passError');
-    if (!pass || pass.length < 6) {
-      if(passInput) passInput.classList.add('error');
-      if(passError) passError.style.display = 'block';
-      valid = false;
-    } else {
-      if(passInput) passInput.classList.remove('error');
-      if(passError) passError.style.display = 'none';
-    }
-    
-    if (!valid) return;
-
-    const btn = document.getElementById('loginBtn');
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = 'Signing in...';
-    }
-
-    setTimeout(() => {
-      const user = {
-        role: selectedRole,
-        name: email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-        email,
-        avatar: email.slice(0, 2).toUpperCase(),
-        joinedAt: new Date().toISOString(),
-        plan: 'free'
-      };
-      
-      if (typeof FewsionAuth !== 'undefined') {
-        FewsionAuth.login(user);
-      }
-      
-      showToast('Welcome back! Redirecting...', 'success');
-      setTimeout(() => window.location.href = getRedirectUrl(selectedRole), 800);
-    }, 1000);
-  }
-
-  // Enter key submission
-  document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+  /**
+   * Signs the user out and redirects to the given page (default: index.html).
+   */
+  async signOut(redirectTo = "index.html") {
+    await _sb.auth.signOut();
+    window.location.href = redirectTo;
+  },
+};
