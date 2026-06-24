@@ -564,53 +564,123 @@ function getSelectedChips(containerId) {
 //   }
 // }
 
-async function completeSignup(email, password, additionalData) {
-  // 1. Get the initialized Supabase client from your auth helper
-  const supabase = FewsionAuth.client();
+// ─────────────────────────────────────────────────────────────────
+// COMPLETE SIGNUP — writes to Supabase
+// ─────────────────────────────────────────────────────────────────
+async function completeSignup() {
+  if (isSubmitting) return;
+  isSubmitting = true;
 
-  // 2. Trigger the Supabase Auth signup
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: email,
-    password: password,
-  });
-
-  // 3. Handle Auth Errors gracefully
-  if (authError) {
-    if (authError.status === 422 || authError.message.toLowerCase().includes('already registered')) {
-      alert("This email is already registered. Try logging in instead!");
-    } else {
-      alert(`Signup Error: ${authError.message}`);
-    }
-    return; // Stop execution
+  // Change button state to loading
+  const dashBtn = document.getElementById('dashboardBtn');
+  const dashBtnLabel = document.getElementById('dashBtnLabel');
+  if (dashBtn && dashBtnLabel) {
+    dashBtn.disabled = true;
+    dashBtnLabel.innerHTML = 'Creating account... <span class="spinner" style="display:inline-block; vertical-align:middle; margin-left:8px;"></span>';
   }
 
-  // 4. Auth succeeded! Now insert profile data into your public.users table
-  const user = authData.user;
-  if (user) {
-    const { error: dbError } = await supabase
-      .from('users') // Your custom table from screenshot 1
-      .insert([
-        {
-          id: user.id, // Match the UUID from auth.users
-          email: email,
-          company_name: additionalData.companyName,
-          niches: additionalData.niches,
-          platform: additionalData.platform,
-          role: additionalData.role // e.g., 'Brand' or 'Creator'
-          // ... add other fields from your table here
-        }
-      ]);
+  const sb = FewsionAuth.client();
 
-    if (dbError) {
-      console.error("Error creating database profile:", dbError.message);
-      alert("Account created, but failed to save profile details.");
-      return;
+  const firstName   = document.getElementById('firstName').value.trim();
+  const lastName    = document.getElementById('lastName').value.trim();
+  const email       = document.getElementById('signupEmail').value.trim();
+  const password    = document.getElementById('signupPass').value;
+  const companyName = document.getElementById('companyName').value.trim();
+
+  // Role-specific extras
+  let roleExtras = {};
+
+  if (currentRole === 'brand') {
+    roleExtras = {
+      industry: document.getElementById('brandIndustry').value || null,
+      budget:   document.getElementById('brandBudget').value || null,
+      website:  document.getElementById('brandWebsite').value.trim() || null,
+    };
+  } else if (currentRole === 'creator') {
+    roleExtras = {
+      niches:   getSelectedChips('nicheChips').join(', ') || null,
+      platform: document.getElementById('creatorPlatform').value || null,
+      language: document.getElementById('creatorLanguage').value || null,
+    };
+  } else if (currentRole === 'editor') {
+    roleExtras = {
+      specialisations: getSelectedChips('editorChips').join(', ') || null,
+      software:        getSelectedChips('softwareChips').join(', ') || null,
+      turnaround:      document.getElementById('editorTurnaround').value || null,
+    };
+  }
+
+  try {
+    // ── 1. Create auth user ──────────────────────────────────────
+    const { data: authData, error: authError } = await sb.auth.signUp({ email, password });
+    
+    // 👇 Gracefully intercepts the unhandled AuthApiError console crash
+    if (authError) {
+      if (authError.status === 422 || authError.message.toLowerCase().includes('already registered')) {
+        showToast('This email is already registered. Try signing in instead!', false);
+      } else {
+        showToast(authError.message, false);
+      }
+      throw authError;
     }
 
-    // 5. Success! Redirect to the appropriate dashboard
-    window.location.href = `${additionalData.role.toLowerCase()}-dashboard.html`;
+    const userId = authData?.user?.id;
+    if (!userId) throw new Error('User creation failed — no user ID returned.');
+
+    // ── 2. Insert profile row into public.users table ───────────────
+    const { error: profileError } = await sb
+      .from('users')
+      .insert({
+        id:           userId,
+        role:         currentRole,
+        first_name:   firstName,
+        last_name:    lastName,
+        company_name: companyName || null,
+        email:        email,
+        ...roleExtras,
+        created_at:   new Date().toISOString(),
+      });
+
+    if (profileError) {
+      if (profileError.message.toLowerCase().includes('duplicate key') || profileError.message.toLowerCase().includes('unique constraint')) {
+        showToast('A profile with this email already exists.', false);
+      } else {
+        showToast(`Profile save error: ${profileError.message}`, false);
+      }
+      throw profileError;
+    }
+
+    // ── 3. Success ───────────────────────────────────────────────
+    showToast('Account created! Redirecting…', true);
+    setTimeout(() => {
+      window.location.href = currentRole + '-dashboard.html';
+    }, 1200);
+
+  } catch (err) {
+    console.error('[Fewsion signup error]', err);
+    
+    // Reset button UI state so user can fix details and retry
+    if (dashBtn && dashBtnLabel) {
+      dashBtn.disabled = false;
+      dashBtnLabel.textContent = 'Create my account →';
+    }
+    isSubmitting = false;
   }
 }
+
+// ─────────────────────────────────────────────────────────────────
+// TOAST NOTIFICATIONS
+// ─────────────────────────────────────────────────────────────────
+function showToast(msg, isSuccess = true) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.className = 'toast show' + (isSuccess ? '' : ' error-toast');
+  setTimeout(() => { toast.classList.remove('show'); }, 4000);
+}
+</script>
+</body>
+</html>
  
 // ─────────────────────────────────────────────────────────────────
 // UI HELPERS
