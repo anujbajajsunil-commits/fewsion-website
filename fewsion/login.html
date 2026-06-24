@@ -246,7 +246,8 @@
         if (profile && profile.role) {
           showToast('Welcome back! Redirecting...', 'success');
           setTimeout(() => {
-            window.location.href = profile.role + '-dashboard.html';
+            // window.location.href = profile.role + '-dashboard.html';
+            window.location.href = profile.role + 's.html';
           }, 1000);
         } else {
           // Fallback if user exists but profile record role is missing
