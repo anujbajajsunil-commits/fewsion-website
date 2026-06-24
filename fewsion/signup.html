@@ -7,18 +7,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+ 
+<!-- Load Supabase BEFORE fewsion-auth.js -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="fewsion-auth.js"></script>
+ 
 <style>
-  :root{--black:#080808;--deep:#0e0e0e;--card:#141414;--card2:#1a1a1a;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--amber:#F5A623;--amber2:#FF6B35;--amber-glow:rgba(245,166,35,0.15);--text:#f0ece4;--muted:#888;--muted2:#555;--white:#ffffff;--green:#4ade80;--font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;--radius:16px;}
+  :root{--black:#080808;--deep:#0e0e0e;--card:#141414;--card2:#1a1a1a;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--amber:#F5A623;--amber2:#FF6B35;--amber-glow:rgba(245,166,35,0.15);--text:#f0ece4;--muted:#888;--muted2:#555;--white:#ffffff;--green:#4ade80;--red:#ef4444;--font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;--radius:16px;}
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   html,body{height:100%;}
   body{background:var(--black);color:var(--text);font-family:var(--font-body);overflow-x:hidden;}
   body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.4;}
-
-  /* LAYOUT — step-based single column */
+ 
   .page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;position:relative;}
   .page::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(245,166,35,0.09) 0%,transparent 70%);pointer-events:none;}
-
+ 
   /* TOP NAV */
   .top-nav{position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;z-index:100;border-bottom:1px solid var(--border);background:rgba(8,8,8,0.85);backdrop-filter:blur(16px);}
   .logo{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--white);text-decoration:none;letter-spacing:-.5px;}
@@ -26,7 +29,7 @@
   .login-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;}
   .login-link:hover{color:var(--text);}
   .login-link strong{color:var(--amber);}
-
+ 
   /* STEP PROGRESS */
   .step-progress{display:flex;align-items:center;gap:0;margin-bottom:40px;margin-top:80px;}
   .sp-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);transition:all .3s;}
@@ -34,16 +37,16 @@
   .sp-dot.active{background:var(--amber);width:24px;border-radius:4px;}
   .sp-line{width:32px;height:2px;background:var(--border);transition:background .3s;}
   .sp-line.done{background:var(--amber);}
-
+ 
   /* CARD */
   .signup-card{width:100%;max-width:520px;animation:fadeUp .4s ease;}
   @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-
+ 
   .step-label{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:12px;}
   .step-title{font-family:var(--font-display);font-size:clamp(24px,4vw,36px);font-weight:800;letter-spacing:-.8px;color:var(--white);margin-bottom:8px;line-height:1.1;}
   .step-title em{font-style:normal;color:var(--amber);}
   .step-sub{font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.6;}
-
+ 
   /* ROLE CARDS */
   .role-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px;}
   .role-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:24px 16px;text-align:center;cursor:pointer;transition:all .2s;}
@@ -53,7 +56,7 @@
   .role-card .rc-name{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;}
   .role-card .rc-desc{font-size:11px;color:var(--muted);line-height:1.5;}
   .role-card.active .rc-name{color:var(--amber);}
-
+ 
   /* FORM ELEMENTS */
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   .form-group{margin-bottom:16px;}
@@ -61,49 +64,67 @@
   .form-input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;font-size:14px;color:var(--text);font-family:var(--font-body);outline:none;transition:border-color .2s;}
   .form-input:focus{border-color:rgba(245,166,35,.4);}
   .form-input::placeholder{color:var(--muted2);}
+  .form-input.error{border-color:rgba(239,68,68,.5);}
   .form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;}
-
+ 
   /* NICHE CHIPS */
   .niche-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
   .niche-chip{font-size:12px;padding:7px 14px;border-radius:50px;border:1.5px solid var(--border);color:var(--muted);background:var(--card);cursor:pointer;transition:all .2s;}
   .niche-chip:hover{border-color:var(--border2);}
   .niche-chip.selected{border-color:var(--amber);color:var(--amber);background:var(--amber-glow);}
-
+ 
   /* PASSWORD STRENGTH */
   .pass-strength{margin-top:8px;}
   .ps-bar{height:3px;border-radius:3px;background:var(--border);overflow:hidden;margin-bottom:4px;}
   .ps-fill{height:100%;border-radius:3px;width:0%;transition:width .3s,background .3s;}
   .ps-text{font-size:11px;color:var(--muted2);}
-
+ 
   /* BUTTONS */
-  .btn-next{width:100%;background:linear-gradient(135deg,var(--amber),var(--amber2));color:#000;font-family:var(--font-display);font-size:15px;font-weight:700;padding:15px;border-radius:50px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;margin-top:8px;}
-  .btn-next:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(245,166,35,.3);}
-  .btn-next:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn-next{width:100%;background:linear-gradient(135deg,var(--amber),var(--amber2));color:#000;font-family:var(--font-display);font-size:15px;font-weight:700;padding:15px;border-radius:50px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s,opacity .2s;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-next:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 40px rgba(245,166,35,.3);}
+  .btn-next:disabled{opacity:.5;cursor:not-allowed;}
   .btn-back{width:100%;background:transparent;color:var(--muted);font-family:var(--font-body);font-size:14px;padding:12px;border-radius:50px;border:1px solid var(--border);cursor:pointer;margin-top:8px;transition:border-color .2s,color .2s;}
   .btn-back:hover{border-color:var(--border2);color:var(--text);}
-
+ 
+  /* SPINNER */
+  .spinner{width:16px;height:16px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+ 
   /* PERKS */
   .perks{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
   .perk{display:flex;gap:12px;align-items:center;}
   .perk-icon{width:32px;height:32px;border-radius:8px;background:var(--amber-glow);border:1px solid rgba(245,166,35,.2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
   .perk-text{font-size:13px;color:var(--muted);line-height:1.5;}
   .perk-text strong{color:var(--text);font-weight:600;}
-
+ 
+  /* EXISTING PROFILE CARD */
+  .profile-banner{background:var(--card);border:1.5px solid rgba(245,166,35,.25);border-radius:var(--radius);padding:24px;margin-bottom:24px;display:none;}
+  .profile-banner h3{font-family:var(--font-display);font-size:16px;color:var(--amber);margin-bottom:6px;}
+  .profile-banner p{font-size:13px;color:var(--muted);line-height:1.6;}
+  .profile-banner .profile-fields{margin-top:16px;display:grid;gap:8px;}
+  .profile-field{display:flex;justify-content:space-between;font-size:12px;padding:8px 12px;background:var(--card2);border-radius:8px;}
+  .profile-field .pf-key{color:var(--muted);}
+  .profile-field .pf-val{color:var(--text);font-weight:500;}
+  .profile-banner .btn-goto{margin-top:16px;width:100%;background:linear-gradient(135deg,var(--amber),var(--amber2));color:#000;font-family:var(--font-display);font-size:14px;font-weight:700;padding:12px;border-radius:50px;border:none;cursor:pointer;transition:transform .2s;}
+  .profile-banner .btn-goto:hover{transform:translateY(-2px);}
+ 
   /* TOAST */
-  .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid rgba(74,222,128,.3);border-radius:50px;padding:12px 24px;font-size:13px;color:var(--green);opacity:0;transition:all .3s;z-index:1000;}
+  .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid rgba(74,222,128,.3);border-radius:50px;padding:12px 24px;font-size:13px;color:var(--green);opacity:0;transition:all .3s;z-index:1000;white-space:nowrap;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
+  .toast.error-toast{border-color:rgba(239,68,68,.3);color:var(--red);}
+ 
   @media(max-width:600px){.role-cards{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}.signup-card{padding:0 4px;}}
 </style>
 </head>
 <body>
-
+ 
 <div class="top-nav">
   <a class="logo" href="index.html">Few<span>sion</span></a>
   <a class="login-link" href="login.html">Already have an account? <strong>Sign in →</strong></a>
 </div>
-
+ 
 <div class="page">
+ 
   <!-- PROGRESS -->
   <div class="step-progress" id="stepProgress">
     <div class="sp-dot active" id="dot0"></div>
@@ -114,8 +135,8 @@
     <div class="sp-line" id="line23"></div>
     <div class="sp-dot" id="dot3"></div>
   </div>
-
-  <!-- STEP 0 — ROLE -->
+ 
+  <!-- ── STEP 0 — ROLE ─────────────────────────────────────── -->
   <div class="signup-card" id="step0">
     <div class="step-label">Step 1 of 4</div>
     <h1 class="step-title">I want to join<br>Fewsion as a <em id="roleLabel">Brand</em></h1>
@@ -139,40 +160,52 @@
     </div>
     <button class="btn-next" onclick="goStep(1)">Continue as <span id="roleContinueLabel">Brand</span> →</button>
   </div>
-
-  <!-- STEP 1 — ACCOUNT INFO -->
+ 
+  <!-- ── STEP 1 — ACCOUNT INFO ─────────────────────────────── -->
   <div class="signup-card" id="step1" style="display:none;">
     <div class="step-label">Step 2 of 4</div>
     <h1 class="step-title">Create your<br><em>account</em></h1>
     <p class="step-sub">Your profile is free forever. No credit card needed.</p>
+ 
+    <!-- Existing profile banner (shown when email already has a profile) -->
+    <div class="profile-banner" id="existingProfileBanner">
+      <h3>👋 Welcome back!</h3>
+      <p>We found an existing Fewsion profile linked to this email.</p>
+      <div class="profile-fields" id="existingProfileFields"></div>
+      <button class="btn-goto" id="gotoProfileBtn">Go to my dashboard →</button>
+    </div>
+ 
     <div class="form-row">
-      <div class="form-group"><label class="form-label">First name</label><input class="form-input" id="firstName" type="text" placeholder="Arjun"></div>
-      <div class="form-group"><label class="form-label">Last name</label><input class="form-input" id="lastName" type="text" placeholder="Desai"></div>
+      <div class="form-group"><label class="form-label">First name</label><input class="form-input" id="firstName" type="text" placeholder="Arjun" oninput="clearError(this)"></div>
+      <div class="form-group"><label class="form-label">Last name</label><input class="form-input" id="lastName" type="text" placeholder="Desai" oninput="clearError(this)"></div>
     </div>
     <div class="form-group"><label class="form-label" id="companyLabel">Brand / Company name</label><input class="form-input" id="companyName" type="text" placeholder="e.g. BrewBox India"></div>
-    <div class="form-group"><label class="form-label">Email address</label><input class="form-input" id="signupEmail" type="email" placeholder="you@company.com"></div>
+    <div class="form-group">
+      <label class="form-label">Email address</label>
+      <input class="form-input" id="signupEmail" type="email" placeholder="you@company.com" oninput="clearError(this)" onblur="checkExistingProfile()">
+    </div>
     <div class="form-group">
       <label class="form-label">Password</label>
-      <input class="form-input" id="signupPass" type="password" placeholder="Create a strong password" oninput="checkPass(this.value)">
+      <input class="form-input" id="signupPass" type="password" placeholder="Create a strong password" oninput="checkPass(this.value);clearError(this)">
       <div class="pass-strength"><div class="ps-bar"><div class="ps-fill" id="psFill"></div></div><div class="ps-text" id="psText">Enter a password</div></div>
     </div>
-    <button class="btn-next" onclick="goStep(2)">Continue →</button>
+    <button class="btn-next" id="step1Btn" onclick="goStep(2)">Continue →</button>
     <button class="btn-back" onclick="goStep(0)">← Back</button>
   </div>
-
-  <!-- STEP 2 — PROFILE DETAILS -->
+ 
+  <!-- ── STEP 2 — PROFILE DETAILS ──────────────────────────── -->
   <div class="signup-card" id="step2" style="display:none;">
     <div class="step-label">Step 3 of 4</div>
     <h1 class="step-title">Tell us about<br><em id="step2Title">your brand</em></h1>
     <p class="step-sub" id="step2Sub">This helps creators find and trust you.</p>
-
+ 
     <!-- BRAND FIELDS -->
     <div id="brandFields">
       <div class="form-group"><label class="form-label">Industry / Niche</label><select class="form-input form-select" id="brandIndustry"><option value="">Select your industry</option><option>Skincare / Beauty</option><option>Food & Beverage</option><option>Tech / Gadgets</option><option>Fitness / Health</option><option>Fashion</option><option>Home & Lifestyle</option><option>Finance / FinTech</option><option>E-commerce</option><option>Other</option></select></div>
       <div class="form-group"><label class="form-label">Monthly UGC budget</label><select class="form-input form-select" id="brandBudget"><option value="">Select range</option><option>Under ₹10,000</option><option>₹10,000 – ₹50,000</option><option>₹50,000 – ₹2,00,000</option><option>₹2,00,000+</option></select></div>
-      <div class="form-group"><label class="form-label">Brand website (optional)</label><input class="form-input" type="url" placeholder="https://yourbrand.com"></div>
+      <div class="form-group"><label class="form-label">Brand website (optional)</label><input class="form-input" id="brandWebsite" type="url" placeholder="https://yourbrand.com"></div>
     </div>
-
+ 
     <!-- CREATOR FIELDS -->
     <div id="creatorFields" style="display:none;">
       <div class="form-group"><label class="form-label">Primary content niche</label>
@@ -180,10 +213,10 @@
           <span class="niche-chip" onclick="toggleChip(this)">Beauty</span><span class="niche-chip" onclick="toggleChip(this)">Fitness</span><span class="niche-chip" onclick="toggleChip(this)">Tech</span><span class="niche-chip" onclick="toggleChip(this)">Food</span><span class="niche-chip" onclick="toggleChip(this)">Travel</span><span class="niche-chip" onclick="toggleChip(this)">Finance</span><span class="niche-chip" onclick="toggleChip(this)">Gaming</span><span class="niche-chip" onclick="toggleChip(this)">Fashion</span><span class="niche-chip" onclick="toggleChip(this)">Parenting</span><span class="niche-chip" onclick="toggleChip(this)">Education</span>
         </div>
       </div>
-      <div class="form-group"><label class="form-label">Primary platform</label><select class="form-input form-select"><option>Instagram Reels</option><option>YouTube Shorts</option><option>UGC (off-platform)</option><option>Multiple</option></select></div>
-      <div class="form-group"><label class="form-label">Content language</label><select class="form-input form-select"><option>Hindi + English</option><option>Hindi only</option><option>English only</option><option>Regional language</option></select></div>
+      <div class="form-group"><label class="form-label">Primary platform</label><select class="form-input form-select" id="creatorPlatform"><option>Instagram Reels</option><option>YouTube Shorts</option><option>UGC (off-platform)</option><option>Multiple</option></select></div>
+      <div class="form-group"><label class="form-label">Content language</label><select class="form-input form-select" id="creatorLanguage"><option>Hindi + English</option><option>Hindi only</option><option>English only</option><option>Regional language</option></select></div>
     </div>
-
+ 
     <!-- EDITOR FIELDS -->
     <div id="editorFields" style="display:none;">
       <div class="form-group"><label class="form-label">Editing specialisation</label>
@@ -192,235 +225,433 @@
         </div>
       </div>
       <div class="form-group"><label class="form-label">Software you use</label>
-        <div class="niche-chips">
+        <div class="niche-chips" id="softwareChips">
           <span class="niche-chip" onclick="toggleChip(this)">Premiere Pro</span><span class="niche-chip" onclick="toggleChip(this)">Final Cut</span><span class="niche-chip" onclick="toggleChip(this)">DaVinci Resolve</span><span class="niche-chip" onclick="toggleChip(this)">CapCut</span><span class="niche-chip" onclick="toggleChip(this)">After Effects</span>
         </div>
       </div>
-      <div class="form-group"><label class="form-label">Typical turnaround</label><select class="form-input form-select"><option>Same day</option><option>24 hours</option><option>48 hours</option><option>3–5 days</option></select></div>
+      <div class="form-group"><label class="form-label">Typical turnaround</label><select class="form-input form-select" id="editorTurnaround"><option>Same day</option><option>24 hours</option><option>48 hours</option><option>3–5 days</option></select></div>
     </div>
-
-    <button class="btn-next" onclick="goStep(3)">Continue →</button>
+ 
+    <button class="btn-next" id="step2Btn" onclick="goStep(3)">Continue →</button>
     <button class="btn-back" onclick="goStep(1)">← Back</button>
   </div>
-
-  <!-- STEP 3 — DONE / PERKS -->
+ 
+  <!-- ── STEP 3 — DONE / PERKS ─────────────────────────────── -->
   <div class="signup-card" id="step3" style="display:none;">
-    <div class="step-label">You're all set! 🎉</div>
+    <div class="step-label">Almost there! 🎉</div>
     <h1 class="step-title">Welcome to<br><em>Fewsion</em></h1>
-    <p class="step-sub">Here's what's waiting for you inside your new dashboard.</p>
+    <p class="step-sub">Here's what's waiting for you inside your dashboard.</p>
     <div class="perks" id="perksList"></div>
-    <button class="btn-next" id="dashboardBtn" onclick="completeSignup()">Enter my dashboard →</button>
+    <button class="btn-next" id="dashboardBtn" onclick="completeSignup()">
+      <span id="dashBtnLabel">Create my account →</span>
+    </button>
   </div>
-</div>
-
-<div class="toast" id="toast">✓ Account created!</div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+ 
+</div><!-- /page -->
+ 
+<div class="toast" id="toast"></div>
+ 
 <script>
-  const SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co/rest/v1/";
-const SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3";
-
-const {
-  createClient
-} = supabase;
-
-const supabaseClient =
-createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-  
-if (typeof FewsionAuth !== "undefined") {
-    FewsionAuth.redirectIfLoggedIn();
-}  
-  let currentRole = 'brand';
-  let currentStep = 0;
-
-  const roleData = {
-    brand: {
-      label:'Brand', companyLabel:'Brand / Company name',
-      step2Title:'your brand', step2Sub:'This helps creators find and trust you.',
-      perks:[
-        {icon:'🤖',title:'AI Brief Builder',desc:'Generate campaign briefs in 3 minutes'},
-        {icon:'🎯',title:'Performance Creator Search',desc:'Filter by verified CTR, not follower count'},
-        {icon:'🔒',title:'Escrow-Protected Campaigns',desc:'Only pay when you approve content'},
-      ]
-    },
-    creator: {
-      label:'Creator', companyLabel:'Channel / Creator handle',
-      step2Title:'your content', step2Sub:'This helps brands find you for the right campaigns.',
-      perks:[
-        {icon:'📊',title:'Performance Portfolio',desc:'Showcase real CTR and engagement to brands'},
-        {icon:'💰',title:'Guaranteed Payments',desc:'Escrow-protected, released within 24hrs'},
-        {icon:'🤖',title:'AI Brand Matching',desc:'Get matched to campaigns that fit your niche'},
-      ]
-    },
-    editor: {
-      label:'Editor', companyLabel:'Studio / Agency name (optional)',
-      step2Title:'your editing work', step2Sub:'This helps brands and creators find you.',
-      perks:[
-        {icon:'🎬',title:'Editor Portfolio',desc:'Showcase your showreel to brands and creators'},
-        {icon:'🤝',title:'Creator Collaboration',desc:'Get invited into live projects in-platform'},
-        {icon:'💰',title:'Escrow-Protected Pay',desc:'Get paid within 24hrs of project approval'},
-      ]
-    }
-  };
-
-  function pickRole(role) {
-    currentRole = role;
-    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
-    document.getElementById('rc-'+role).classList.add('active');
-    document.getElementById('roleLabel').textContent = roleData[role].label;
-    document.getElementById('roleContinueLabel').textContent = roleData[role].label;
+// ─────────────────────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────────────────────
+const roleData = {
+  brand: {
+    label: 'Brand',
+    companyLabel: 'Brand / Company name',
+    step2Title: 'your brand',
+    step2Sub: 'This helps creators find and trust you.',
+    perks: [
+      { icon: '🤖', title: 'AI Brief Builder', desc: 'Generate campaign briefs in 3 minutes' },
+      { icon: '🎯', title: 'Performance Creator Search', desc: 'Filter by verified CTR, not follower count' },
+      { icon: '🔒', title: 'Escrow-Protected Campaigns', desc: 'Only pay when you approve content' },
+    ]
+  },
+  creator: {
+    label: 'Creator',
+    companyLabel: 'Channel / Creator handle',
+    step2Title: 'your content',
+    step2Sub: 'This helps brands find you for the right campaigns.',
+    perks: [
+      { icon: '📊', title: 'Performance Portfolio', desc: 'Showcase real CTR and engagement to brands' },
+      { icon: '💰', title: 'Guaranteed Payments', desc: 'Escrow-protected, released within 24hrs' },
+      { icon: '🤖', title: 'AI Brand Matching', desc: 'Get matched to campaigns that fit your niche' },
+    ]
+  },
+  editor: {
+    label: 'Editor',
+    companyLabel: 'Studio / Agency name (optional)',
+    step2Title: 'your editing work',
+    step2Sub: 'This helps brands and creators find you.',
+    perks: [
+      { icon: '🎬', title: 'Editor Portfolio', desc: 'Showcase your showreel to brands and creators' },
+      { icon: '🤝', title: 'Creator Collaboration', desc: 'Get invited into live projects in-platform' },
+      { icon: '💰', title: 'Escrow-Protected Pay', desc: 'Get paid within 24hrs of project approval' },
+    ]
   }
-
-  function toggleChip(el) { el.classList.toggle('selected'); }
-
-  function checkPass(v) {
-    const fill = document.getElementById('psFill');
-    const text = document.getElementById('psText');
-    const scores = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/, /.{8,}/];
-    const strength = scores.filter(r => r.test(v)).length;
-    const colors = ['#ef4444','#ef4444','#f97316','#eab308','#4ade80'];
-    const labels = ['Too short','Weak','Fair','Good','Strong'];
-    const pct = [0, 20, 40, 65, 90, 100];
-    fill.style.width = (v.length ? pct[strength] : 0) + '%';
-    fill.style.background = strength > 0 ? colors[strength-1] : '';
-    text.textContent = v.length ? labels[strength-1] || 'Strong' : 'Enter a password';
+};
+ 
+// ─────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────
+let currentRole = 'brand';
+let currentStep = 0;
+let isSubmitting = false;
+ 
+// ─────────────────────────────────────────────────────────────────
+// BOOT — check if already logged in
+// ─────────────────────────────────────────────────────────────────
+(async function boot() {
+  if (typeof FewsionAuth !== 'undefined') {
+    await FewsionAuth.redirectIfLoggedIn();
   }
-
-  function goStep(n) {
-    // Validate current step
-    if (n > currentStep) {
-      if (currentStep === 1) {
-        const fn = document.getElementById('firstName').value.trim();
-        const ln = document.getElementById('lastName').value.trim();
-        const em = document.getElementById('signupEmail').value.trim();
-        const pw = document.getElementById('signupPass').value;
-        if (!fn || !ln || !em || pw.length < 6) { showToast('Please fill all fields correctly.'); return; }
-      }
-    }
-    document.getElementById('step'+currentStep).style.display = 'none';
-    currentStep = n;
-    const stepEl = document.getElementById('step'+n);
-    stepEl.style.display = 'block';
-    stepEl.style.animation = 'none';
-    void stepEl.offsetWidth;
-    stepEl.style.animation = '';
-
-    // Update progress dots
-    for (let i = 0; i <= 3; i++) {
-      const dot = document.getElementById('dot'+i);
-      dot.classList.remove('active','done');
-      if (i < n) dot.classList.add('done');
-      else if (i === n) dot.classList.add('active');
-    }
-    for (let i = 0; i <= 2; i++) {
-      const line = document.getElementById('line'+i+(i+1));
-      if (line) line.classList.toggle('done', i < n);
-    }
-
-    // Configure step 2 fields
-    if (n === 2) {
-      const rd = roleData[currentRole];
-      document.getElementById('step2Title').textContent = rd.step2Title;
-      document.getElementById('step2Sub').textContent = rd.step2Sub;
-      document.getElementById('brandFields').style.display = currentRole === 'brand' ? 'block' : 'none';
-      document.getElementById('creatorFields').style.display = currentRole === 'creator' ? 'block' : 'none';
-      document.getElementById('editorFields').style.display = currentRole === 'editor' ? 'block' : 'none';
-    }
-
-    // Configure step 1 company label
-    if (n === 1) {
-      document.getElementById('companyLabel').textContent = roleData[currentRole].companyLabel;
-    }
-
-    // Populate perks
-    if (n === 3) {
-      const perks = roleData[currentRole].perks;
-      document.getElementById('perksList').innerHTML = perks.map(p => `
-        <div class="perk">
-          <div class="perk-icon">${p.icon}</div>
-          <div class="perk-text"><strong>${p.title}</strong> — ${p.desc}</div>
-        </div>`).join('');
-    }
-  }
-
- async function completeSignup() {
-
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName = document.getElementById('lastName').value.trim();
-    const email = document.getElementById('signupEmail').value.trim();
-    const password = document.getElementById('signupPass').value;
-    const companyName = document.getElementById('companyName').value.trim();
-
-    const industry =
-        document.getElementById('brandIndustry')?.value || null;
-
-    const budget =
-        document.getElementById('brandBudget')?.value || null;
-
-    try {
-
-        // Create Auth User
-        const { data: authData, error: authError } =
-            await supabaseClient.auth.signUp({
-                email,
-                password
-            });
-
-        if (authError) throw authError;
-
-        // Insert profile
-        const { error: profileError } =
-            await supabaseClient
-                .from('users')
-                .insert({
-                    role: currentRole,
-                    first_name: firstName,
-                    last_name: lastName,
-                    company_name: companyName,
-                    email,
-                    industry,
-                    budget
-                });
-
-        if (profileError) throw profileError;
-
-        showToast("Account created successfully!");
-
-        setTimeout(() => {
-            window.location.href =
-                currentRole + "-dashboard.html";
-        }, 1000);
-
-    } catch (err) {
-        console.error(err);
-        showToast(err.message);
-    }
+})();
+ 
+// ─────────────────────────────────────────────────────────────────
+// ROLE SELECTION
+// ─────────────────────────────────────────────────────────────────
+function pickRole(role) {
+  currentRole = role;
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('rc-' + role).classList.add('active');
+  document.getElementById('roleLabel').textContent = roleData[role].label;
+  document.getElementById('roleContinueLabel').textContent = roleData[role].label;
 }
-
-  function showToast(msg, success = false) {
-
-    const t = document.getElementById('toast');
-
-    t.textContent = msg;
-
-    if(success){
-        t.style.borderColor = 'rgba(74,222,128,.3)';
-        t.style.color = '#4ade80';
-    } else {
-        t.style.borderColor = 'rgba(239,68,68,.3)';
-        t.style.color = '#ef4444';
-    }
-
-    t.classList.add('show');
-
+ 
+// ─────────────────────────────────────────────────────────────────
+// EXISTING PROFILE CHECK (on email blur)
+// ─────────────────────────────────────────────────────────────────
+async function checkExistingProfile() {
+  const email = document.getElementById('signupEmail').value.trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+ 
+  const sb = FewsionAuth.client();
+ 
+  // Query the users table by email (email column must exist in the table)
+  const { data: profiles } = await sb
+    .from('users')
+    .select('id, first_name, last_name, role, company_name, email')
+    .eq('email', email)
+    .maybeSingle();
+ 
+  const banner = document.getElementById('existingProfileBanner');
+ 
+  if (profiles) {
+    // Populate banner
+    const fields = [
+      { key: 'Name', val: `${profiles.first_name} ${profiles.last_name}` },
+      { key: 'Role', val: profiles.role ? profiles.role.charAt(0).toUpperCase() + profiles.role.slice(1) : '—' },
+      { key: 'Company', val: profiles.company_name || '—' },
+    ];
+    document.getElementById('existingProfileFields').innerHTML = fields.map(f => `
+      <div class="profile-field">
+        <span class="pf-key">${f.key}</span>
+        <span class="pf-val">${f.val}</span>
+      </div>`).join('');
+ 
+    document.getElementById('gotoProfileBtn').onclick = () => {
+      window.location.href = (profiles.role || 'brand') + '-dashboard.html';
+    };
+ 
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+ 
+// ─────────────────────────────────────────────────────────────────
+// STEP NAVIGATION
+// ─────────────────────────────────────────────────────────────────
+function goStep(n) {
+  // Validate current step before advancing
+  if (n > currentStep) {
+    if (currentStep === 1 && !validateStep1()) return;
+  }
+ 
+  document.getElementById('step' + currentStep).style.display = 'none';
+  currentStep = n;
+ 
+  const stepEl = document.getElementById('step' + n);
+  stepEl.style.display = 'block';
+  // Re-trigger animation
+  stepEl.style.animation = 'none';
+  void stepEl.offsetWidth;
+  stepEl.style.animation = '';
+ 
+  // Progress dots
+  for (let i = 0; i <= 3; i++) {
+    const dot = document.getElementById('dot' + i);
+    dot.classList.remove('active', 'done');
+    if (i < n) dot.classList.add('done');
+    else if (i === n) dot.classList.add('active');
+  }
+  for (let i = 0; i <= 2; i++) {
+    const line = document.getElementById('line' + i + (i + 1));
+    if (line) line.classList.toggle('done', i < n);
+  }
+ 
+  // Step-specific setup
+  if (n === 1) {
+    document.getElementById('companyLabel').textContent = roleData[currentRole].companyLabel;
+  }
+ 
+  if (n === 2) {
+    const rd = roleData[currentRole];
+    document.getElementById('step2Title').textContent = rd.step2Title;
+    document.getElementById('step2Sub').textContent = rd.step2Sub;
+    document.getElementById('brandFields').style.display = currentRole === 'brand' ? 'block' : 'none';
+    document.getElementById('creatorFields').style.display = currentRole === 'creator' ? 'block' : 'none';
+    document.getElementById('editorFields').style.display = currentRole === 'editor' ? 'block' : 'none';
+  }
+ 
+  if (n === 3) {
+    const perks = roleData[currentRole].perks;
+    document.getElementById('perksList').innerHTML = perks.map(p => `
+      <div class="perk">
+        <div class="perk-icon">${p.icon}</div>
+        <div class="perk-text"><strong>${p.title}</strong> — ${p.desc}</div>
+      </div>`).join('');
+  }
+ 
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+ 
+// ─────────────────────────────────────────────────────────────────
+// STEP 1 VALIDATION
+// ─────────────────────────────────────────────────────────────────
+function validateStep1() {
+  let ok = true;
+  const fields = [
+    { id: 'firstName', msg: 'First name is required' },
+    { id: 'lastName', msg: 'Last name is required' },
+    { id: 'signupEmail', msg: 'A valid email is required' },
+  ];
+  fields.forEach(f => {
+    const el = document.getElementById(f.id);
+    if (!el.value.trim()) { el.classList.add('error'); showToast(f.msg, false); ok = false; }
+  });
+ 
+  const pw = document.getElementById('signupPass').value;
+  if (pw.length < 6) {
+    document.getElementById('signupPass').classList.add('error');
+    showToast('Password must be at least 6 characters', false);
+    ok = false;
+  }
+  return ok;
+}
+ 
+function clearError(el) { el.classList.remove('error'); }
+ 
+// ─────────────────────────────────────────────────────────────────
+// PASSWORD STRENGTH
+// ─────────────────────────────────────────────────────────────────
+function checkPass(v) {
+  const fill = document.getElementById('psFill');
+  const text = document.getElementById('psText');
+  const scores = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/, /.{8,}/];
+  const strength = scores.filter(r => r.test(v)).length;
+  const colors = ['#ef4444', '#ef4444', '#f97316', '#eab308', '#4ade80'];
+  const labels = ['Too short', 'Weak', 'Fair', 'Good', 'Strong'];
+  const pct = [0, 20, 40, 65, 90, 100];
+  fill.style.width = (v.length ? pct[strength] : 0) + '%';
+  fill.style.background = strength > 0 ? colors[strength - 1] : '';
+  text.textContent = v.length ? (labels[strength - 1] || 'Strong') : 'Enter a password';
+}
+ 
+// ─────────────────────────────────────────────────────────────────
+// NICHE CHIPS
+// ─────────────────────────────────────────────────────────────────
+function toggleChip(el) { el.classList.toggle('selected'); }
+ 
+/** Returns array of selected chip labels for a given container id */
+function getSelectedChips(containerId) {
+  return Array.from(
+    document.querySelectorAll(`#${containerId} .niche-chip.selected`)
+  ).map(c => c.textContent.trim());
+}
+ 
+// ─────────────────────────────────────────────────────────────────
+// COMPLETE SIGNUP — writes to Supabase
+// ─────────────────────────────────────────────────────────────────
+async function completeSignup() {
+  if (isSubmitting) return;
+  isSubmitting = true;
+  setDashBtn(true, 'Creating account…');
+ 
+  const sb = FewsionAuth.client();
+ 
+  const firstName   = document.getElementById('firstName').value.trim();
+  const lastName    = document.getElementById('lastName').value.trim();
+  const email       = document.getElementById('signupEmail').value.trim();
+  const password    = document.getElementById('signupPass').value;
+  const companyName = document.getElementById('companyName').value.trim();
+ 
+  // Role-specific extras
+  let roleExtras = {};
+ 
+  if (currentRole === 'brand') {
+    roleExtras = {
+      industry: document.getElementById('brandIndustry').value || null,
+      budget:   document.getElementById('brandBudget').value || null,
+      website:  document.getElementById('brandWebsite').value.trim() || null,
+    };
+  } else if (currentRole === 'creator') {
+    roleExtras = {
+      niches:   getSelectedChips('nicheChips').join(', ') || null,
+      platform: document.getElementById('creatorPlatform').value || null,
+      language: document.getElementById('creatorLanguage').value || null,
+    };
+  } else if (currentRole === 'editor') {
+    roleExtras = {
+      specialisations: getSelectedChips('editorChips').join(', ') || null,
+      software:        getSelectedChips('softwareChips').join(', ') || null,
+      turnaround:      document.getElementById('editorTurnaround').value || null,
+    };
+  }
+ 
+  try {
+    // ── 1. Create auth user ──────────────────────────────────────
+    const { data: authData, error: authError } = await sb.auth.signUp({ email, password });
+    if (authError) throw authError;
+ 
+    const userId = authData?.user?.id;
+    if (!userId) throw new Error('User creation failed — no user ID returned.');
+ 
+    // ── 2. Insert profile row into `users` table ─────────────────
+    //    The `id` column should be a UUID that references auth.users(id).
+    //    Make sure your Supabase `users` table has RLS disabled (or an
+    //    INSERT policy for authenticated + service role). See README below.
+    const { error: profileError } = await sb
+      .from('users')
+      .insert({
+        id:           userId,
+        role:         currentRole,
+        first_name:   firstName,
+        last_name:    lastName,
+        company_name: companyName || null,
+        email,
+        ...roleExtras,
+        created_at:   new Date().toISOString(),
+      });
+ 
+    if (profileError) throw profileError;
+ 
+    // ── 3. Success ───────────────────────────────────────────────
+    showToast('Account created! Redirecting…', true);
     setTimeout(() => {
-        t.classList.remove('show');
-    }, 3000);
-} 
-  showToast("Account created successfully!", true);
+      window.location.href = currentRole + '-dashboard.html';
+    }, 1200);
+ 
+  } catch (err) {
+    console.error('[Fewsion signup error]', err);
+ 
+    // Surface friendly messages for common cases
+    let msg = err.message || 'Something went wrong. Please try again.';
+    if (msg.includes('User already registered') || msg.includes('already been registered')) {
+      msg = 'This email is already registered. Try signing in instead.';
+    } else if (msg.includes('duplicate key') || msg.includes('unique constraint')) {
+      msg = 'A profile with this email already exists.';
+    } else if (msg.includes('invalid email')) {
+      msg = 'Please enter a valid email address.';
+    } else if (msg.includes('Password should be')) {
+      msg = 'Password must be at least 6 characters.';
+    }
+ 
+    showToast(msg, false);
+    setDashBtn(false, 'Create my account →');
+    isSubmitting = false;
+  }
+}
+ 
+// ─────────────────────────────────────────────────────────────────
+// UI HELPERS
+// ─────────────────────────────────────────────────────────────────
+function setDashBtn(loading, label) {
+  const btn = document.getElementById('dashboardBtn');
+  btn.disabled = loading;
+  document.getElementById('dashBtnLabel').textContent = label;
+  // Show/hide spinner
+  const existing = btn.querySelector('.spinner');
+  if (loading && !existing) {
+    const s = document.createElement('div');
+    s.className = 'spinner';
+    btn.prepend(s);
+  } else if (!loading && existing) {
+    existing.remove();
+  }
+}
+ 
+let toastTimer;
+function showToast(msg, success = true) {
+  const t = document.getElementById('toast');
+  t.textContent = (success ? '✓ ' : '✕ ') + msg;
+  t.classList.toggle('error-toast', !success);
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
 </script>
-  
+ 
+<!--
+  ═══════════════════════════════════════════════════════════════
+  SUPABASE SETUP GUIDE
+  ═══════════════════════════════════════════════════════════════
+ 
+  1. AUTH
+     Enable Email auth under Authentication > Providers > Email.
+     Disable "Confirm email" during development if you want
+     instant signups (Authentication > Settings > Email).
+ 
+  2. DATABASE TABLE: users
+     Run this SQL in the Supabase SQL Editor:
+ 
+     create table public.users (
+       id            uuid primary key references auth.users(id) on delete cascade,
+       role          text not null,           -- 'brand' | 'creator' | 'editor'
+       first_name    text,
+       last_name     text,
+       company_name  text,
+       email         text unique not null,
+       industry      text,                    -- brand
+       budget        text,                    -- brand
+       website       text,                    -- brand
+       niches        text,                    -- creator
+       platform      text,                    -- creator
+       language      text,                    -- creator
+       specialisations text,                  -- editor
+       software      text,                    -- editor
+       turnaround    text,                    -- editor
+       created_at    timestamptz default now()
+     );
+ 
+  3. ROW LEVEL SECURITY
+     Enable RLS, then add these policies:
+ 
+     -- Allow unauthenticated INSERT (signup flow runs before session is confirmed)
+     create policy "Allow signup insert"
+       on public.users for insert
+       with check (true);
+ 
+     -- Users can read their own row
+     create policy "Users read own profile"
+       on public.users for select
+       using (auth.uid() = id);
+ 
+     -- Users can update their own row
+     create policy "Users update own profile"
+       on public.users for update
+       using (auth.uid() = id);
+ 
+  4. PUBLIC EMAIL LOOKUP (for existing-profile check)
+     The `checkExistingProfile()` function queries by email before the user
+     is authenticated. Either:
+       a) Add a SELECT policy with `with check (true)` for the email column only, OR
+       b) Create a Supabase Edge Function that looks up by email with the service key.
+     For simplicity in dev, you can temporarily allow full public SELECT:
+ 
+     create policy "Public profile lookup"
+       on public.users for select
+       using (true);
+-->
 </body>
 </html>
