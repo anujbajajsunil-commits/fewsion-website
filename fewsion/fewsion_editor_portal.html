@@ -1,3 +1,8 @@
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script src="fewsion-auth.js"></script>
+
 <style>
   /* ── Reset & Global Foundations ── */
   * {
@@ -628,7 +633,7 @@
     color: #D85A30;
   }
 </style>
-
+</head>
 <h2 class="sr-only">Fewsion editor portal — build your profile, showcase work, and get matched with creators and brands</h2>
 <div class="app">
   <div class="progress-bar" id="pb">
@@ -859,7 +864,6 @@
     </div>
   </div>
 </div>
-
 <script>
 // 1. Structural State Configuration
 const S = { exp: '', lang: [], format: [], tool: [], skill: [], niche: [], videoCount: '', turn: '', avail: '', collab: [] };
@@ -868,18 +872,34 @@ const rateLabels = ['Under ₹500', '₹500–1,000', '₹1,500–3,000', '₹3,
 // Global Database Instance Ref
 let supabaseClientInstance = null;
 
-// Initialize Supabase core securely on load
-window.addEventListener('DOMContentLoaded', () => {
+// Initialize Supabase core securely on DOMContentLoaded load loop
+window.addEventListener('DOMContentLoaded', async () => {
   try {
     if (window.supabase && typeof window.supabase.createClient === 'function') {
       // Connects cleanly using your existing project credentials
       supabaseClientInstance = window.supabase.createClient("https://vdtpdqpmxxcwkqslhvww.supabase.co", "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3");
-      console.log("Supabase infrastructure mounted successfully.");
+      console.log("🎉 Supabase Base SDK Client successfully initialized on site load.");
+    } else if (typeof FewsionAuth !== 'undefined' && typeof FewsionAuth.client === 'function') {
+      // Direct asset extraction backup option if global instance gets obscured by load latency
+      supabaseClientInstance = FewsionAuth.client();
+      console.log("🔄 Re-assigned global client directly from local auth utility file instance.");
     } else {
-      console.error("Supabase CDN failed to locate on the global window scope.");
+      console.error("❌ Critical: Supabase JS CDN could not be resolved in window scope space.");
+    }
+
+    // ─── RUNTIME INTEGRATED REDIRECT HOOK ───
+    if (typeof FewsionAuth !== 'undefined') {
+      const activeUser = await FewsionAuth.getUser();
+      if (activeUser) {
+        const { data: profile } = await FewsionAuth.getProfile(activeUser.id);
+        if (profile && profile.role === 'editor') {
+          console.log("Active profile session established. Redirecting to workspace dashboard...");
+          window.location.href = "editor-dashboard.html";
+        }
+      }
     }
   } catch (err) {
-    console.error("Database connection initialization failure:", err.message);
+    console.error("Initialization check or routing hook failure:", err.message);
   }
 });
 
@@ -976,10 +996,12 @@ async function startAnalysis() {
     }
 
     // C. Sandbox Environment Safeguard
-    if (!userId) {
+    if (!userId && supabaseClientInstance) {
       console.log("No authenticated profile discovered. Sourcing historical sandbox token...");
       const { data: baseUserDirectory } = await supabaseClientInstance.from('users').select('id').limit(1);
       userId = (baseUserDirectory && baseUserDirectory.length > 0) ? baseUserDirectory[0].id : '00000000-0000-0000-0000-000000000000';
+    } else if (!userId) {
+      userId = '00000000-0000-0000-0000-000000000000';
     }
 
     // Prepare complete data schema aligning cleanly with editor_profiles table columns
@@ -992,7 +1014,7 @@ async function startAnalysis() {
       languages: data.languages,              // Maps safely to text[] arrays
       specialised_formats: data.formats,      // Maps safely to text[] arrays
       primary_software: data.tools,           // Maps safely to text[] arrays
-      special_skills: d.skills || [],          // Maps safely to text[] arrays
+      special_skills: data.skills || [],      // Fixed typo here from d.skills to data.skills 🌟
       edited_creator_niches: data.niches,     // Maps safely to text[] arrays
       total_videos_edited: data.videoCount || null,
       past_clients: data.pastClients,         // Strict Non-nullable column text
@@ -1011,13 +1033,17 @@ async function startAnalysis() {
     msgEl.textContent = "Transmitting technical record portfolio rows to Supabase secure vaults...";
     console.log("Transmitting payload packet:", editorPayload);
 
-    // Write row explicitly using upsert to avoid primary key collisions on retry requests
-    const { error: dbError } = await supabaseClientInstance
-      .from('editor_profiles')
-      .upsert(editorPayload, { onConflict: 'user_id' });
+    if (supabaseClientInstance) {
+      // Write row explicitly using upsert to avoid primary key collisions on retry requests
+      const { error: dbError } = await supabaseClientInstance
+        .from('editor_profiles')
+        .upsert(editorPayload, { onConflict: 'user_id' });
 
-    if (dbError) throw dbError;
-    console.log("🎉 Profile database synchronization executed without failure variables.");
+      if (dbError) throw dbError;
+      console.log("🎉 Profile database synchronization executed without failure variables.");
+    } else {
+      throw new Error("Supabase application database target offline.");
+    }
 
     // Display compiled cards inside interface frame
     renderProfile(data, resultData);
@@ -1166,6 +1192,10 @@ function renderProfile(d,r){
         ${!d.collabTypes.length?'<span style="font-size:13px;color:var(--color-text-secondary)">Not specified</span>':''}
       </div>
       ${d.extraNote?`<p style="font-size:13px;margin-top:10px;line-height:1.6;color:var(--color-text-primary)">${d.extraNote}</p>`:''}
+    </div>
+
+    <div class="nav-row" style="margin-top:24px">
+      <button class="btn-next" onclick="window.location.href='editor-dashboard.html'" style="width:100%; text-align:center; display:block;">Enter Editor Dashboard Workspace →</button>
     </div>
   `;
 
