@@ -91,6 +91,7 @@
     <li><a href="#">📁 Portfolio Proof</a></li>
     <li><a href="#">🎞️ Editor Pipeline</a></li>
     <li><a href="#">⚙️ Creator Settings</a></li>
+    
   </ul>
   <div class="side-footer">
     <div class="user-badge">
@@ -100,6 +101,9 @@
         <div class="role">★ Score 94</div>
       </div>
     </div>
+    <button id="logoutBtn" style="width: 100%; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; font-family: var(--font-display); font-size: 13px; font-weight: 600; padding: 10px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+    🚪 Log Out Account
+  </button>
   </div>
 </aside>
 
@@ -194,4 +198,43 @@
 </main>
 
 </body>
+  
+    <script>
+  document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+    e.preventDefault();
+    
+    // 1. Confirm choice (Optional but UX-friendly)
+    if (!confirm("Are you sure you want to log out of Fewsion?")) return;
+
+    try {
+      // /* 2. BACKEND API CALL PLACEHOLDER
+         // For Supabase:
+         await supabase.auth.signOut();
+
+         // For Custom backend REST APIs:
+         // await fetch('/api/logout', { method: 'POST' });
+
+      // 3. Client Side Storage Cleansing
+      localStorage.clear();      // Clears access tokens or cached user metadata
+      sessionStorage.clear();     // Removes active tab state trackers
+      
+      // 4. Secure Cookie Wipeout (for JWT session setups)
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+      // 5. Interface Visual Transition Feedback
+      document.body.style.opacity = '0.3';
+      document.body.style.transition = 'opacity 0.2s ease';
+
+      // 6. Reroute back to index/login page
+      setTimeout(() => {
+        window.location.href = "index.html"; 
+      }, 300);
+
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("Error logging out. Please try again.");
+    }
+  });
+</script>
+
 </html>
