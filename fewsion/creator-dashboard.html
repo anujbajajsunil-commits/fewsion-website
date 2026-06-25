@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Creator Dashboard — Fewsion</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="fewsion-auth.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -196,41 +198,33 @@
     </div>
   </div>
 </main>
-
-    <script type="module">
+<script>
   document.getElementById('logoutBtn').addEventListener('click', async function(e) {
     e.preventDefault();
     
-    // 1. Confirm choice (Optional but UX-friendly)
     if (!confirm("Are you sure you want to log out of Fewsion?")) return;
 
     try {
-      // /* 2. BACKEND API CALL PLACEHOLDER
-         // For Supabase:
-         await supabase.auth.signOut();
+      // 1. Calls the global 'supabase' client instance initialized inside fewsion-auth.js
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
 
-         // For Custom backend REST APIs:
-         // await fetch('/api/logout', { method: 'POST' });
-
-      // 3. Client Side Storage Cleansing
-      localStorage.clear();      // Clears access tokens or cached user metadata
-      sessionStorage.clear();     // Removes active tab state trackers
+      // 2. Clear client-side storage states
+      localStorage.clear();
+      sessionStorage.clear();
       
-      // 4. Secure Cookie Wipeout (for JWT session setups)
-      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-
-      // 5. Interface Visual Transition Feedback
+      // 3. Visual fade transition
       document.body.style.opacity = '0.3';
       document.body.style.transition = 'opacity 0.2s ease';
 
-      // 6. Reroute back to index/login page
+      // 4. Redirect to login page
       setTimeout(() => {
-        window.location.href = "index.html"; 
+        window.location.href = "login.html"; // customized to point to your login screen
       }, 300);
 
     } catch (error) {
-      console.error("Logout failed:", error);
-      alert("Error logging out. Please try again.");
+      console.error("Logout failed:", error.message || error);
+      alert("Error logging out: " + (error.message || "Please check your network connection."));
     }
   });
 </script>
