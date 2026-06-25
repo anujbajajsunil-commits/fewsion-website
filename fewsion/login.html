@@ -232,9 +232,9 @@
 
       // 2. If user doesn't exist or credentials fail, redirect/tell them to register
       if (error) {
-        showToast("Account not found or invalid credentials. Redirecting to signup...", "error");
+        showToast("Account not found or invalid credentials.", "error");
         setTimeout(() => {
-          window.location.href = "signup.html";
+          window.location.href = "login.html";
         }, 2000);
         return;
       }
@@ -251,8 +251,8 @@
           }, 1000);
         } else {
           // Fallback if user exists but profile record role is missing
-          showToast('Profile dynamic role not found. Redirecting to registration...', 'error');
-          // setTimeout(() => { window.location.href = "login.html"; }, 1500);
+          showToast('User not found / Wrong Password....', 'error');
+          setTimeout(() => { window.location.href = "login.html"; }, 1500);
         }
       }
 
@@ -261,7 +261,7 @@
       showToast("Authentication server exception error. Please try again.", "error");
     } finally {
       btn.disabled = false;
-      // btn.textContent = 'Sign in →';
+      btn.textContent = 'Sign in →';
     }
   }
 
