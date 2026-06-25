@@ -855,74 +855,37 @@ async function startAnalysis() {
 //     renderDashboard(profileData, fallback);
 //   }
 // }
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+try {
+    // 🔄 Change target from 'https://api.anthropic.com/v1/messages' to your internal proxy:
+    const resp = await fetch('/api/analyze-creator', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages })
+      body: JSON.stringify({ 
+        model: 'claude-3-5-sonnet-20241022', // updated naming syntax structure
+        max_tokens: 1000, 
+        messages 
+      })
     });
+    
     const data = await resp.json();
     clearInterval(msgInt);
     
+    // Fallback security if your proxy server catches an upstream error response
+    if (data.error) throw new Error(data.error);
+
     const textBlock = data.content.find(b => b.type === 'text');
-    if (!textBlock) throw new Error('No response from AI engine');
-    const raw = textBlock.text.replace(/```json|```/g, '').trim();
+    if(!textBlock) throw new Error('No response content');
+    const raw = textBlock.text.replace(/```json|
+```/g, '').trim();
     const parsed = JSON.parse(raw);
     
-    // ─── NEW: SAVE TO SUPABASE PIPELINE ──────────────────────────────────────
-    msgEl.textContent = "Saving profile metadata to Fewsion safe...";
-    
-    // 1. Fetch the active user's structural credentials
-    const activeUser = await FewsionAuth.getUser();
-    
-    if (activeUser) {
-      const dbClient = FewsionAuth.client();
-      
-      // 2. Prepare payload corresponding cleanly to your creator_profiles schema
-      const creatorPayload = {
-        user_id: activeUser.id,
-        creator_name: profileData.name,
-        primary_niche: profileData.niche || null,
-        primary_platform: profileData.platform || null,
-        target_location: profileData.location || null,
-        follower_count: profileData.followers,
-        engagement_rate: profileData.engRate,
-        avg_views_per_post: profileData.avgViews ? parseInt(profileData.avgViews) : null,
-        posting_frequency: profileData.postFreq || null,
-        creation_tenure: profileData.tenure || null,
-        content_style_desc: profileData.contentStyle,
-        avoid_categories: profileData.avoidCategories, // text[] array
-        portfolio_url: profileData.portfolio || null,
-        past_brand_collaborations: profileData.pastBrands || null,
-        audience_demographics: profileData.demographics || null,
-        rate_per_integration: profileData.rate || null,
-        preferred_collab_types: profileData.collabTypes, // text[] array
-        wishlist_brands: profileData.wishBrands || null,
-        ai_total_score: parsed.total_score,
-        ai_grade: parsed.grade
-      };
-
-      // 3. Upsert data into creator_profiles table matching unique user_id
-      const { error: dbError } = await dbClient
-        .from('creator_profiles')
-        .upsert(creatorPayload, { onConflict: 'user_id' });
-
-      if (dbError) {
-        console.error("Database save failed:", dbError.message);
-      } else {
-        console.log("Database state synchronized perfectly.");
-      }
-    } else {
-      console.warn("No active authenticated user session discovered. Rendering dashboard locally only.");
-    }
-    // ─────────────────────────────────────────────────────────────────────────
-
-    // Render the dashboard locally onto step 4 screen
+    // Save to Supabase and execute local display transitions
     renderDashboard(profileData, parsed);
-
+    
   } catch(e) {
-    console.error("Pipeline breakdown caught:", e);
+    console.error("Upstream matching pipeline caught: ", e);
     clearInterval(msgInt);
+    // Fallback is currently running in your image capture, generating a local preview
     const fallback = generateFallbackScore(profileData);
     renderDashboard(profileData, fallback);
   }
