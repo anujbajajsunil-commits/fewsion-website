@@ -836,59 +836,26 @@ async function startAnalysis() {
     messages[0].content[0].text += '\n\nA dashboard screenshot has been uploaded. Please analyse it for consistency with the stated metrics and note any observations in your dashboard_observations field.';
   }
 
-//   try {
-//     const resp = await fetch('https://api.anthropic.com/v1/messages', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages })
-//     });
-//     const data = await resp.json();
-//     clearInterval(msgInt);
-//     const textBlock = data.content.find(b => b.type === 'text');
-//     if(!textBlock) throw new Error('No response');
-//     const raw = textBlock.text.replace(/```json|```/g, '').trim();
-//     const parsed = JSON.parse(raw);
-//     renderDashboard(profileData, parsed);
-//   } catch(e) {
-//     clearInterval(msgInt);
-//     const fallback = generateFallbackScore(profileData);
-//     renderDashboard(profileData, fallback);
-//   }
-// }
-try {
-    // 🔄 Change target from 'https://api.anthropic.com/v1/messages' to your internal proxy:
-    const resp = await fetch('/api/analyze-creator', {
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        model: 'claude-3-5-sonnet-20241022', // updated naming syntax structure
-        max_tokens: 1000, 
-        messages 
-      })
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages })
     });
-    
     const data = await resp.json();
     clearInterval(msgInt);
-    
-    // Fallback security if your proxy server catches an upstream error response
-    if (data.error) throw new Error(data.error);
-
     const textBlock = data.content.find(b => b.type === 'text');
-    if(!textBlock) throw new Error('No response content');
-    const raw = textBlock.text.replace(/```json|
-```/g, '').trim();
+    if(!textBlock) throw new Error('No response');
+    const raw = textBlock.text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(raw);
-    
-    // Save to Supabase and execute local display transitions
     renderDashboard(profileData, parsed);
-    
   } catch(e) {
-    console.error("Upstream matching pipeline caught: ", e);
     clearInterval(msgInt);
-    // Fallback is currently running in your image capture, generating a local preview
     const fallback = generateFallbackScore(profileData);
     renderDashboard(profileData, fallback);
   }
+}
+
   //-------------------------------------------------------------------------
 function buildPrompt(p) {
   return `You are a brand partnership analyst scoring a content creator profile. Analyse this creator and return ONLY a valid JSON object, no markdown, no preamble.
