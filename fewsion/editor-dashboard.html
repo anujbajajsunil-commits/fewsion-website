@@ -102,6 +102,9 @@
         <div class="role">★ Rating 4.9</div>
       </div>
     </div>
+    <button id="logoutBtn" style="width: 100%; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; font-family: var(--font-display); font-size: 13px; font-weight: 600; padding: 10px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+    🚪 Log Out Account
+  </button>
   </div>
 </aside>
 
@@ -215,4 +218,31 @@
 </main>
 
 </body>
+  <script>
+  document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+    e.preventDefault();
+    
+    if (!confirm("Are you sure you want to log out of Fewsion?")) return;
+
+    try {
+      // 1. Trigger visual feedback immediately
+      document.body.style.opacity = '0.3';
+      document.body.style.transition = 'opacity 0.2s ease';
+
+      // 2. Clear out manual dashboard trackers if you used them
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // 3. Call your dedicated auth utility method 
+      // This internally calls _sb.auth.signOut() and redirects to login.html
+      await FewsionAuth.signOut("login.html");
+
+    } catch (error) {
+      // Restore opacity if it fails for some reason
+      document.body.style.opacity = '1';
+      console.error("Logout failed:", error);
+      alert("Error logging out. Please try again.");
+    }
+  });
+</script>
 </html>
