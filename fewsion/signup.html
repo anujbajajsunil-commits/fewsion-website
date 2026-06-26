@@ -653,7 +653,7 @@ async function completeSignup() {
     // ── 3. Success ───────────────────────────────────────────────
     showToast('Account created! Redirecting…', true);
     setTimeout(() => {
-      window.location.href = currentRole + '-dashboard.html';
+      window.location.href = 'fewsion_' + currentRole + '_portal.html';
     }, 1200);
 
   } catch (err) {
