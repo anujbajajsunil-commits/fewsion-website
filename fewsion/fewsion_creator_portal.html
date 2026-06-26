@@ -924,13 +924,33 @@ async function startAnalysis() {
 
     if (supabaseClientInstance) {
       // Direct upsert with an un-conflict guard instruction matching the unique index key setup
-      const { error: dbError } = await supabaseClientInstance
-        .from('creator_profiles')
-        .upsert(creatorPayload, { onConflict: 'user_id' });
+      // const { error: dbError } = await supabaseClientInstance
+      //   .from('creator_profiles')
+      //   .upsert(creatorPayload, { onConflict: 'user_id' });
 
-      if (dbError) throw dbError;
-      console.log("🎉 Successfully locked transaction logs inside remote database layers.");
-      window.location.href = "creator-dashboard.html";
+      // if (dbError) throw dbError;
+      // console.log("🎉 Successfully locked transaction logs inside remote database layers.");
+      // window.location.href = "creator-dashboard.html";
+      const supabase = FewsionAuth.client();
+
+const { data, error } = await supabase
+  .from('creator_profiles')
+  .upsert([{
+      user_id: user.id,
+      creator_name: creatorData.creatorName,
+      primary_niche: creatorData.primaryNiche,
+      primary_platform: creatorData.platform,
+      target_location: creatorData.location
+  }], {
+      onConflict: 'user_id'
+  });
+
+console.log(data);
+console.log(error);
+
+if (error) throw error;
+
+window.location.href = 'creator-dashboard.html';
     }
 
     clearInterval(msgInt);
