@@ -1,5 +1,5 @@
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@creatorSupabase/creatorSupabase-js@2"></script>
 <script src="fewsion-auth.js"></script>
 </head>
 <style>
@@ -744,20 +744,20 @@
 </div>
 
 <script>
-  const SUPABASE_URL =
-'https://vdtpdqpmxxcwkqslhvww.supabase.co';
+  const CREATORSUPABASE_URL =
+'https://vdtpdqpmxxcwkqslhvww.creatorSupabase.co';
 
-const SUPABASE_KEY =
+const CREATORSUPABASE_KEY =
 'sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3';
 
-const supabase =
-window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
+const creatorSupabase =
+window.creatorSupabase.createClient(
+  CREATORSUPABASE_URL,
+  CREATORSUPABASE_KEY
 );
 // 1. Core State & Variable Registration
 const state = { niche: '', plat: '', avoid: [], collab: [] };
-// Initialize dynamic connection with your Supabase credentials securely on mount
+// Initialize dynamic connection with your CreatorSupabase credentials securely on mount
 // window.addEventListener('DOMContentLoaded', async () => {
 //   try {
 //     const auth = await FewsionAuth.requireAuth("creator");
@@ -766,11 +766,11 @@ const state = { niche: '', plat: '', avoid: [], collab: [] };
 //     console.log("Logged in creator:", auth.user);
 //     console.log("Creator profile:", auth.profile);
     
-//     if (window.supabase && typeof window.supabase.createClient === 'function') {
-//       supabaseClientInstance = window.supabase.createClient("https://vdtpdqpmxxcwkqslhvww.supabase.co", "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3");
-//       console.log("Supabase engine successfully mounted to workspace core.");
+//     if (window.creatorSupabase && typeof window.creatorSupabase.createClient === 'function') {
+//       creatorSupabaseClientInstance = window.creatorSupabase.createClient("https://vdtpdqpmxxcwkqslhvww.creatorSupabase.co", "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3");
+//       console.log("CreatorSupabase engine successfully mounted to workspace core.");
 //     } else {
-//       console.error("Critical: Supabase library missing from document scope.");
+//       console.error("Critical: CreatorSupabase library missing from document scope.");
 //     }
 
 //     // ─── AUTH ROUTING HOOK ───
@@ -800,7 +800,7 @@ const state = { niche: '', plat: '', avoid: [], collab: [] };
     }
 
    const { data, error } =
-await supabase
+await creatorSupabase
 .from('creator_profiles')
 .select('id')
 .eq('user_id', user.id)
@@ -950,7 +950,7 @@ async function startAnalysis() {
 
     console.log('Saving creator profile:', creatorPayload);
 
-    const { data, error } = await supabase
+    const { data, error } = await creatorSupabase
       .from('creator_profiles')
       .upsert([creatorPayload], {
         onConflict: 'user_id'
@@ -958,7 +958,7 @@ async function startAnalysis() {
       .select();
 
     if (error) {
-      console.error('Supabase Error:', error);
+      console.error('CreatorSupabase Error:', error);
       alert(error.message);
       return;
     }
