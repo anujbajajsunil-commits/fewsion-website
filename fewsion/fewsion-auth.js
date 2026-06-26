@@ -78,7 +78,7 @@ window.FewsionAuth = {
 
   // Get Supabase Client
   client() {
-    return supabaseClient;
+    return _sb;
   },
 
   // Get Current Auth User
