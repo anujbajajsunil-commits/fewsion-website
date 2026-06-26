@@ -749,35 +749,64 @@ const state = { niche: '', plat: '', avoid: [], collab: [] };
 let supabaseClientInstance = null;
 
 // Initialize dynamic connection with your Supabase credentials securely on mount
-window.addEventListener('DOMContentLoaded', async () => {
-  try {
-    const auth = await FewsionAuth.requireAuth("creator");
-    if (!auth) return;
+// window.addEventListener('DOMContentLoaded', async () => {
+//   try {
+//     const auth = await FewsionAuth.requireAuth("creator");
+//     if (!auth) return;
 
-    console.log("Logged in creator:", auth.user);
-    console.log("Creator profile:", auth.profile);
+//     console.log("Logged in creator:", auth.user);
+//     console.log("Creator profile:", auth.profile);
     
-    if (window.supabase && typeof window.supabase.createClient === 'function') {
-      supabaseClientInstance = window.supabase.createClient("https://vdtpdqpmxxcwkqslhvww.supabase.co", "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3");
-      console.log("Supabase engine successfully mounted to workspace core.");
-    } else {
-      console.error("Critical: Supabase library missing from document scope.");
+//     if (window.supabase && typeof window.supabase.createClient === 'function') {
+//       supabaseClientInstance = window.supabase.createClient("https://vdtpdqpmxxcwkqslhvww.supabase.co", "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3");
+//       console.log("Supabase engine successfully mounted to workspace core.");
+//     } else {
+//       console.error("Critical: Supabase library missing from document scope.");
+//     }
+
+//     // ─── AUTH ROUTING HOOK ───
+//     // If user is already registered with a built profile, fast-track them past the builder wizard
+//     if (typeof FewsionAuth !== 'undefined') {
+//       const activeUser = await FewsionAuth.getUser();
+//       if (activeUser) {
+//         const { data: profile } = await FewsionAuth.getProfile(activeUser.id);
+//         if (profile && profile.role === 'creator') {
+//           console.log("Active session verified. Rerouting straight to workspace dashboard...");
+//           window.location.href = "creator-dashboard.html";
+//         }
+//       }
+//     }
+//   } catch (err) {
+//     console.error("Initialization check broken:", err.message);
+//   }
+// });
+
+  window.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const user = await FewsionAuth.getUser();
+
+    if (!user) {
+      window.location.href = 'login.html';
+      return;
     }
 
-    // ─── AUTH ROUTING HOOK ───
-    // If user is already registered with a built profile, fast-track them past the builder wizard
-    if (typeof FewsionAuth !== 'undefined') {
-      const activeUser = await FewsionAuth.getUser();
-      if (activeUser) {
-        const { data: profile } = await FewsionAuth.getProfile(activeUser.id);
-        if (profile && profile.role === 'creator') {
-          console.log("Active session verified. Rerouting straight to workspace dashboard...");
-          window.location.href = "creator-dashboard.html";
-        }
-      }
+    const { data, error } = await supabaseClientInstance
+      .from('creator_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    console.log('Creator Profile:', data);
+
+    // ONLY redirect if record exists
+    if (data) {
+      window.location.href = 'creator-dashboard.html';
     }
+
+    // otherwise do nothing and show form
+
   } catch (err) {
-    console.error("Initialization check broken:", err.message);
+    console.error(err);
   }
 });
 
