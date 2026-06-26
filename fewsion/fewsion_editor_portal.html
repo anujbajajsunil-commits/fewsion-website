@@ -875,6 +875,9 @@ let supabaseClientInstance = null;
 // Initialize Supabase core securely on DOMContentLoaded load loop
 window.addEventListener('DOMContentLoaded', async () => {
   try {
+const auth = await FewsionAuth.requireAuth("editor");
+if (!auth) return;
+    
     if (window.supabase && typeof window.supabase.createClient === 'function') {
       // Connects cleanly using your existing project credentials
       supabaseClientInstance = window.supabase.createClient("https://vdtpdqpmxxcwkqslhvww.supabase.co", "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3");
