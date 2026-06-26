@@ -744,10 +744,19 @@
 </div>
 
 <script>
+  const SUPABASE_URL =
+'https://vdtpdqpmxxcwkqslhvww.supabase.co';
+
+const SUPABASE_KEY =
+'sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3';
+
+const supabase =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 // 1. Core State & Variable Registration
 const state = { niche: '', plat: '', avoid: [], collab: [] };
-let supabaseClientInstance = null;
-
 // Initialize dynamic connection with your Supabase credentials securely on mount
 // window.addEventListener('DOMContentLoaded', async () => {
 //   try {
@@ -790,11 +799,12 @@ let supabaseClientInstance = null;
       return;
     }
 
-    const { data, error } = await supabaseClientInstance
-      .from('creator_profiles')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
+   const { data, error } =
+await supabase
+.from('creator_profiles')
+.select('id')
+.eq('user_id', user.id)
+.maybeSingle();
 
     console.log('Creator Profile:', data);
 
@@ -922,47 +932,49 @@ async function startAnalysis() {
 
     console.log("Transmitting data packet package directly to PostgreSQL layout:", creatorPayload);
 
-    if (supabaseClientInstance) {
-      // Direct upsert with an un-conflict guard instruction matching the unique index key setup
-      // const { error: dbError } = await supabaseClientInstance
-      //   .from('creator_profiles')
-      //   .upsert(creatorPayload, { onConflict: 'user_id' });
+  try {
+    const user = await FewsionAuth.getUser();
 
-      // if (dbError) throw dbError;
-      // console.log("🎉 Successfully locked transaction logs inside remote database layers.");
-      // window.location.href = "creator-dashboard.html";
-      const supabase = FewsionAuth.client();
-
-const { data, error } = await supabase
-  .from('creator_profiles')
-  .upsert([{
-      user_id: user.id,
-      creator_name: creatorData.creatorName,
-      primary_niche: creatorData.primaryNiche,
-      primary_platform: creatorData.platform,
-      target_location: creatorData.location
-  }], {
-      onConflict: 'user_id'
-  });
-
-console.log(data);
-console.log(error);
-
-if (error) throw error;
-
-window.location.href = 'creator-dashboard.html';
+    if (!user) {
+        alert('Please login again.');
+        return;
     }
 
-    clearInterval(msgInt);
-    renderDashboard(profileData, computedResult);
+    creatorPayload.user_id = user.id;
 
-  } catch (err) {
-    clearInterval(msgInt);
-    console.error("Critical persistence exception intercepted:", err.message || err);
-    // Execute visualization maps anyway so frontend user interactions don't hardlock on error states
-    renderDashboard(profileData, computedResult);
-  }
+    const supabase = FewsionAuth.client();
+
+    const { data, error } = await supabase
+      .from('creator_profiles')
+      .upsert([creatorPayload], {
+          onConflict: 'user_id'
+      })
+      .select();
+
+    if (error) {
+        console.error('Supabase Error:', error);
+        alert(error.message);
+        return;
+    }
+
+    console.log('Creator saved:', data);
+
+    window.location.href = 'creator-dashboard.html';
+
+} catch (err) {
+    console.error('Save Error:', err);
 }
+
+    // clearInterval(msgInt);
+    // renderDashboard(profileData, computedResult);
+
+//   } catch (err) {
+//     clearInterval(msgInt);
+//     console.error("Critical persistence exception intercepted:", err.message || err);
+//     // Execute visualization maps anyway so frontend user interactions don't hardlock on error states
+//     renderDashboard(profileData, computedResult);
+//   }
+// }
 
 // 4. Data Calculation Mapping Utilities
 function buildPrompt(p) { return ``; } // Signature footprint preserved for functional alignment
