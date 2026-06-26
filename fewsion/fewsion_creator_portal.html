@@ -788,39 +788,72 @@ const state = { niche: '', plat: '', avoid: [], collab: [] };
 //     console.error("Initialization check broken:", err.message);
 //   }
 // });
+// ======================================================
+// FEWSION CREATOR PORTAL INITIALIZATION
+// ======================================================
 
-  window.addEventListener('DOMContentLoaded', async () => {
-  try {
-    const user = await FewsionAuth.getUser();
+const state = {
+    niche: "",
+    plat: "",
+    avoid: [],
+    collab: []
+};
 
-    if (!user) {
-      window.location.href = 'login.html';
-      return;
+// Reuse the existing client from fewsion-auth.js
+const supabase = FewsionAuth.client();
+
+let currentUser = null;
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    try {
+
+        //--------------------------------------------------
+        // Verify Auth
+        //--------------------------------------------------
+
+        const auth = await FewsionAuth.requireAuth("creator");
+
+        if (!auth) return;
+
+        currentUser = auth.user;
+
+        console.log("Logged In User", currentUser);
+
+        //--------------------------------------------------
+        // Check if creator profile already exists
+        //--------------------------------------------------
+
+        const { data, error } = await supabase
+            .from("creator_profiles")
+            .select("id")
+            .eq("user_id", currentUser.id)
+            .maybeSingle();
+
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        console.log("Existing Profile", data);
+
+        if (data) {
+
+            window.location.href = "creator-dashboard.html";
+            return;
+
+        }
+
+        console.log("New Creator");
+
     }
 
-   const { data, error } =
-await supabase
-.from('creator_profiles')
-.select('id')
-.eq('user_id', user.id)
-.maybeSingle();
+    catch (err) {
 
-    console.log('Creator Profile:', data);
-    console.log("supabase =", supabase);
-console.log("typeof =", typeof supabase);
-console.log("from =", supabase.from);
-console.log("keys =", Object.keys(supabase));
+        console.error(err);
 
-    // ONLY redirect if record exists
-    if (data) {
-      window.location.href = 'creator-dashboard.html';
     }
 
-    // otherwise do nothing and show form
-
-  } catch (err) {
-    console.error(err);
-  }
 });
 
 // 2. Step Flow & Selection Control Methods
@@ -918,8 +951,9 @@ async function startAnalysis() {
 
     const computedResult = generateFallbackScore(profileData);
 
-    const user = await FewsionAuth.getUser();
-
+    // const user = await FewsionAuth.getUser();
+  const user = currentUser;
+    
     if (!user) {
       alert('Please login again.');
       window.location.href = 'login.html';
@@ -953,12 +987,22 @@ async function startAnalysis() {
 
     console.log('Saving creator profile:', creatorPayload);
 
+    // const { data, error } = await supabase
+    //   .from('creator_profiles')
+    //   .upsert([creatorPayload], {
+    //     onConflict: 'user_id'
+    //   })
+    //   .select();
     const { data, error } = await supabase
-      .from('creator_profiles')
-      .upsert([creatorPayload], {
-        onConflict: 'user_id'
-      })
-      .select();
+    .from("creator_profiles")
+    .upsert(
+        creatorPayload,
+        {
+            onConflict: "user_id"
+        }
+    )
+    .select()
+    .single();
 
     if (error) {
       console.error('Supabase Error:', error);
