@@ -886,16 +886,64 @@ const SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3";
 // Use window scope initialization to eliminate variable collisions
 let supabaseClientInstance = null;
 
-window.addEventListener('DOMContentLoaded', () => {
+// window.addEventListener('DOMContentLoaded', () => {
+//   try {
+//     if (window.supabase && typeof window.supabase.createClient === 'function') {
+//       supabaseClientInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+//       console.log("Supabase Database connection fully online.");
+//     } else {
+//       console.error("Supabase CDN failed to mount properly in the header.");
+//     }
+//   } catch (err) {
+//     console.error("Initialization exception:", err.message);
+//   }
+// });
+  window.addEventListener('DOMContentLoaded', async () => {
   try {
-    if (window.supabase && typeof window.supabase.createClient === 'function') {
-      supabaseClientInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    if (
+      window.supabase &&
+      typeof window.supabase.createClient === 'function'
+    ) {
+      supabaseClientInstance = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
       console.log("Supabase Database connection fully online.");
+
+      // Check login
+      const auth = await FewsionAuth.requireAuth("brand");
+      if (!auth) return;
+
+      const userId = auth.user.id;
+
+      // Check if onboarding form was already submitted
+      const { data, error } = await supabaseClientInstance
+        .from('brand_profiles')
+        .select('user_id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Profile check failed:", error);
+        return;
+      }
+
+      // Profile exists → go directly to dashboard
+      if (data) {
+        window.location.href = "brand-dashboard.html";
+        return;
+      }
+
+      // No profile found → stay on this page and show the form
+      console.log("No profile found. Showing onboarding form.");
     } else {
-      console.error("Supabase CDN failed to mount properly in the header.");
+      console.error(
+        "Supabase CDN failed to mount properly in the header."
+      );
     }
   } catch (err) {
-    console.error("Initialization exception:", err.message);
+    console.error("Initialization exception:", err);
   }
 });
 
