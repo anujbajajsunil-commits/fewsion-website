@@ -864,117 +864,116 @@ async function startAnalysis() {
 
   if (!name || !followers || !engRate || !contentStyle) {
     const err = document.getElementById('analyzeError');
-    err.textContent = 'Please fill out creator name, followers, engagement rate, and content style before analyzing.';
+    err.textContent =
+      'Please fill out creator name, followers, engagement rate, and content style before analyzing.';
     err.style.display = 'block';
     return;
   }
+
   document.getElementById('analyzeError').style.display = 'none';
   goStep(4);
 
   const msgEl = document.getElementById('analyzingMsg');
-  const msgs = ['Reviewing reach and engagement signals', 'Assessing brand safety profile', 'Scoring content quality', 'Calculating custom matching indexing', 'Syncing cloud data metrics'];
+  const msgs = [
+    'Reviewing reach and engagement signals',
+    'Assessing brand safety profile',
+    'Scoring content quality',
+    'Calculating custom matching indexing',
+    'Syncing cloud data metrics'
+  ];
+
   let mi = 0;
-  const msgInt = setInterval(() => { mi++; if (mi < msgs.length) msgEl.textContent = msgs[mi]; }, 1500);
-
-  const profileData = {
-    name, niche: state.niche, platform: state.plat,
-    location: document.getElementById('location').value.trim(),
-    followers: parseInt(followers) || 0, engRate: parseFloat(engRate) || 0,
-    avgViews: document.getElementById('avgViews').value,
-    postFreq: document.getElementById('postFreq').value,
-    tenure: document.getElementById('tenure').value,
-    contentStyle,
-    avoidCategories: state.avoid,
-    portfolio: document.getElementById('portfolio').value.trim(),
-    pastBrands: document.getElementById('pastBrands').value.trim(),
-    demographics: document.getElementById('demographics').value.trim(),
-    rate: document.getElementById('rate').value.trim(),
-    collabTypes: state.collab,
-    wishBrands: document.getElementById('wishBrands').value.trim(),
-    hasDashboardImage: document.getElementById('dashUpload').files.length > 0
-  };
-
-  // Compile fast optimization calculations locally to insulate user from background CORS network blocks
-  const computedResult = generateFallbackScore(profileData);
+  const msgInt = setInterval(() => {
+    mi++;
+    if (mi < msgs.length) {
+      msgEl.textContent = msgs[mi];
+    }
+  }, 1500);
 
   try {
-    let userId = '00000000-0000-0000-0000-000000000000'; // Global structural fallback for testing loops
-    
-    // Check global state management instance securely
-    if (typeof FewsionAuth !== 'undefined') {
-      const activeUser = await FewsionAuth.getUser();
-      if (activeUser) userId = activeUser.id;
+    const profileData = {
+      name,
+      niche: state.niche,
+      platform: state.plat,
+      location: document.getElementById('location').value.trim(),
+      followers: parseInt(followers) || 0,
+      engRate: parseFloat(engRate) || 0,
+      avgViews: document.getElementById('avgViews').value,
+      postFreq: document.getElementById('postFreq').value,
+      tenure: document.getElementById('tenure').value,
+      contentStyle,
+      avoidCategories: state.avoid,
+      portfolio: document.getElementById('portfolio').value.trim(),
+      pastBrands: document.getElementById('pastBrands').value.trim(),
+      demographics: document.getElementById('demographics').value.trim(),
+      rate: document.getElementById('rate').value.trim(),
+      collabTypes: state.collab,
+      wishBrands: document.getElementById('wishBrands').value.trim(),
+      hasDashboardImage:
+        document.getElementById('dashUpload').files.length > 0
+    };
+
+    const computedResult = generateFallbackScore(profileData);
+
+    const user = await FewsionAuth.getUser();
+
+    if (!user) {
+      alert('Please login again.');
+      window.location.href = 'login.html';
+      return;
     }
 
-    // Explicit payload structural transformation mapping parameters cleanly into schema matching logic
     const creatorPayload = {
-      user_id: userId,
+      user_id: user.id,
       creator_name: profileData.name,
       primary_niche: profileData.niche || null,
       primary_platform: profileData.platform || null,
       target_location: profileData.location || null,
       follower_count: profileData.followers,
       engagement_rate: profileData.engRate,
-      avg_views_per_post: profileData.avgViews ? parseInt(profileData.avgViews) : null,
+      avg_views_per_post: profileData.avgViews
+        ? parseInt(profileData.avgViews)
+        : null,
       posting_frequency: profileData.postFreq || null,
       creation_tenure: profileData.tenure || null,
       content_style_desc: profileData.contentStyle,
-      avoid_categories: profileData.avoidCategories,       // Submits safely as text[] array
+      avoid_categories: profileData.avoidCategories,
       portfolio_url: profileData.portfolio || null,
       past_brand_collaborations: profileData.pastBrands || null,
       audience_demographics: profileData.demographics || null,
       rate_per_integration: profileData.rate || null,
-      preferred_collab_types: profileData.collabTypes,     // Submits safely as text[] array
+      preferred_collab_types: profileData.collabTypes,
       wishlist_brands: profileData.wishBrands || null,
       ai_total_score: computedResult.total_score,
       ai_grade: computedResult.grade
     };
 
-    console.log("Transmitting data packet package directly to PostgreSQL layout:", creatorPayload);
-
-  try {
-    const user = await FewsionAuth.getUser();
-
-    if (!user) {
-        alert('Please login again.');
-        return;
-    }
-
-    creatorPayload.user_id = user.id;
-
-    const supabase = FewsionAuth.client();
+    console.log('Saving creator profile:', creatorPayload);
 
     const { data, error } = await supabase
       .from('creator_profiles')
       .upsert([creatorPayload], {
-          onConflict: 'user_id'
+        onConflict: 'user_id'
       })
       .select();
 
     if (error) {
-        console.error('Supabase Error:', error);
-        alert(error.message);
-        return;
+      console.error('Supabase Error:', error);
+      alert(error.message);
+      return;
     }
+
+    clearInterval(msgInt);
 
     console.log('Creator saved:', data);
 
     window.location.href = 'creator-dashboard.html';
-
-} catch (err) {
-    console.error('Save Error:', err);
+  } catch (err) {
+    clearInterval(msgInt);
+    console.error('Critical Error:', err);
+    alert('Something went wrong. Please try again.');
+  }
 }
-
-    // clearInterval(msgInt);
-    // renderDashboard(profileData, computedResult);
-
-//   } catch (err) {
-//     clearInterval(msgInt);
-//     console.error("Critical persistence exception intercepted:", err.message || err);
-//     // Execute visualization maps anyway so frontend user interactions don't hardlock on error states
-//     renderDashboard(profileData, computedResult);
-//   }
-// }
 
 // 4. Data Calculation Mapping Utilities
 function buildPrompt(p) { return ``; } // Signature footprint preserved for functional alignment
