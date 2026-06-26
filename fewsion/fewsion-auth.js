@@ -6,6 +6,9 @@
 const FEWSION_SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co";
 const FEWSION_SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3"; // anon/public key
 
+if (!window.supabase) {
+  console.error("Supabase library not loaded!");
+}
 // ─── BOOT ──────────────────────────────────────────────────────────────────
 const supabaseClient = window.supabase.createClient(FEWSION_SUPABASE_URL, FEWSION_SUPABASE_KEY);
 
