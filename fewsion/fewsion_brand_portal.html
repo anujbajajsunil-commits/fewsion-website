@@ -1128,6 +1128,8 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
 
     if (error) throw error;
     console.log("🎉 SUCCESS! The row was successfully synced to your brand_profiles table!");
+    // Redirect to dashboard
+window.location.href = "brand-dashboard.html";
 
   } catch (err) {
     console.error("Database compilation error:", err.message);
