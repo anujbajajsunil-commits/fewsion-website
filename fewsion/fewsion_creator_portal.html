@@ -806,6 +806,10 @@ await supabase
 .maybeSingle();
 
     console.log('Creator Profile:', data);
+    console.log("supabase =", supabase);
+console.log("typeof =", typeof supabase);
+console.log("from =", supabase.from);
+console.log("keys =", Object.keys(supabase));
 
     // ONLY redirect if record exists
     if (data) {
