@@ -751,6 +751,12 @@ let supabaseClientInstance = null;
 // Initialize dynamic connection with your Supabase credentials securely on mount
 window.addEventListener('DOMContentLoaded', async () => {
   try {
+    const auth = await FewsionAuth.requireAuth("creator");
+    if (!auth) return;
+
+    console.log("Logged in creator:", auth.user);
+    console.log("Creator profile:", auth.profile);
+    
     if (window.supabase && typeof window.supabase.createClient === 'function') {
       supabaseClientInstance = window.supabase.createClient("https://vdtpdqpmxxcwkqslhvww.supabase.co", "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3");
       console.log("Supabase engine successfully mounted to workspace core.");
