@@ -1044,6 +1044,7 @@ async function startAnalysis() {
 
       if (dbError) throw dbError;
       console.log("🎉 Profile database synchronization executed without failure variables.");
+      window.location.href = "editor-dashboard.html";
     } else {
       throw new Error("Supabase application database target offline.");
     }
