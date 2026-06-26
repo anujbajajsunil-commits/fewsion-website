@@ -901,6 +901,7 @@ async function startAnalysis() {
 
       if (dbError) throw dbError;
       console.log("🎉 Successfully locked transaction logs inside remote database layers.");
+      window.location.href = "creator-dashboard.html";
     }
 
     clearInterval(msgInt);
