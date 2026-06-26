@@ -7,11 +7,11 @@ const FEWSION_SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co";
 const FEWSION_SUPABASE_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3"; // anon/public key
 
 // ─── BOOT ──────────────────────────────────────────────────────────────────
-const _sb = window.supabase.createClient(FEWSION_SUPABASE_URL, FEWSION_SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(FEWSION_SUPABASE_URL, FEWSION_SUPABASE_KEY);
 
 console.log("Supabase URL:", FEWSION_SUPABASE_URL);
 console.log("Supabase Key:", FEWSION_SUPABASE_KEY);
-console.log("Supabase Client:", _sb);
+console.log("Supabase Client:", supabaseClient);
 
 // ─── PUBLIC API ───────────────────────────────────────────────────────────
 // window.FewsionAuth = {
@@ -78,7 +78,7 @@ window.FewsionAuth = {
 
   // Get Supabase Client
   client() {
-    return _sb;
+    return supabaseClient;
   },
 
   // Get Current Auth User
