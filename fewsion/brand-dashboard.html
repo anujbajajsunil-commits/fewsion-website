@@ -210,18 +210,30 @@
   </div>
 </main>
 <script>
-  document.getElementById("logoutBtn").addEventListener("click", async () => {
-  try {
-    await supabaseClient.auth.signOut();
+document.addEventListener("DOMContentLoaded", () => {
+  const logoutBtn = document.getElementById("logoutBtn");
 
-    // Optional: clear any local storage
-    localStorage.clear();
-    sessionStorage.clear();
-
-    window.location.href = "login.html";
-  } catch (err) {
-    console.error("Logout Error:", err);
+  if (!logoutBtn) {
+    console.error("Logout button not found");
+    return;
   }
+
+  logoutBtn.addEventListener("click", async () => {
+    console.log("Logout clicked");
+
+    try {
+      if (window.FewsionAuth) {
+        await window.FewsionAuth.signOut("login.html");
+      } else if (window.supabaseClient) {
+        await window.supabaseClient.auth.signOut();
+        window.location.href = "login.html";
+      } else {
+        console.error("Supabase client not found");
+      }
+    } catch (err) {
+      console.error("Logout Error:", err);
+    }
+  });
 });
 </script>
 </body>
