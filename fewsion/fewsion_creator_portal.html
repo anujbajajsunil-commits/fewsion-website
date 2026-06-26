@@ -742,6 +742,8 @@
  <script src="https://cdn.jsdelivr.net/npm/@creatorSupabase/creatorSupabase-js@2"></script>
 <script src="fewsion-auth.js"></script>
 <script>
+  // 1. Core State & Variable Registration
+const state = { niche: '', plat: '', avoid: [], collab: [] };
   const CREATORSUPABASE_URL =
 'https://vdtpdqpmxxcwkqslhvww.creatorSupabase.co';
 
@@ -753,8 +755,7 @@ window.creatorSupabase.createClient(
   CREATORSUPABASE_URL,
   CREATORSUPABASE_KEY
 );
-// 1. Core State & Variable Registration
-const state = { niche: '', plat: '', avoid: [], collab: [] };
+
 // Initialize dynamic connection with your CreatorSupabase credentials securely on mount
 // window.addEventListener('DOMContentLoaded', async () => {
 //   try {
