@@ -32,24 +32,21 @@
   .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--amber2), var(--amber)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; color: #000; font-size: 13px; }
   .user-info .name { font-size: 13px; font-weight: 600; color: var(--white); }
   .user-info .role { font-size: 11px; color: var(--muted); }
+  
   .logout-btn {
-  width: 100%;
-  margin-top: 20px;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: #1a1a1a;
-  color: #fff;
-  cursor: pointer;
-  font-family: var(--font-body);
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.logout-btn:hover {
-  background: #F5A623;
-  color: #000;
-}
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #1a1a1a;
+    color: #fff;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+  .logout-btn:hover { background: #F5A623; color: #000; }
 
   /* Main Workspace */
   main { margin-left: 260px; flex: 1; padding: 40px 5%; max-width: 1400px; }
@@ -108,134 +105,167 @@
   </ul>
   <div class="side-footer">
     <div class="user-badge">
-      <div class="user-avatar">GR</div>
+      <div class="user-avatar" id="sidebarAvatar">--</div>
       <div class="user-info">
-        <div class="name">Glow Republic</div>
-        <div class="role">Brand Partner</div>
+        <div class="name" id="sidebarBrandName">Loading...</div>
+        <div class="role" id="sidebarRole">Brand Partner</div>
       </div>
     </div>
-    <button id="logoutBtn" class="logout-btn">
-    🚪 Logout
-  </button>
+    <button id="logoutBtn" class="logout-btn">🚪 Logout</button>
   </div>
 </aside>
 
 <main>
   <header>
     <div>
-      <h1>Welcome back, Glow Republic</h1>
+      <h1 id="welcomeHeading">Welcome back</h1>
       <p style="color: var(--muted); font-size: 14px; margin-top: 4px;">Monitor your active UGC content and applications.</p>
     </div>
-    <!-- <button class="btn-create">✨ New AI Campaign</button> -->
-    <button class="btn-create"><a href="fewsion_brand_portal.html">✨ New AI Campaign</a></button>
+    <button class="btn-create" onclick="window.location.href='fawsion_brand_portal.html'">✨ New AI Campaign</button>
   </header>
 
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-label">Active Briefs</div>
-      <div class="stat-value">2</div>
+      <div class="stat-label">Company Website</div>
+      <div class="stat-value" id="cardWebsite" style="font-size: 20px; word-break: break-all; padding-top: 10px;">--</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Total Applicants</div>
-      <div class="stat-value">24</div>
-      <div class="stat-change up">▲ 8 new today</div>
+      <div class="stat-label">Primary Industry</div>
+      <div class="stat-value" id="cardIndustry" style="font-size: 24px; padding-top: 6px;">--</div>
+      <div class="stat-change up">▲ Live Targeting</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Avg. Content CTR</div>
-      <div class="stat-value">4.8%</div>
-      <div class="stat-change up">▲ +1.2% this week</div>
+      <div class="stat-label">Product Categories</div>
+      <div class="stat-value" id="cardCategories" style="font-size: 16px; font-weight: 500; color: var(--text); padding-top: 8px; line-height: 1.4;">--</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Escrow Balance</div>
-      <div class="stat-value">₹45,000</div>
+      <div class="stat-label">System Security</div>
+      <div class="stat-value" style="font-size: 26px; color: #4ade80; padding-top: 4px;">Verified</div>
+      <div style="font-size:11px; color:var(--muted); margin-top:4px;">Vault Node Status Offline</div>
     </div>
   </div>
 
   <div class="dashboard-row">
     <div class="section-box">
-      <h2>Active Campaigns</h2>
-      
+      <h2>Brand Profile Configuration</h2>
       <div class="campaign-item">
         <div class="campaign-info">
-          <h3>Summer SPF Hydra-Gel Launch</h3>
+          <h3>Target Audience Focus</h3>
           <div class="campaign-meta">
-            <span>Platform: Instagram Reels</span>
-            <span>Budget: ₹12,000/cr</span>
-            <span class="status-tag">Live</span>
+            <span id="metaAudience">--</span>
           </div>
         </div>
-        <div style="font-size: 14px; text-align: right; color: var(--white); font-weight: 600;">14 Applicants</div>
       </div>
-
       <div class="campaign-item">
         <div class="campaign-info">
-          <h3>Vitamin C Serum Raw Testimonials</h3>
+          <h3>Campaign Objectives</h3>
           <div class="campaign-meta">
-            <span>Platform: YouTube Shorts</span>
-            <span>Budget: ₹8,000/cr</span>
-            <span class="status-tag">Live</span>
+            <span id="metaObjectives">--</span>
           </div>
         </div>
-        <div style="font-size: 14px; text-align: right; color: var(--white); font-weight: 600;">10 Applicants</div>
       </div>
     </div>
 
     <div class="section-box">
-      <h2>Recent Activity</h2>
-      
+      <h2>Recent System Actions</h2>
       <div class="feed-item">
-        <div class="feed-icon">✓</div>
+        <div class="feed-icon">🔒</div>
         <div class="feed-text">
-          <span>Priya Kapoor</span> submitted a revision draft for SPF Campaign.
-          <div class="feed-time">10 mins ago</div>
+          <span>Supabase Infrastructure Connected</span> securely with profile schema columns.
+          <div class="feed-time">Active Session</div>
         </div>
       </div>
-
       <div class="feed-item">
         <div class="feed-icon">⚡</div>
         <div class="feed-text">
-          New match score generated: <span>Rashi Mehta (Score 91)</span> applied.
-          <div class="feed-time">2 hours ago</div>
-        </div>
-      </div>
-
-      <div class="feed-item">
-        <div class="feed-icon">💳</div>
-        <div class="feed-text">
-          Escrow payment of ₹12,000 verified via Razorpay.
-          <div class="feed-time">Yesterday</div>
+          AI matching indexing vectors initialized for brand optimization rules.
         </div>
       </div>
     </div>
   </div>
 </main>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="fewsion-auth.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const logoutBtn = document.getElementById("logoutBtn");
+// Extract global database pointer cleanly
+ supabase = FewsionAuth.client();
+let currentUser = null;
 
-  if (!logoutBtn) {
-    console.error("Logout button not found");
-    return;
-  }
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    // 1. Verify exact role allocation security parameter
+    const auth = await FewsionAuth.requireAuth("brand");
+    if (!auth) return;
 
-  logoutBtn.addEventListener("click", async () => {
-    console.log("Logout clicked");
+    currentUser = auth.user;
 
-    try {
-      if (window.FewsionAuth) {
-        await window.FewsionAuth.signOut("login.html");
-      } else if (window.supabaseClient) {
-        await window.supabaseClient.auth.signOut();
-        window.location.href = "login.html";
-      } else {
-        console.error("Supabase client not found");
-      }
-    } catch (err) {
-      console.error("Logout Error:", err);
+    // 2. Query target record matching verified account reference
+    const { data: brandProfile, error } = await supabase
+      .from("brand_profiles")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Supabase relation trace failed:", error);
+      return;
     }
-  });
+
+    // 3. Reroute back to registration wizard if records are empty
+    if (!brandProfile) {
+      console.log("No profile discovered for user context. Directing to setup page...");
+      window.location.href = "fawsion_brand_portal.html";
+      return;
+    }
+
+    console.log("Hydrating Workspace View Engine Layout:", brandProfile);
+
+    // 4. Dom Target Content Assignment Core
+    const company = brandProfile.company_name || "Brand Partner";
+    document.getElementById("sidebarBrandName").textContent = company;
+    document.getElementById("welcomeHeading").textContent = `Welcome back, ${company}`;
+    
+    // Quick avatar string extraction
+    const initials = company.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    document.getElementById("sidebarAvatar").textContent = initials || "B";
+
+    // Inject row strings dynamically into layout elements
+    document.getElementById("cardWebsite").textContent = brandProfile.company_website || "None set";
+    document.getElementById("cardIndustry").textContent = brandProfile.industry || "General";
+    
+    // Parse arrays neatly or fall back safely to empty state metrics
+    const categoriesArray = brandProfile.product_categories || [];
+    document.getElementById("cardCategories").textContent = categoriesArray.length > 0 ? categoriesArray.join(", ") : "Not selected";
+    
+    document.getElementById("metaAudience").textContent = brandProfile.target_audience || "Universal Demographic";
+    
+    const objectiveArray = brandProfile.campaign_objectives || [];
+    document.getElementById("metaObjectives").textContent = objectiveArray.length > 0 ? objectiveArray.join(" · ") : "Not designated";
+
+  } catch (err) {
+    console.error("Dashboard mount execution exception caught:", err);
+  }
+});
+
+// 5. Secure Session Invalidation Trigger Logic
+document.getElementById("logoutBtn").addEventListener("click", async (e) => {
+  e.preventDefault();
+  if (!confirm("Are you sure you want to log out of your brand panel?")) return;
+
+  try {
+    document.body.style.opacity = '0.3';
+    document.body.style.transition = 'opacity 0.2s ease';
+
+    localStorage.clear();
+    sessionStorage.clear();
+
+    await FewsionAuth.signOut("login.html");
+  } catch (err) {
+    document.body.style.opacity = '1';
+    console.error("Logout execution fault:", err);
+    alert("Error logging out. Please try again.");
+  }
 });
 </script>
 </body>
