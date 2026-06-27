@@ -1069,7 +1069,6 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
 
     let userId = null;
 
-    // A. Extract user session from FewsionAuth controller
     if (typeof FewsionAuth !== 'undefined') {
       try {
         const activeUser = await FewsionAuth.getUser();
@@ -1081,7 +1080,6 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
       }
     }
 
-    // B. Native fallback if FewsionAuth hasn't loaded yet
     if (!userId) {
       try {
         const { data: sessionData } = await supabaseClientInstance.auth.getSession();
@@ -1093,14 +1091,13 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
       }
     }
 
-    // C. Sandbox testing block safety framework
     if (!userId) {
       userId = '00000000-0000-0000-0000-000000000000';
     }
 
-    // ==========================================
-    // WRITE 1: Update the Brand Storefront Profile
-    // ==========================================
+    // ========================================================
+    // WRITE 1: Update Brand Profile (Satisfying NOT NULL Rules)
+    // ========================================================
     console.log("Syncing company storefront metrics to brand_profiles...");
     const { error: profileError } = await supabaseClientInstance
       .from('brand_profiles')
@@ -1111,7 +1108,12 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
         website_url: brandData.website,
         brand_description: brandData.brandDesc,
         primary_market: brandData.market,
-        brand_tone: brandData.tone || []
+        brand_tone: brandData.tone || [],
+        
+        // ADDED: These satisfy your table's strict non-nullable structural columns
+        campaign_name: brandData.campaignName, 
+        campaign_objective: brandData.objective,
+        key_message: brandData.keyMessage
       }, { onConflict: 'user_id' });
 
     if (profileError) {
@@ -1120,20 +1122,18 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
       return;
     }
 
-    // ==========================================
-    // WRITE 2: Insert New Record into campaign_briefs
-    // ==========================================
+    // ========================================================
+    // WRITE 2: Insert New Independent Entry into campaign_briefs
+    // ========================================================
     console.log("Transmitting new operational campaign mapping to campaign_briefs...");
     
-    // Convert text range numbers (e.g., '₹1–5L') to a clear numeric fallback if needed,
-    // or parse integer numbers out of the string slider indices.
     const cleanBudgetInteger = parseInt(document.getElementById('budgetRange').value) * 50000 || 50000;
 
     const { error: campaignError } = await supabaseClientInstance
       .from('campaign_briefs')
       .insert([
         {
-          brand_id: userId, // Foreign Key linking this project to the brand user row
+          brand_id: userId, 
           campaign_title: brandData.campaignName,
           target_platform: brandData.contentTypes.length > 0 ? brandData.contentTypes.join(", ") : "Instagram Reels",
           budget_allocated: cleanBudgetInteger,
@@ -1147,7 +1147,7 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
       return;
     }
 
-    console.log("🎉 SUCCESS! Dual table transaction execution completely error-free.");
+    console.log("🎉 SUCCESS! Dual table transaction executed completely error-free.");
     
     // Redirect cleanly to your brand dashboard workspace panel
     window.location.href = "brand-dashboard.html";
