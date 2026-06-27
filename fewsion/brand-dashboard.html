@@ -71,8 +71,12 @@
   /* Campaigns List */
   .campaign-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--deep); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; }
   .campaign-info h3 { font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
-  .campaign-meta { font-size: 12px; color: var(--muted); display: flex; gap: 16px; }
-  .status-tag { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: #4ade80; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 50px; }
+  .campaign-meta { font-size: 12px; color: var(--muted); display: flex; gap: 16px; align-items: center; }
+  .status-tag { background: rgba(245, 166, 35, 0.1); border: 1px solid rgba(245, 166, 35, 0.2); color: var(--amber); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 50px; text-transform: capitalize; }
+  .status-tag.active-live { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: #4ade80; }
+
+  /* Empty State Tracker UI */
+  .empty-state-box { padding: 32px; text-align: center; color: var(--muted); border: 1px dashed var(--border2); border-radius: var(--radius-sm); font-size: 14px; }
 
   /* Notifications / Feed */
   .feed-item { display: flex; gap: 12px; font-size: 13.5px; line-height: 1.5; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
@@ -126,8 +130,8 @@
 
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-label">Company Website</div>
-      <div class="stat-value" id="cardWebsite" style="font-size: 20px; word-break: break-all; padding-top: 10px;">--</div>
+      <div class="stat-label">Active Briefs</div>
+      <div class="stat-value" id="countBriefs">0</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Primary Industry</div>
@@ -136,33 +140,19 @@
     </div>
     <div class="stat-card">
       <div class="stat-label">Product Categories</div>
-      <div class="stat-value" id="cardCategories" style="font-size: 16px; font-weight: 500; color: var(--text); padding-top: 8px; line-height: 1.4;">--</div>
+      <div class="stat-value" id="cardCategories" style="font-size: 15px; font-weight: 500; color: var(--text); padding-top: 8px; line-height: 1.4;">--</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">System Security</div>
-      <div class="stat-value" style="font-size: 26px; color: #4ade80; padding-top: 4px;">Verified</div>
-      <div style="font-size:11px; color:var(--muted); margin-top:4px;">Vault Node Status Offline</div>
+      <div class="stat-label">Company Website</div>
+      <div class="stat-value" id="cardWebsite" style="font-size: 16px; word-break: break-all; padding-top: 10px; color: var(--amber);">--</div>
     </div>
   </div>
 
   <div class="dashboard-row">
     <div class="section-box">
-      <h2>Brand Profile Configuration</h2>
-      <div class="campaign-item">
-        <div class="campaign-info">
-          <h3>Target Audience Focus</h3>
-          <div class="campaign-meta">
-            <span id="metaAudience">--</span>
-          </div>
-        </div>
-      </div>
-      <div class="campaign-item">
-        <div class="campaign-info">
-          <h3>Campaign Objectives</h3>
-          <div class="campaign-meta">
-            <span id="metaObjectives">--</span>
-          </div>
-        </div>
+      <h2>Active Brief campaigns</h2>
+      <div id="campaignsContainer">
+        <div class="empty-state-box">Querying active marketing campaigns...</div>
       </div>
     </div>
 
@@ -171,14 +161,14 @@
       <div class="feed-item">
         <div class="feed-icon">🔒</div>
         <div class="feed-text">
-          <span>Supabase Infrastructure Connected</span> securely with profile schema columns.
+          <span>Supabase Infrastructure Connected</span> securely with dynamic parameters.
           <div class="feed-time">Active Session</div>
         </div>
       </div>
       <div class="feed-item">
         <div class="feed-icon">⚡</div>
         <div class="feed-text">
-          AI matching indexing vectors initialized for brand optimization rules.
+          AI matching vectors filtered according to your brand requirements.
         </div>
       </div>
     </div>
@@ -188,19 +178,19 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="fewsion-auth.js"></script>
 <script>
-// Extract global database pointer cleanly
+// Extract global database engine correctly without context scoping re-declaration bugs
  supabase = FewsionAuth.client();
 let currentUser = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    // 1. Verify exact role allocation security parameter
+    // 1. Verify role allocation criteria parameters
     const auth = await FewsionAuth.requireAuth("brand");
     if (!auth) return;
 
     currentUser = auth.user;
 
-    // 2. Query target record matching verified account reference
+    // 2. Extract configuration row matching brand user ID
     const { data: brandProfile, error } = await supabase
       .from("brand_profiles")
       .select("*")
@@ -208,47 +198,91 @@ document.addEventListener("DOMContentLoaded", async () => {
       .maybeSingle();
 
     if (error) {
-      console.error("Supabase relation trace failed:", error);
+      console.error("Supabase relation trace failure:", error);
       return;
     }
 
-    // 3. Reroute back to registration wizard if records are empty
+    // 3. Fallback routing safeguard if row metadata is empty
     if (!brandProfile) {
-      console.log("No profile discovered for user context. Directing to setup page...");
+      console.log("No custom profile records discovered. Directing to setup wizard...");
       window.location.href = "fawsion_brand_portal.html";
       return;
     }
 
-    console.log("Hydrating Workspace View Engine Layout:", brandProfile);
+    console.log("Hydrating Account Workspace View:", brandProfile);
 
-    // 4. Dom Target Content Assignment Core
+    // 4. Update core profile views dynamically
     const company = brandProfile.company_name || "Brand Partner";
     document.getElementById("sidebarBrandName").textContent = company;
     document.getElementById("welcomeHeading").textContent = `Welcome back, ${company}`;
     
-    // Quick avatar string extraction
     const initials = company.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
     document.getElementById("sidebarAvatar").textContent = initials || "B";
 
-    // Inject row strings dynamically into layout elements
     document.getElementById("cardWebsite").textContent = brandProfile.company_website || "None set";
     document.getElementById("cardIndustry").textContent = brandProfile.industry || "General";
     
-    // Parse arrays neatly or fall back safely to empty state metrics
     const categoriesArray = brandProfile.product_categories || [];
     document.getElementById("cardCategories").textContent = categoriesArray.length > 0 ? categoriesArray.join(", ") : "Not selected";
-    
-    document.getElementById("metaAudience").textContent = brandProfile.target_audience || "Universal Demographic";
-    
-    const objectiveArray = brandProfile.campaign_objectives || [];
-    document.getElementById("metaObjectives").textContent = objectiveArray.length > 0 ? objectiveArray.join(" · ") : "Not designated";
+
+    // 5. Query live items directly from 'campaign_briefs' or your relational equivalent table
+    const { data: campaigns, error: campaignError } = await supabase
+      .from("campaign_briefs") 
+      .select("*")
+      .eq("brand_id", currentUser.id); // Looks up items originating from this company owner account
+
+    const container = document.getElementById("campaignsContainer");
+
+    if (campaignError) {
+      console.error("Failed fetching live structural briefs:", campaignError);
+      container.innerHTML = `<div class="empty-state-box" style="color: #ef4444;">Error compiling campaign list streams.</div>`;
+      return;
+    }
+
+    // Update the live metrics score grid element
+    document.getElementById("countBriefs").textContent = campaigns ? campaigns.length : 0;
+
+    // 6. Dynamic Loop Generation Layer
+    if (!campaigns || campaigns.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state-box">
+          No live brief campaigns active. Click "New AI Campaign" above to publish your first objective tracking record.
+        </div>`;
+    } else {
+      container.innerHTML = ""; // Clear loader framework
+      campaigns.forEach(item => {
+        // Safe mapping values handling empty structures cleanly
+        const title = item.campaign_title || "Untitled Brief Campaign";
+        const platform = item.target_platform || "Multi-platform";
+        const budgetValue = item.budget_allocated ? `₹${parseInt(item.budget_allocated).toLocaleString()}` : "Negotiable";
+        const status = item.status_state || "Live";
+
+        // Build HTML template components row natively
+        const campaignRow = document.createElement("div");
+        campaignRow.className = "campaign-item";
+        campaignRow.innerHTML = `
+          <div class="campaign-info">
+            <h3>${title}</h3>
+            <div class="campaign-meta">
+              <span>Platform: ${platform}</span>
+              <span>Budget: ${budgetValue}</span>
+              <span class="status-tag ${status.toLowerCase() === 'live' ? 'active-live' : ''}">${status}</span>
+            </div>
+          </div>
+          <div style="font-size: 13px; text-align: right; color: var(--muted); font-weight: 500;">
+            Active Tracker
+          </div>
+        `;
+        container.appendChild(campaignRow);
+      });
+    }
 
   } catch (err) {
-    console.error("Dashboard mount execution exception caught:", err);
+    console.error("Dashboard engine initialization exception caught:", err);
   }
 });
 
-// 5. Secure Session Invalidation Trigger Logic
+// 6. Secure Session Invalidation Logic
 document.getElementById("logoutBtn").addEventListener("click", async (e) => {
   e.preventDefault();
   if (!confirm("Are you sure you want to log out of your brand panel?")) return;
