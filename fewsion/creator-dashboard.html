@@ -93,134 +93,170 @@
     <li><a href="#">📁 Portfolio Proof</a></li>
     <li><a href="#">🎞️ Editor Pipeline</a></li>
     <li><a href="#">⚙️ Creator Settings</a></li>
-    
   </ul>
   <div class="side-footer">
     <div class="user-badge">
-      <div class="user-avatar">RK</div>
+      <div class="user-avatar" id="sidebarAvatar">--</div>
       <div class="user-info">
-        <div class="name">Riya Kapoor</div>
-        <div class="role">★ Score 94</div>
+        <div class="name" id="sidebarName">Loading...</div>
+        <div class="role" id="sidebarScore">★ Score --</div>
       </div>
     </div>
-    <button id="logoutBtn" style="width: 100%; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; font-family: var(--font-display); font-size: 13px; font-weight: 600; padding: 10px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
-    🚪 Log Out Account
-  </button>
+    <button id="logoutBtn" style="width: 100%; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; font-family: var(--font-display); font-size: 13px; font-weight: 600; padding: 10px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px;">
+      🚪 Log Out Account
+    </button>
   </div>
 </aside>
 
 <main>
   <header>
     <div>
-      <h1>Welcome back, Riya</h1>
+      <h1 id="welcomeHeading">Welcome back</h1>
       <p style="color: var(--muted); font-size: 14px; margin-top: 4px;">Track active campaign deliverables and clear escrow releases.</p>
     </div>
-    <button class="btn-browse"><a href="creator_profile_builder.html"> </a>🔍 Find Collabration</button>
+    <button class="btn-browse" onclick="window.location.href='creator_profile_builder.html'">🔍 Find Collaboration</button>
   </header>
 
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-label">Creator Score</div>
-      <div class="stat-value">94<span style="font-size:16px; color:var(--muted)">/100</span></div>
+      <div class="stat-value" id="cardScore">--<span style="font-size:16px; color:var(--muted)">/100</span></div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Active Gigs</div>
-      <div class="stat-value">2</div>
-      <div class="stat-change up">▲ 1 submission pending</div>
+      <div class="stat-label">Follower Scale</div>
+      <div class="stat-value" id="cardFollowers">--</div>
+      <div class="stat-change up" id="cardPlatform">Platform: --</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Avg Portfolio CTR</div>
-      <div class="stat-value">5.2%</div>
-      <div class="stat-change up">▲ +0.4% above niche</div>
+      <div class="stat-label">Engagement Rate</div>
+      <div class="stat-value" id="cardEngagement">--%</div>
+      <div class="stat-change up">▲ Audited Signal</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Escrow Secured</div>
-      <div class="stat-value">Scale</div>
-      <div style="font-size:12px; color:#4ade80; font-weight:600; margin-top:4px;">₹20,000 Safe</div>
+      <div class="stat-label">Target Location</div>
+      <div class="stat-value" id="cardLocation" style="font-size: 22px; padding-top: 8px;">--</div>
     </div>
   </div>
 
   <div class="dashboard-row">
     <div class="section-box">
-      <h2>Your Active Deliverables</h2>
-      
+      <h2>Your Profile Info Summary</h2>
       <div class="campaign-item">
         <div class="campaign-info">
-          <h3>Summer SPF Hydra-Gel Launch</h3>
+          <h3>Primary Content Niche</h3>
           <div class="campaign-meta">
-            <span>Brand: Glow Republic</span>
-            <span>Type: 60s Reel</span>
-            <span class="status-tag review">In Review</span>
+            <span id="metaNiche">Niche: --</span>
           </div>
         </div>
-        <div style="font-size: 14px; text-align: right; color: var(--amber); font-weight: 600;">₹12,000</div>
       </div>
-
       <div class="campaign-item">
         <div class="campaign-info">
-          <h3>Vitamin C Serum Raw Testimonials</h3>
+          <h3>Content Style Focus</h3>
           <div class="campaign-meta">
-            <span>Brand: Glow Republic</span>
-            <span>Type: YT Short</span>
-            <span class="status-tag accepted">Approved (Payout Next)</span>
+            <span id="metaStyle">Style: --</span>
           </div>
         </div>
-        <div style="font-size: 14px; text-align: right; color: #4ade80; font-weight: 600;">₹8,000</div>
       </div>
     </div>
 
     <div class="section-box">
-      <h2>System Notifications</h2>
-      
+      <h2>System Status</h2>
       <div class="feed-item">
         <div class="feed-icon">🔒</div>
         <div class="feed-text">
-          <span>Glow Republic</span> locked ₹12,000 into Fewsion Escrow for your SPF contract.
-          <div class="feed-time">2 hours ago</div>
+          <span>Supabase Vault Connections</span> verified for your profile parameters.
+          <div class="feed-time">Active Session</div>
         </div>
       </div>
-
-      <div class="feed-item">
-        <div class="feed-icon">🎞️</div>
-        <div class="feed-text">
-          Editor <span>Aman K.</span> uploaded Draft v2 to the video panel.
-          <div class="feed-time">4 hours ago</div>
-        </div>
-      </div>
-
       <div class="feed-item">
         <div class="feed-icon">✨</div>
         <div class="feed-text">
-          Your performance portfolio data synced successfully with <span>Meta Ads manager</span>.
-          <div class="feed-time">Yesterday</div>
+          Organic reach scores tracking running seamlessly.
         </div>
       </div>
     </div>
   </div>
 </main>
+
 <script>
+  // Sourcing client configuration
+  const supabase = FewsionAuth.client();
+  let currentUser = null;
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      // 1. Enforce Authentication Verification Layer
+      const auth = await FewsionAuth.requireAuth("creator");
+      if (!auth) return;
+
+      currentUser = auth.user;
+      
+      // 2. Fetch specific row data from 'creator_profiles'
+      const { data: profile, error } = await supabase
+        .from("creator_profiles")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Database extraction error:", error);
+        return;
+      }
+
+      // 3. Fallback routing if profile configuration parameters are missing
+      if (!profile) {
+        console.log("No profile record found, redirecting to wizard builder setup.");
+        window.location.href = "creator_profile_builder.html";
+        return;
+      }
+
+      console.log("Rendering Dynamic Workspace Rows:", profile);
+
+      // 4. Dom Node Modification Engines
+      const nameString = profile.creator_name || "Creator";
+      document.getElementById("sidebarName").textContent = nameString;
+      document.getElementById("welcomeHeading").textContent = `Welcome back, ${nameString.split(' ')[0]}`;
+      
+      // Avatar initials extraction
+      const initials = nameString.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById("sidebarAvatar").textContent = initials || "C";
+
+      // Score distribution rendering layers
+      const score = profile.ai_total_score || "--";
+      document.getElementById("sidebarScore").textContent = `★ Score ${score}`;
+      document.getElementById("cardScore").innerHTML = `${score}<span style="font-size:16px; color:var(--muted)">/100</span>`;
+
+      // Operational metrics distribution matching schema
+      document.getElementById("cardFollowers").textContent = profile.follower_count ? profile.follower_count.toLocaleString() : "0";
+      document.getElementById("cardPlatform").textContent = `Platform: ${profile.primary_platform || "Not set"}`;
+      document.getElementById("cardEngagement").textContent = profile.engagement_rate ? `${profile.engagement_rate}%` : "--%";
+      document.getElementById("cardLocation").textContent = profile.target_location || "Global";
+      
+      // Core Content Information Metadata Summary Cards
+      document.getElementById("metaNiche").textContent = `Niche: ${profile.primary_niche || "General content"}`;
+      document.getElementById("metaStyle").textContent = profile.content_style_desc || "No custom style described yet.";
+
+    } catch (err) {
+      console.error("Critical execution pipeline error:", err);
+    }
+  });
+
+  // 5. Dedicated Logout Handler
   document.getElementById('logoutBtn').addEventListener('click', async function(e) {
     e.preventDefault();
-    
     if (!confirm("Are you sure you want to log out of Fewsion?")) return;
 
     try {
-      // 1. Trigger visual feedback immediately
       document.body.style.opacity = '0.3';
       document.body.style.transition = 'opacity 0.2s ease';
 
-      // 2. Clear out manual dashboard trackers if you used them
       localStorage.clear();
       sessionStorage.clear();
 
-      // 3. Call your dedicated auth utility method 
-      // This internally calls _sb.auth.signOut() and redirects to login.html
       await FewsionAuth.signOut("login.html");
-
     } catch (error) {
-      // Restore opacity if it fails for some reason
       document.body.style.opacity = '1';
-      console.error("Logout failed:", error);
+      console.error("Logout runtime failure:", error);
       alert("Error logging out. Please try again.");
     }
   });
