@@ -800,7 +800,7 @@ const state = { niche: '', plat: '', avoid: [], collab: [] };
 // };
 
 // Reuse the existing client from fewsion-auth.js
-const supabase = FewsionAuth.client();
+supabase = FewsionAuth.client();
 
 let currentUser = null;
 
