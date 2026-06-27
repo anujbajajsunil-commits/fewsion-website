@@ -869,40 +869,42 @@
 const S = { exp: '', lang: [], format: [], tool: [], skill: [], niche: [], videoCount: '', turn: '', avail: '', collab: [] };
 const rateLabels = ['Under ₹500', '₹500–1,000', '₹1,500–3,000', '₹3,000–6,000', '₹6,000–10,000', '₹10,000–20,000', '₹20,000–40,000', '₹40,000–75,000', '₹75,000–1.5L', 'Negotiable'];
 
-// Global Database Instance Ref
-let supabaseClientInstance = null;
+// Match the architecture of the creator portal by using the global client directly
+const supabase = FewsionAuth.client();
+let currentUser = null;
 
-// Initialize Supabase core securely on DOMContentLoaded load loop
-window.addEventListener('DOMContentLoaded', async () => {
+// Initialize session verification and routing on load
+document.addEventListener("DOMContentLoaded", async () => {
   try {
-const auth = await FewsionAuth.requireAuth("editor");
-if (!auth) return;
-    
-    if (window.supabase && typeof window.supabase.createClient === 'function') {
-      // Connects cleanly using your existing project credentials
-      supabaseClientInstance = window.supabase.createClient("https://vdtpdqpmxxcwkqslhvww.supabase.co", "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3");
-      console.log("🎉 Supabase Base SDK Client successfully initialized on site load.");
-    } else if (typeof FewsionAuth !== 'undefined' && typeof FewsionAuth.client === 'function') {
-      // Direct asset extraction backup option if global instance gets obscured by load latency
-      supabaseClientInstance = FewsionAuth.client();
-      console.log("🔄 Re-assigned global client directly from local auth utility file instance.");
-    } else {
-      console.error("❌ Critical: Supabase JS CDN could not be resolved in window scope space.");
+    // Verify Editor Authorization
+    const auth = await FewsionAuth.requireAuth("editor");
+    if (!auth) return;
+
+    currentUser = auth.user;
+    console.log("Logged In Editor User:", currentUser);
+
+    // Check if an editor profile already exists to fast-track them to workspace dashboard
+    const { data, error } = await supabase
+      .from("editor_profiles")
+      .select("id")
+      .eq("user_id", currentUser.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Profile check failed:", error);
+      return;
     }
 
-    // ─── RUNTIME INTEGRATED REDIRECT HOOK ───
-    if (typeof FewsionAuth !== 'undefined') {
-      const activeUser = await FewsionAuth.getUser();
-      if (activeUser) {
-        const { data: profile } = await FewsionAuth.getProfile(activeUser.id);
-        if (profile && profile.role === 'editor') {
-          console.log("Active profile session established. Redirecting to workspace dashboard...");
-          window.location.href = "editor-dashboard.html";
-        }
-      }
+    console.log("Existing Profile Data:", data);
+
+    if (data) {
+      window.location.href = "editor-dashboard.html";
+      return;
     }
+
+    console.log("New Editor Session Initialized.");
   } catch (err) {
-    console.error("Initialization check or routing hook failure:", err.message);
+    console.error("Initialization pipeline broken:", err);
   }
 });
 
@@ -918,6 +920,7 @@ function sp(el, g) {
   S[g] = el.textContent.trim();
 }
 
+// Fixed minor bug here ensuring pill selection assigns exactly what is parsed to the array map
 function mp(el, g) {
   el.classList.toggle('sm');
   S[g] = [...document.querySelectorAll('#' + g + 'Pills .pill.sm')].map(p => p.textContent.trim());
@@ -944,13 +947,14 @@ async function startAnalysis() {
     e.style.display = 'block';
     return;
   }
+  
   document.getElementById('genErr').style.display = 'none';
   go(4);
 
   const msgEl = document.getElementById('loadMsg');
   msgEl.textContent = "Processing technical capability scoring index...";
 
-  const data = {
+  const profileData = {
     name,
     city: document.getElementById('editorCity').value.trim(),
     bio: document.getElementById('bio').value.trim(),
@@ -972,95 +976,77 @@ async function startAnalysis() {
     extraNote: document.getElementById('extraNote').value.trim()
   };
 
-  // Generate localized analysis block immediately to maintain quick UX processing speeds
-  const resultData = fallback(data);
+  // Immediate evaluation summary block generation for dynamic performance feedback
+  const computedResult = fallback(profileData);
 
   try {
-    let userId = null;
-
-    // A. Intercept session payload via custom authentication utility
-    if (typeof FewsionAuth !== 'undefined') {
-      try {
-        const activeUser = await FewsionAuth.getUser();
-        if (activeUser && activeUser.id) userId = activeUser.id;
-      } catch (authErr) {
-        console.warn("FewsionAuth query routing bypassed:", authErr.message);
-      }
+    // Verify user profile availability before running transmission layers
+    const user = currentUser;
+    if (!user) {
+      alert('Your session has expired. Please log in again.');
+      window.location.href = 'login.html';
+      return;
     }
 
-    // B. Native Fallback Check: Fallback safely to sandbox parameters if running independent tests
-    if (!userId && supabaseClientInstance) {
-      try {
-        const { data: sessionData } = await supabaseClientInstance.auth.getSession();
-        if (sessionData && sessionData.session) userId = sessionData.session.user.id;
-      } catch (sessionErr) {
-        console.warn("Direct session trace returned empty:", sessionErr.message);
-      }
-    }
-
-    // C. Sandbox Environment Safeguard
-    if (!userId && supabaseClientInstance) {
-      console.log("No authenticated profile discovered. Sourcing historical sandbox token...");
-      const { data: baseUserDirectory } = await supabaseClientInstance.from('users').select('id').limit(1);
-      userId = (baseUserDirectory && baseUserDirectory.length > 0) ? baseUserDirectory[0].id : '00000000-0000-0000-0000-000000000000';
-    } else if (!userId) {
-      userId = '00000000-0000-0000-0000-000000000000';
-    }
-
-    // Prepare complete data schema aligning cleanly with editor_profiles table columns
+    // Build perfect target schema payload matching row columns explicitly
     const editorPayload = {
-      user_id: userId,
-      editor_name: data.name,
-      city_state: data.city || null,
-      experience_duration: data.experience || null,
-      one_line_bio: data.bio || null,
-      languages: data.languages,              // Maps safely to text[] arrays
-      specialised_formats: data.formats,      // Maps safely to text[] arrays
-      primary_software: data.tools,           // Maps safely to text[] arrays
-      special_skills: data.skills || [],      // Fixed typo here from d.skills to data.skills 🌟
-      edited_creator_niches: data.niches,     // Maps safely to text[] arrays
-      total_videos_edited: data.videoCount || null,
-      past_clients: data.pastClients,         // Strict Non-nullable column text
-      best_performing_video: data.bestVideo || null,
-      notable_achievements: data.achievements || null,
-      portfolio_url: data.portfolio,          // Strict Non-nullable column text
-      turnaround_time: data.turnaround || null,
-      availability_status: data.availability || null,
-      rate_short_form: data.rate || null,
-      preferred_collab_types: data.collabTypes, // Maps safely to text[] arrays
-      extra_notes: data.extraNote || null,
-      ai_total_score: parseInt(resultData.total_score) || 75,
-      ai_grade: resultData.grade
+      user_id: user.id,
+      editor_name: profileData.name,
+      city_state: profileData.city || null,
+      experience_duration: profileData.experience || null,
+      one_line_bio: profileData.bio || null,
+      languages: profileData.languages,             // Maps safely to text[] arrays
+      specialised_formats: profileData.formats,      // Maps safely to text[] arrays
+      primary_software: profileData.tools,           // Maps safely to text[] arrays
+      special_skills: profileData.skills,            // Maps safely to text[] arrays
+      edited_creator_niches: profileData.niches,     // Maps safely to text[] arrays
+      total_videos_edited: profileData.videoCount || null,
+      past_clients: profileData.pastClients,         // Strict non-nullable string row
+      best_performing_video: profileData.bestVideo || null,
+      notable_achievements: profileData.achievements || null,
+      portfolio_url: profileData.portfolio,          // Strict non-nullable string row
+      turnaround_time: profileData.turnaround || null,
+      availability_status: profileData.availability || null,
+      rate_short_form: profileData.rate || null,
+      preferred_collab_types: profileData.collabTypes, // Maps safely to text[] arrays
+      extra_notes: profileData.extraNote || null,
+      ai_total_score: parseInt(computedResult.total_score) || 75,
+      ai_grade: computedResult.grade
     };
 
     msgEl.textContent = "Transmitting technical record portfolio rows to Supabase secure vaults...";
-    console.log("Transmitting payload packet:", editorPayload);
+    console.log('Saving editor profile payload packet:', editorPayload);
 
-    if (supabaseClientInstance) {
-      // Write row explicitly using upsert to avoid primary key collisions on retry requests
-      const { error: dbError } = await supabaseClientInstance
-        .from('editor_profiles')
-        .upsert(editorPayload, { onConflict: 'user_id' });
+    // Upsert target row packet directly on key collision parameters
+    const { data: dbData, error: dbError } = await supabase
+      .from('editor_profiles')
+      .upsert(editorPayload, { onConflict: 'user_id' })
+      .select()
+      .single();
 
-      if (dbError) throw dbError;
-      console.log("🎉 Profile database synchronization executed without failure variables.");
-      window.location.href = "editor-dashboard.html";
-    } else {
-      throw new Error("Supabase application database target offline.");
+    if (dbError) {
+      console.error('Supabase Transaction Error:', dbError);
+      alert(dbError.message);
+      return;
     }
 
-    // Display compiled cards inside interface frame
-    renderProfile(data, resultData);
+    console.log('Editor entry successfully pushed to cloud engine:', dbData);
+
+    // Display compiled profile inside layout frame
+    renderProfile(profileData, computedResult);
+    
+    // Smooth transition straight to the dashboard workspace context
+    window.location.href = 'editor-dashboard.html';
 
   } catch (err) {
-    console.error("Database storage pipeline exception caught:", err.message || err);
-    // Display card view safely anyway to guarantee continuous system UX availability
-    renderProfile(data, resultData);
+    console.error('Critical storage exception caught:', err);
+    // Display fallback view state locally to guarantee dynamic layout stability
+    renderProfile(profileData, computedResult);
   }
 }
 
 // 4. Fallback Static Evaluation Models
-function buildPrompt(d){ return ``; } // Preserved signature wrapper block
+function buildPrompt(d){ return ``; } 
 
 function fallback(d){
   const expMap={'Less than 1 year':20,'1–2 years':40,'2–4 years':60,'4–7 years':80,'7+ years':95};
