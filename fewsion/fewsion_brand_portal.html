@@ -1069,10 +1069,10 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
 
     let userId = null;
 
-    // A. Attempt to pull session details from FewsionAuth controller
+    // A. Extract user session from FewsionAuth controller
     if (typeof FewsionAuth !== 'undefined') {
       try {
-        const activeUser = FewsionAuth.getUser();
+        const activeUser = await FewsionAuth.getUser();
         if (activeUser && activeUser.id) {
           userId = activeUser.id;
         }
@@ -1081,7 +1081,7 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
       }
     }
 
-    // B. Alternative: Check if there is an active native Supabase Auth session token
+    // B. Native fallback if FewsionAuth hasn't loaded yet
     if (!userId) {
       try {
         const { data: sessionData } = await supabaseClientInstance.auth.getSession();
@@ -1093,93 +1093,70 @@ async function saveBrandToSupabase(brandData, aiParsedResult) {
       }
     }
 
-    // C. PRODUCTION BYPASS: If still null, query any user row or fallback to your fixed sandbox ID
+    // C. Sandbox testing block safety framework
     if (!userId) {
-      console.log("No live login session detected. Fetching sandbox row fallback...");
-      const { data: generalUsers } = await supabaseClientInstance
-        .from('users')
-        .select('id')
-        .limit(1);
-
-      if (generalUsers && generalUsers.length > 0) {
-        userId = generalUsers[0].id;
-      } else {
-        // Direct hardcoded connection matching the SQL mock entry we added in Step 1
-        userId = '00000000-0000-0000-0000-000000000000';
-      }
+      userId = '00000000-0000-0000-0000-000000000000';
     }
 
-    // Compile the final payload row packet 
-    const payload = {
-      user_id: userId, // Will now safely resolve to your testing UUID string
-      brand_name: brandData.brandName,
-      industry: brandData.industry,
-      website_url: brandData.website,
-      brand_description: brandData.brandDesc,
-      primary_market: brandData.market,
-      campaign_name: brandData.campaignName,
-      campaign_objective: brandData.objective,
-      content_types_needed: brandData.contentTypes || [], 
-      start_date: brandData.startDate,
-      duration: brandData.duration,
-      budget_range: brandData.budget,
-      creator_tier_preferences: brandData.creatorTiers || [],
-      min_engagement_rate: parseFloat(brandData.minEngagement) || 3.00,
-      creator_niches: brandData.creatorNiches || [],
-      language_preferences: brandData.languages || [],
-      creator_count: brandData.creatorCount,
-      gender_preference: brandData.genderPref,
-      key_message: brandData.keyMessage,
-      dos: brandData.dos,
-      donts: brandData.donts,
-      brand_tone: brandData.tone || [],
-      promo_code: brandData.promoCode,
-      ai_fit_score: parseInt(aiParsedResult.campaign_fit_score) || 74
-    };
-
-    console.log("Transmitting payload package to Supabase...", payload);
-
-    // Write row directly to PostgreSQL table
-   // Change .insert() to .upsert() and declare the matching index target column
-    const { data, error } = await supabaseClientInstance
+    // ==========================================
+    // WRITE 1: Update the Brand Storefront Profile
+    // ==========================================
+    console.log("Syncing company storefront metrics to brand_profiles...");
+    const { error: profileError } = await supabaseClientInstance
       .from('brand_profiles')
-      .upsert([{
+      .upsert({
         user_id: userId, 
         brand_name: brandData.brandName,
         industry: brandData.industry,
         website_url: brandData.website,
         brand_description: brandData.brandDesc,
         primary_market: brandData.market,
-        campaign_name: brandData.campaignName,
-        campaign_objective: brandData.objective,
-        content_types_needed: brandData.contentTypes || [], 
-        start_date: brandData.startDate,
-        duration: brandData.duration,
-        budget_range: brandData.budget,
-        creator_tier_preferences: brandData.creatorTiers || [],
-        min_engagement_rate: parseFloat(brandData.minEngagement) || 3.00,
-        creator_niches: brandData.creatorNiches || [],
-        language_preferences: brandData.languages || [],
-        creator_count: brandData.creatorCount,
-        gender_preference: brandData.genderPref,
-        key_message: brandData.keyMessage,
-        dos: brandData.dos,
-        donts: brandData.donts,
-        brand_tone: brandData.tone || [],
-        promo_code: brandData.promoCode,
-        ai_fit_score: parseInt(aiParsedResult.campaign_fit_score) || 74
-      }], { onConflict: 'user_id' }); // Tells Postgres to overwrite data if this ID already exists
+        brand_tone: brandData.tone || []
+      }, { onConflict: 'user_id' });
 
-    if (error) throw error;
-    console.log("🎉 SUCCESS! The row was successfully synced to your brand_profiles table!");
-    // Redirect to dashboard
-window.location.href = "brand-dashboard.html";
+    if (profileError) {
+      console.error("Error writing storefront profile:", profileError.message);
+      alert("Failed to save brand profile metadata: " + profileError.message);
+      return;
+    }
+
+    // ==========================================
+    // WRITE 2: Insert New Record into campaign_briefs
+    // ==========================================
+    console.log("Transmitting new operational campaign mapping to campaign_briefs...");
+    
+    // Convert text range numbers (e.g., '₹1–5L') to a clear numeric fallback if needed,
+    // or parse integer numbers out of the string slider indices.
+    const cleanBudgetInteger = parseInt(document.getElementById('budgetRange').value) * 50000 || 50000;
+
+    const { error: campaignError } = await supabaseClientInstance
+      .from('campaign_briefs')
+      .insert([
+        {
+          brand_id: userId, // Foreign Key linking this project to the brand user row
+          campaign_title: brandData.campaignName,
+          target_platform: brandData.contentTypes.length > 0 ? brandData.contentTypes.join(", ") : "Instagram Reels",
+          budget_allocated: cleanBudgetInteger,
+          status_state: "Live"
+        }
+      ]);
+
+    if (campaignError) {
+      console.error("Error inserting campaign brief:", campaignError.message);
+      alert("Brand profile saved, but campaign deployment failed: " + campaignError.message);
+      return;
+    }
+
+    console.log("🎉 SUCCESS! Dual table transaction execution completely error-free.");
+    
+    // Redirect cleanly to your brand dashboard workspace panel
+    window.location.href = "brand-dashboard.html";
 
   } catch (err) {
-    console.error("Database compilation error:", err.message);
+    console.error("Pipeline compilation breakdown error:", err.message || err);
   }
 }
-
+// ------------------------
 function buildPrompt(b) {
   return `You are a campaign strategist for an influencer marketplace. A brand has submitted their campaign requirements. Generate a structured campaign brief and storefront summary. Return ONLY valid JSON, no markdown, no preamble.
 
