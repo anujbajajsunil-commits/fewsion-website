@@ -898,21 +898,14 @@ let supabaseClientInstance = null;
 //     console.error("Initialization exception:", err.message);
 //   }
 // });
-  window.addEventListener('DOMContentLoaded', async () => {
+ window.addEventListener('DOMContentLoaded', async () => {
   try {
-    if (
-      !window.supabase ||
-      typeof window.supabase.createClient !== 'function'
-    ) {
+    if (!window.supabase || typeof window.supabase.createClient !== 'function') {
       console.error('Supabase not loaded');
       return;
     }
 
-    supabaseClientInstance = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
+    supabaseClientInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     console.log('Supabase initialized');
 
     const auth = await FewsionAuth.requireAuth('brand');
@@ -921,28 +914,35 @@ let supabaseClientInstance = null;
     const userId = auth.user.id;
     console.log('Current User ID:', userId);
 
+    // ─── CHECK URL PARAMETERS HERE ───
+    const urlParams = new URLSearchParams(window.location.search);
+    const isCreatingNewCampaign = urlParams.get('new') === 'true';
+
+    // If they explicitly clicked "New AI Campaign", do NOT redirect them!
+    if (isCreatingNewCampaign) {
+      console.log('Brand is creating an additional campaign brief. Skipping redirect.');
+      return; 
+    }
+
+    // Otherwise, check if they have a profile to see if they need to complete onboarding
     const { data, error } = await supabaseClientInstance
       .from('brand_profiles')
       .select('*')
       .eq('user_id', userId)
       .maybeSingle();
 
-    console.log('Profile Data:', data);
-    console.log('Profile Error:', error);
-
     if (data) {
-      console.log('Profile exists. Redirecting...');
+      console.log('Profile exists. Redirecting to workspace panel...');
       window.location.href = 'brand-dashboard.html';
       return;
     }
 
-    console.log('No profile found. Showing form.');
+    console.log('No profile found. Showing onboarding form.');
 
   } catch (err) {
     console.error('Initialization error:', err);
   }
 });
-
 // 2. Global Onboarding Form State
 const S = { industry: '', market: '', obj: '', ctype: [], tier: [], cniche: [], lang: [], tone: [] };
 const budgetLabels = ['Under ₹50K', '₹50K–1L', '₹1–5L', '₹5–10L', '₹10–25L', '₹25–50L', '₹50L–1Cr', '₹1–2Cr', '₹2–5Cr', '₹5Cr+', 'Flexible'];
