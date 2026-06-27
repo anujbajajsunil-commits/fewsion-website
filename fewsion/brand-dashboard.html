@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("Hydrating Account Workspace View:", brandProfile);
 
     // 4. Update core profile views dynamically
-    const company = brandProfile.company_name || "Brand Partner";
+    const company = brandProfile.brand_name || "Brand Partner";
     document.getElementById("sidebarBrandName").textContent = company;
     document.getElementById("welcomeHeading").textContent = `Welcome back, ${company}`;
     
