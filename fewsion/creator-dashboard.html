@@ -178,79 +178,67 @@
   </div>
 </main>
 <script>
-  // Sourcing client configuration
   const supabase = FewsionAuth.client();
-  let currentUser = null;
 
   document.addEventListener("DOMContentLoaded", async () => {
     try {
-      // 1. Enforce Authentication Verification Layer
+      // 1. Verify Auth
       const auth = await FewsionAuth.requireAuth("creator");
       if (!auth) return;
 
-      currentUser = auth.user;
+      const userId = auth.user.id;
       
-      // 2. Fetch data from 'creator_profiles'
+      // 2. Fetch data from your 'profiles' table
       const { data: profile, error } = await supabase
-        .from("creator_profiles")
+        .from("profiles")
         .select("*")
-        .eq("user_id", currentUser.id)
+        .eq("id", userId)
         .maybeSingle();
 
-      if (error) {
-        console.error("Database extraction error:", error);
+      if (error || !profile) {
+        console.error("Database error or no profile found:", error);
         return;
       }
 
-      if (!profile) {
-        window.location.href = "creator_profile_builder.html";
-        return;
-      }
+      // 3. Dynamic Name Handling
+      const firstName = profile.first_name || "Creator";
+      const lastName = profile.last_name || "";
+      const fullName = `${firstName} ${lastName}`.trim();
+      
+      document.getElementById("sidebarName").textContent = fullName;
+      document.getElementById("welcomeHeading").textContent = `Welcome back, ${firstName}`;
+      
+      // Avatar Initials
+      const initials = (firstName[0] + (lastName[0] || "")).toUpperCase();
+      document.getElementById("sidebarAvatar").textContent = initials;
 
-      // 3. Update Sidebar and Header Dynamically
-      const nameString = profile.creator_name || "Creator";
+      // 4. Update Stats & Info (Mapped to your schema)
+      // Note: If you don't have these specific fields yet, they will show '--'
+      document.getElementById("cardScore").innerHTML = `85<span style="font-size:16px; color:var(--muted)">/100</span>`; // Placeholder
+      document.getElementById("cardFollowers").textContent = profile.budget || "N/A";
+      document.getElementById("cardPlatform").textContent = `Platform: ${profile.platform || "Not set"}`;
+      document.getElementById("cardEngagement").textContent = "--"; 
+      document.getElementById("cardLocation").textContent = profile.industry || "General";
       
-      // Update Name in Sidebar
-      document.getElementById("sidebarName").textContent = nameString;
-      
-      // Update Heading in Main Content
-      document.getElementById("welcomeHeading").textContent = `Welcome back, ${nameString.split(' ')[0]}`;
-      
-      // Update Avatar
-      const initials = nameString.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-      document.getElementById("sidebarAvatar").textContent = initials || "C";
-
-      // 4. Update Stats
-      const score = profile.ai_total_score || "--";
-      document.getElementById("sidebarScore").textContent = `★ Score ${score}`;
-      document.getElementById("cardScore").innerHTML = `${score}<span style="font-size:16px; color:var(--muted)">/100</span>`;
-      document.getElementById("cardFollowers").textContent = profile.follower_count ? profile.follower_count.toLocaleString() : "0";
-      document.getElementById("cardPlatform").textContent = `Platform: ${profile.primary_platform || "Not set"}`;
-      document.getElementById("cardEngagement").textContent = profile.engagement_rate ? `${profile.engagement_rate}%` : "--%";
-      document.getElementById("cardLocation").textContent = profile.target_location || "Global";
-      
-      // 5. Update Metadata
-      document.getElementById("metaNiche").textContent = `Niche: ${profile.primary_niche || "General content"}`;
-      document.getElementById("metaStyle").textContent = profile.content_style_desc || "No custom style described yet.";
+      // 5. Profile Metadata
+      document.getElementById("metaNiche").textContent = `Niche: ${profile.niches || "Not specified"}`;
+      document.getElementById("metaStyle").textContent = `Specialisations: ${profile.specialisations || "None listed"}`;
 
     } catch (err) {
-      console.error("Critical execution pipeline error:", err);
+      console.error("Dashboard Load Error:", err);
     }
   });
 
-  // 6. Dedicated Logout Handler
+  // Logout Handler
   document.getElementById('logoutBtn').addEventListener('click', async function(e) {
     e.preventDefault();
     if (!confirm("Are you sure you want to log out of Fewsion?")) return;
-
     try {
-      document.body.style.opacity = '0.3';
       localStorage.clear();
       sessionStorage.clear();
       await FewsionAuth.signOut("login.html");
     } catch (error) {
-      document.body.style.opacity = '1';
-      console.error("Logout runtime failure:", error);
+      alert("Error logging out.");
     }
   });
 </script>
