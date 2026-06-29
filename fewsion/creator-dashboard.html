@@ -190,7 +190,7 @@
       
       // 2. Fetch data from your 'profiles' table
       const { data: profile, error } = await supabase
-        .from("profiles")
+        .from("users")
         .select("*")
         .eq("id", userId)
         .maybeSingle();
