@@ -220,31 +220,59 @@
 </main>
 
 </body>
-  <script>
-  document.getElementById('logoutBtn').addEventListener('click', async function(e) {
-    e.preventDefault();
-    
-    if (!confirm("Are you sure you want to log out of Fewsion?")) return;
+<script>
+  const supabase = FewsionAuth.client();
 
+  document.addEventListener("DOMContentLoaded", async () => {
     try {
-      // 1. Trigger visual feedback immediately
-      document.body.style.opacity = '0.3';
-      document.body.style.transition = 'opacity 0.2s ease';
+      const auth = await FewsionAuth.requireAuth("creator");
+      if (!auth) return;
 
-      // 2. Clear out manual dashboard trackers if you used them
-      localStorage.clear();
-      sessionStorage.clear();
+      const userId = auth.user.id;
+      console.log("Logged in User ID:", userId); // DEBUG: Check if ID is detected
 
-      // 3. Call your dedicated auth utility method 
-      // This internally calls _sb.auth.signOut() and redirects to login.html
-      await FewsionAuth.signOut("login.html");
+      // Fetch profile
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
 
-    } catch (error) {
-      // Restore opacity if it fails for some reason
-      document.body.style.opacity = '1';
-      console.error("Logout failed:", error);
-      alert("Error logging out. Please try again.");
+      if (error) {
+        console.error("Supabase Error:", error); // DEBUG: Look at this in F12
+        return;
+      }
+
+      if (!profile) {
+        console.warn("No profile record found in 'profiles' table.");
+        return;
+      }
+
+      console.log("Profile Data Fetched:", profile); // DEBUG: Check if 'first_name' exists
+
+      // Update Name
+      const firstName = profile.first_name || "User";
+      const lastName = profile.last_name || "";
+      const fullName = `${firstName} ${lastName}`.trim();
+      
+      const nameElement = document.getElementById("sidebarName");
+      if (nameElement) {
+        nameElement.textContent = fullName;
+      } else {
+        console.error("Element #sidebarName not found in HTML!");
+      }
+
+      // Update Heading
+      const headingElement = document.getElementById("welcomeHeading");
+      if (headingElement) {
+        headingElement.textContent = `Welcome back, ${firstName}`;
+      }
+
+    } catch (err) {
+      console.error("Critical Execution Error:", err);
     }
   });
+
+  // ... rest of your logout code ...
 </script>
 </html>
