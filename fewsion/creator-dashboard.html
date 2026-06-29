@@ -177,10 +177,9 @@
     </div>
   </div>
 </main>
-
 <script>
   // Sourcing client configuration
-   supabase = FewsionAuth.client();
+  const supabase = FewsionAuth.client();
   let currentUser = null;
 
   document.addEventListener("DOMContentLoaded", async () => {
@@ -191,7 +190,7 @@
 
       currentUser = auth.user;
       
-      // 2. Fetch specific row data from 'creator_profiles'
+      // 2. Fetch data from 'creator_profiles'
       const { data: profile, error } = await supabase
         .from("creator_profiles")
         .select("*")
@@ -203,36 +202,34 @@
         return;
       }
 
-      // 3. Fallback routing if profile configuration parameters are missing
       if (!profile) {
-        console.log("No profile record found, redirecting to wizard builder setup.");
         window.location.href = "creator_profile_builder.html";
         return;
       }
 
-      console.log("Rendering Dynamic Workspace Rows:", profile);
-
-      // 4. Dom Node Modification Engines
+      // 3. Update Sidebar and Header Dynamically
       const nameString = profile.creator_name || "Creator";
+      
+      // Update Name in Sidebar
       document.getElementById("sidebarName").textContent = nameString;
+      
+      // Update Heading in Main Content
       document.getElementById("welcomeHeading").textContent = `Welcome back, ${nameString.split(' ')[0]}`;
       
-      // Avatar initials extraction
+      // Update Avatar
       const initials = nameString.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
       document.getElementById("sidebarAvatar").textContent = initials || "C";
 
-      // Score distribution rendering layers
+      // 4. Update Stats
       const score = profile.ai_total_score || "--";
       document.getElementById("sidebarScore").textContent = `★ Score ${score}`;
       document.getElementById("cardScore").innerHTML = `${score}<span style="font-size:16px; color:var(--muted)">/100</span>`;
-
-      // Operational metrics distribution matching schema
       document.getElementById("cardFollowers").textContent = profile.follower_count ? profile.follower_count.toLocaleString() : "0";
       document.getElementById("cardPlatform").textContent = `Platform: ${profile.primary_platform || "Not set"}`;
       document.getElementById("cardEngagement").textContent = profile.engagement_rate ? `${profile.engagement_rate}%` : "--%";
       document.getElementById("cardLocation").textContent = profile.target_location || "Global";
       
-      // Core Content Information Metadata Summary Cards
+      // 5. Update Metadata
       document.getElementById("metaNiche").textContent = `Niche: ${profile.primary_niche || "General content"}`;
       document.getElementById("metaStyle").textContent = profile.content_style_desc || "No custom style described yet.";
 
@@ -240,49 +237,20 @@
       console.error("Critical execution pipeline error:", err);
     }
   });
-///////////////////////////////////////////
-async function loadUserData() {
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (user) {
-    // Fetch the user's name from your database
-    const { data: profile, error } = await supabase
-      .from('editor_profiles') // Replace with your actual table name
-      .select('editor_name') // Replace with your actual column name
-      .eq('id', user.id)
-      .single();
 
-    if (profile) {
-      // Update the DOM element
-      document.getElementById('name').textContent = profile.full_name;
-    }
-  }
-}
-
-// Call this when the page loads
-document.addEventListener('DOMContentLoaded', loadUserData);
-
-
-
-
-  
-  // 5. Dedicated Logout Handler
+  // 6. Dedicated Logout Handler
   document.getElementById('logoutBtn').addEventListener('click', async function(e) {
     e.preventDefault();
     if (!confirm("Are you sure you want to log out of Fewsion?")) return;
 
     try {
       document.body.style.opacity = '0.3';
-      document.body.style.transition = 'opacity 0.2s ease';
-
       localStorage.clear();
       sessionStorage.clear();
-
       await FewsionAuth.signOut("login.html");
     } catch (error) {
       document.body.style.opacity = '1';
       console.error("Logout runtime failure:", error);
-      alert("Error logging out. Please try again.");
     }
   });
 </script>
