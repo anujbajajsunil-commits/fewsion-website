@@ -247,8 +247,8 @@ async function loadUserData() {
   if (user) {
     // Fetch the user's name from your database
     const { data: profile, error } = await supabase
-      .from('profiles') // Replace with your actual table name
-      .select('full_name') // Replace with your actual column name
+      .from('editor_profiles') // Replace with your actual table name
+      .select('editor_name') // Replace with your actual column name
       .eq('id', user.id)
       .single();
 
