@@ -178,59 +178,88 @@
   </div>
 </main>
 <script>
-  const supabase = FewsionAuth.client();
+  // Sourcing client configuration
+  
+   supabase = FewsionAuth.client();
+  let currentUser = null;
 
   document.addEventListener("DOMContentLoaded", async () => {
     try {
+      // 1. Enforce Authentication Verification Layer
       const auth = await FewsionAuth.requireAuth("creator");
       if (!auth) return;
 
-      const userId = auth.user.id;
-      console.log("Logged in User ID:", userId); // DEBUG: Check if ID is detected
+      currentUser = auth.user;
 
-      // Fetch profile
+      // 2. Fetch specific row data from 'creator_profiles'
       const { data: profile, error } = await supabase
-        .from("profiles")
+        .from("creator_profiles")
         .select("*")
-        .eq("id", userId)
+        .eq("user_id", currentUser.id)
         .maybeSingle();
 
       if (error) {
-        console.error("Supabase Error:", error); // DEBUG: Look at this in F12
+        console.error("Database extraction error:", error);
         return;
       }
 
+      // 3. Fallback routing if profile configuration parameters are missing
       if (!profile) {
-        console.warn("No profile record found in 'profiles' table.");
+        console.log("No profile record found, redirecting to wizard builder setup.");
+        window.location.href = "creator_profile_builder.html";
         return;
       }
 
-      console.log("Profile Data Fetched:", profile); // DEBUG: Check if 'first_name' exists
+      console.log("Rendering Dynamic Workspace Rows:", profile);
 
-      // Update Name
-      const firstName = profile.first_name || "User";
-      const lastName = profile.last_name || "";
-      const fullName = `${firstName} ${lastName}`.trim();
-      
-      const nameElement = document.getElementById("sidebarName");
-      if (nameElement) {
-        nameElement.textContent = fullName;
-      } else {
-        console.error("Element #sidebarName not found in HTML!");
-      }
+      // 4. Dom Node Modification Engines
+      const nameString = profile.creator_name || "Creator";
+      document.getElementById("sidebarName").textContent = nameString;
+      document.getElementById("welcomeHeading").textContent = `Welcome back, ${nameString.split(' ')[0]}`;
 
-      // Update Heading
-      const headingElement = document.getElementById("welcomeHeading");
-      if (headingElement) {
-        headingElement.textContent = `Welcome back, ${firstName}`;
-      }
+      // Avatar initials extraction
+      const initials = nameString.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById("sidebarAvatar").textContent = initials || "C";
+
+      // Score distribution rendering layers
+      const score = profile.ai_total_score || "--";
+      document.getElementById("sidebarScore").textContent = `★ Score ${score}`;
+      document.getElementById("cardScore").innerHTML = `${score}<span style="font-size:16px; color:var(--muted)">/100</span>`;
+
+      // Operational metrics distribution matching schema
+      document.getElementById("cardFollowers").textContent = profile.follower_count ? profile.follower_count.toLocaleString() : "0";
+      document.getElementById("cardPlatform").textContent = `Platform: ${profile.primary_platform || "Not set"}`;
+      document.getElementById("cardEngagement").textContent = profile.engagement_rate ? `${profile.engagement_rate}%` : "--%";
+      document.getElementById("cardLocation").textContent = profile.target_location || "Global";
+
+      // Core Content Information Metadata Summary Cards
+      document.getElementById("metaNiche").textContent = `Niche: ${profile.primary_niche || "General content"}`;
+      document.getElementById("metaStyle").textContent = profile.content_style_desc || "No custom style described yet.";
 
     } catch (err) {
-      console.error("Critical Execution Error:", err);
+      console.error("Critical execution pipeline error:", err);
     }
   });
 
-  // ... rest of your logout code ...
+  // 5. Dedicated Logout Handler
+  document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+    e.preventDefault();
+    if (!confirm("Are you sure you want to log out of Fewsion?")) return;
+
+    try {
+      document.body.style.opacity = '0.3';
+      document.body.style.transition = 'opacity 0.2s ease';
+
+      localStorage.clear();
+      sessionStorage.clear();
+
+      await FewsionAuth.signOut("login.html");
+    } catch (error) {
+      document.body.style.opacity = '1';
+      console.error("Logout runtime failure:", error);
+      alert("Error logging out. Please try again.");
+    }
+  });
 </script>
 </body>
 </html>
