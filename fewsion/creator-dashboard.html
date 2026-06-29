@@ -240,7 +240,32 @@
       console.error("Critical execution pipeline error:", err);
     }
   });
+///////////////////////////////////////////
+async function loadUserData() {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (user) {
+    // Fetch the user's name from your database
+    const { data: profile, error } = await supabase
+      .from('profiles') // Replace with your actual table name
+      .select('full_name') // Replace with your actual column name
+      .eq('id', user.id)
+      .single();
 
+    if (profile) {
+      // Update the DOM element
+      document.getElementById('userNameDisplay').textContent = profile.full_name;
+    }
+  }
+}
+
+// Call this when the page loads
+document.addEventListener('DOMContentLoaded', loadUserData);
+
+
+
+
+  
   // 5. Dedicated Logout Handler
   document.getElementById('logoutBtn').addEventListener('click', async function(e) {
     e.preventDefault();
