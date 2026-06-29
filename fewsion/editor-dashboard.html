@@ -345,7 +345,7 @@
   let currentUser = null;
 
   async function loadProfile() {
-    const auth = await FewsionAuth.requireAuth("creator");
+     auth = await FewsionAuth.requireAuth("creator");
     if (!auth) return;
     currentUser = auth.user;
 
