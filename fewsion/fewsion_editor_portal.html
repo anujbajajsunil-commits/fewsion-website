@@ -876,17 +876,19 @@ let currentUser = null;
 document.addEventListener("DOMContentLoaded", async () => {
   const session = await FewsionAuth.requireAuth("editor");
   if (!session) return;
+  
+  currentUser = session.user; 
 
-  currentUser = session.user;
-  // Check if profile exists, but don't redirect if we are ALREADY on the dashboard
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("editor_profiles")
     .select("id")
     .eq("user_id", session.user.id)
     .maybeSingle();
 
-  // ONLY redirect if they have a profile AND aren't already on the dashboard
-  if (data && window.location.pathname.includes("editor-dashboard.html") === false) {
+  // ONLY redirect if they have a profile AND are NOT already on the dashboard
+  const isAlreadyOnDashboard = window.location.pathname.includes("editor-dashboard.html");
+  
+  if (data && !isAlreadyOnDashboard) {
     window.location.href = "editor-dashboard.html";
   }
 });
