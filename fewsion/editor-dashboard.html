@@ -246,6 +246,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "editor-dashboard";
   }
 });
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+  await FewsionAuth.signOut("login.html");
+});
 </script>
 </body>
 </html>
