@@ -223,27 +223,21 @@
     // Make sure FewsionAuth.client() actually returns the client
     var supabase = FewsionAuth.client(); 
 }
-  document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Get current path
+ document.addEventListener("DOMContentLoaded", async () => {
   const currentPath = window.location.pathname;
 
-  // 2. Auth Guard
   const session = await FewsionAuth.requireAuth("creator");
   if (!session) return;
 
-  // 3. Fetch profile to check onboarding status
   const { data: profile } = await supabase
     .from("editor_profiles")
     .select("id")
     .eq("user_id", session.user.id)
     .maybeSingle();
 
-  // 4. THE FIX: Logic that prevents the loop
   if (!profile && !currentPath.includes("fewsion_editor_portal.html")) {
-    // If no profile, force them to the portal
     window.location.href = "fewsion_editor_portal.html";
   } else if (profile && !currentPath.includes("editor-dashboard.html")) {
-    // If profile exists, force them to the dashboard
     window.location.href = "editor-dashboard.html";
   }
 });
