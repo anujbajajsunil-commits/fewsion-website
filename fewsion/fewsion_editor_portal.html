@@ -871,24 +871,29 @@ const rateLabels = ['Under ₹500', '₹500–1,000', '₹1,500–3,000', '₹3,
 
 // Match the architecture of the creator portal by using the global client directly
  supabase = FewsionAuth.client();
-let currentUser = null;
+// let currentUser = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const session = await FewsionAuth.requireAuth("editor");
-  if (!session) return;
-  
-  currentUser = session.user; 
+  // 1. Get current path
+  const currentPath = window.location.pathname;
 
-  const { data } = await supabase
-    .from("editor_profiles")
+  // 2. Auth Guard
+  const session = await FewsionAuth.requireAuth("creator");
+  if (!session) return;
+
+  // 3. Fetch profile to check onboarding status
+  const { data: profile } = await supabase
+    .from("profiles")
     .select("id")
-    .eq("user_id", session.user.id)
+    .eq("id", session.user.id)
     .maybeSingle();
 
-  // ONLY redirect if they have a profile AND are NOT already on the dashboard
-  const isAlreadyOnDashboard = window.location.pathname.includes("editor-dashboard.html");
-  
-  if (data && !isAlreadyOnDashboard) {
+  // 4. THE FIX: Logic that prevents the loop
+  if (!profile && !currentPath.includes("fewsion_editor_portal.html")) {
+    // If no profile, force them to the portal
+    window.location.href = "fewsion_editor_portal.html";
+  } else if (profile && !currentPath.includes("editor-dashboard.html")) {
+    // If profile exists, force them to the dashboard
     window.location.href = "editor-dashboard.html";
   }
 });
