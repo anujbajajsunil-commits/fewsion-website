@@ -219,22 +219,20 @@
   </div>
 </main>
 <script>
+  // 1. Declare it ONCE here at the top
   const supabase = FewsionAuth.client();
 
   document.addEventListener("DOMContentLoaded", async () => {
     console.log("Dashboard loading...");
 
-    // 1. Auth Guard
+    // 2. Auth Guard
     const auth = await FewsionAuth.requireAuth("creator");
-    if (!auth || !auth.user) {
-      console.error("No user session found.");
-      return;
-    }
+    if (!auth || !auth.user) return;
 
     const userId = auth.user.id;
-    console.log("User authenticated:", userId);
 
-    // 2. Fetch User Profile
+    // 3. Fetch User Profile
+    // Note: Use the variable 'supabase' directly, do NOT use 'const supabase' again here
     const { data: profile, error } = await supabase
       .from("profiles")
       .select("*")
@@ -242,38 +240,19 @@
       .maybeSingle();
 
     if (error) {
-      console.error("Supabase Profile Fetch Error:", error);
+      console.error("Supabase Error:", error);
     } else if (profile) {
-      console.log("Profile Data:", profile);
-      
-      // Update Name (Update your HTML IDs to match these!)
-      const firstName = profile.first_name || "Aman";
-      const lastName = profile.last_name || "Kumar";
-      
-      // Target the sidebar specifically
+      // Update UI...
       const nameEl = document.querySelector(".user-info .name");
-      if (nameEl) nameEl.textContent = `${firstName} ${lastName}`;
-      
-      // Update Avatar
-      const avatarEl = document.querySelector(".user-avatar");
-      if (avatarEl) avatarEl.textContent = `${firstName[0]}${lastName[0] || ""}`.toUpperCase();
-    } else {
-      console.warn("Profile not found for this user ID.");
+      if (nameEl) nameEl.textContent = `${profile.first_name || "Aman"} ${profile.last_name || "Kumar"}`;
     }
 
-    // 3. Logout Button Logic
+    // 4. Logout Button
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
       logoutBtn.addEventListener("click", async () => {
-        console.log("Logout clicked");
-        try {
-          await FewsionAuth.logout();
-        } catch (err) {
-          console.error("Logout process failed:", err);
-        }
+        await FewsionAuth.logout();
       });
-    } else {
-      console.error("Logout button element not found!");
     }
   });
 </script>
