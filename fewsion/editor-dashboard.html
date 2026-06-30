@@ -218,57 +218,64 @@
     </div>
   </div>
 </main>
-
-</body>
 <script>
-   const supabase = FewsionAuth.client();
+  const supabase = FewsionAuth.client();
 
   document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      // 1. Auth Guard
-      const auth = await FewsionAuth.requireAuth("creator");
-      if (!auth) return;
+    console.log("Dashboard loading...");
 
-      const userId = auth.user.id;
+    // 1. Auth Guard
+    const auth = await FewsionAuth.requireAuth("creator");
+    if (!auth || !auth.user) {
+      console.error("No user session found.");
+      return;
+    }
 
-      // 2. Fetch profile data
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .maybeSingle();
+    const userId = auth.user.id;
+    console.log("User authenticated:", userId);
 
-      if (error) {
-        console.error("Supabase Error:", error);
-        return;
-      }
+    // 2. Fetch User Profile
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle();
 
-      if (profile) {
-        // 3. Dynamically update UI
-        const firstName = profile.first_name || "Aman";
-        const lastName = profile.last_name || "Kumar";
-        
-        // Target elements by class or ID
-        const nameElements = document.querySelectorAll(".name");
-        if (nameElements.length > 0) nameElements[0].textContent = `${firstName} ${lastName}`;
-        
-        // Update initials in avatar
-        const avatar = document.querySelector(".user-avatar");
-        if (avatar) avatar.textContent = `${firstName[0]}${lastName[0] || ""}`.toUpperCase();
-      }
+    if (error) {
+      console.error("Supabase Profile Fetch Error:", error);
+    } else if (profile) {
+      console.log("Profile Data:", profile);
+      
+      // Update Name (Update your HTML IDs to match these!)
+      const firstName = profile.first_name || "Aman";
+      const lastName = profile.last_name || "Kumar";
+      
+      // Target the sidebar specifically
+      const nameEl = document.querySelector(".user-info .name");
+      if (nameEl) nameEl.textContent = `${firstName} ${lastName}`;
+      
+      // Update Avatar
+      const avatarEl = document.querySelector(".user-avatar");
+      if (avatarEl) avatarEl.textContent = `${firstName[0]}${lastName[0] || ""}`.toUpperCase();
+    } else {
+      console.warn("Profile not found for this user ID.");
+    }
 
-      // 4. Logout Functionality
-      document.getElementById("logoutBtn").addEventListener("click", async () => {
+    // 3. Logout Button Logic
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        console.log("Logout clicked");
         try {
           await FewsionAuth.logout();
         } catch (err) {
-          console.error("Logout failed:", err);
+          console.error("Logout process failed:", err);
         }
       });
-
-    } catch (err) {
-      console.error("Critical Execution Error:", err);
+    } else {
+      console.error("Logout button element not found!");
     }
   });
 </script>
+</body>
 </html>
