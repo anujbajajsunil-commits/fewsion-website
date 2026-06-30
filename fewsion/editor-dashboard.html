@@ -221,17 +221,17 @@
 
 </body>
 <script>
-   supabase = FewsionAuth.client();
+  const supabase = FewsionAuth.client();
 
   document.addEventListener("DOMContentLoaded", async () => {
     try {
+      // 1. Auth Guard
       const auth = await FewsionAuth.requireAuth("creator");
       if (!auth) return;
 
       const userId = auth.user.id;
-      console.log("Logged in User ID:", userId); // DEBUG: Check if ID is detected
 
-      // Fetch profile
+      // 2. Fetch profile data
       const { data: profile, error } = await supabase
         .from("profiles")
         .select("*")
@@ -239,57 +239,36 @@
         .maybeSingle();
 
       if (error) {
-        console.error("Supabase Error:", error); // DEBUG: Look at this in F12
+        console.error("Supabase Error:", error);
         return;
       }
 
-      if (!profile) {
-        console.warn("No profile record found in 'profiles' table.");
-        return;
+      if (profile) {
+        // 3. Dynamically update UI
+        const firstName = profile.first_name || "Aman";
+        const lastName = profile.last_name || "Kumar";
+        
+        // Target elements by class or ID
+        const nameElements = document.querySelectorAll(".name");
+        if (nameElements.length > 0) nameElements[0].textContent = `${firstName} ${lastName}`;
+        
+        // Update initials in avatar
+        const avatar = document.querySelector(".user-avatar");
+        if (avatar) avatar.textContent = `${firstName[0]}${lastName[0] || ""}`.toUpperCase();
       }
 
-      console.log("Profile Data Fetched:", profile); // DEBUG: Check if 'first_name' exists
-
-      // Update Name
-      const firstName = profile.first_name || "User";
-      const lastName = profile.last_name || "";
-      const fullName = `${firstName} ${lastName}`.trim();
-      
-      const nameElement = document.getElementById("sidebarName");
-      if (nameElement) {
-        nameElement.textContent = fullName;
-      } else {
-        console.error("Element #sidebarName not found in HTML!");
-      }
-
-      // Update Heading
-      const headingElement = document.getElementById("welcomeHeading");
-      if (headingElement) {
-        headingElement.textContent = `Welcome back, ${firstName}`;
-      }
+      // 4. Logout Functionality
+      document.getElementById("logoutBtn").addEventListener("click", async () => {
+        try {
+          await FewsionAuth.logout();
+        } catch (err) {
+          console.error("Logout failed:", err);
+        }
+      });
 
     } catch (err) {
       console.error("Critical Execution Error:", err);
     }
-
-    // logout button
-    // Add this at the bottom of your dashboard file
-document.getElementById("logoutBtn").addEventListener("click", async () => {
-  try {
-    await FewsionAuth.logout();
-  } catch (err) {
-    console.error("Logout failed:", err);
-  }
-});
-
-// Optional: Dashboard Auth Guard (prevents unauthorized access)
-document.addEventListener("DOMContentLoaded", async () => {
-  const session = await FewsionAuth.requireAuth();
-  if (!session) return;
-  
-  // Your existing dashboard data fetching logic...
-});
-
-
+  });
 </script>
 </html>
