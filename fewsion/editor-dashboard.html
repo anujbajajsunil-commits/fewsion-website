@@ -240,10 +240,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const currentPath = window.location.pathname;
 
-  if (!profile && !currentPath.includes("fewsion_editor_portal.html")) {
-    window.location.href = "fewsion_editor_portal.html";
-  } else if (profile && !currentPath.includes("editor-dashboard.html")) {
-    window.location.href = "editor-dashboard.html";
+  if (!profile && !currentPath.includes("fewsion_editor_portal")) {
+    window.location.href = "fewsion_editor_portal";
+  } else if (profile && !currentPath.includes("editor-dashboard")) {
+    window.location.href = "editor-dashboard";
   }
 });
 </script>
