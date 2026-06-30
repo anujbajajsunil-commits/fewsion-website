@@ -271,6 +271,24 @@
     } catch (err) {
       console.error("Critical Execution Error:", err);
     }
+
+    // logout button
+    // Add this at the bottom of your dashboard file
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  try {
+    await FewsionAuth.logout();
+  } catch (err) {
+    console.error("Logout failed:", err);
+  }
+});
+
+// Optional: Dashboard Auth Guard (prevents unauthorized access)
+document.addEventListener("DOMContentLoaded", async () => {
+  const session = await FewsionAuth.requireAuth();
+  if (!session) return;
+  
+  // Your existing dashboard data fetching logic...
+});
   });
 
 
