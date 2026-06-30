@@ -887,12 +887,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "login.html";
     return;
   }
-
+currentUser = session.user;
   // 2. Fetch the profile to see if onboarding is finished
   const { data: profile } = await supabase
-    .from("profiles")
+    .from("editor_profiles")
     .select("id")
-    .eq("id", session.user.id)
+    .eq("user_id", session.user.id)
     .maybeSingle();
 
   const currentPath = window.location.pathname;
