@@ -219,10 +219,7 @@
   </div>
 </main>
 <script>
-  if (typeof supabase === 'undefined') {
-    // Make sure FewsionAuth.client() actually returns the client
-    var supabase = FewsionAuth.client(); 
-}
+ const supabase = FewsionAuth.client();
  document.addEventListener("DOMContentLoaded", async () => {
   const currentPath = window.location.pathname;
 
