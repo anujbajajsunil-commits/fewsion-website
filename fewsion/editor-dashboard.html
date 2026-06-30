@@ -220,17 +220,25 @@
 </main>
 <script>
  const supabase = FewsionAuth.client();
- document.addEventListener("DOMContentLoaded", async () => {
-  const currentPath = window.location.pathname;
+let currentUser = null;
 
-  const session = await FewsionAuth.requireAuth("creator");
-  if (!session) return;
+document.addEventListener("DOMContentLoaded", async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  currentUser = session.user;
 
   const { data: profile } = await supabase
     .from("editor_profiles")
     .select("id")
     .eq("user_id", session.user.id)
     .maybeSingle();
+
+  const currentPath = window.location.pathname;
 
   if (!profile && !currentPath.includes("fewsion_editor_portal.html")) {
     window.location.href = "fewsion_editor_portal.html";
