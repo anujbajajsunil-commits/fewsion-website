@@ -219,56 +219,31 @@
   </div>
 </main>
 <script>
-  // Declare the variable ONCE globally at the very top
-  // const supabase = FewsionAuth.client();
-
-  // Everything runs inside this single event listener
   document.addEventListener("DOMContentLoaded", async () => {
-    console.log("--- Initializing Dashboard ---");
-
-    try {
-      // Auth Check
-      const auth = await FewsionAuth.requireAuth("creator");
-      if (!auth || !auth.user) {
-        console.warn("No session detected.");
-        return;
-      }
-
-      const userId = auth.user.id;
-      console.log("Authenticated User ID:", userId);
-
-      // Data Fetch - Ensure the table name 'profiles' is correct
-      const { data: profile, error } = await supabase
+    // We use the existing 'supabase' variable from fewsion-auth.js
+    
+    // 1. Auth & Data Fetching
+    const auth = await FewsionAuth.requireAuth("creator");
+    if (auth && auth.user) {
+      const { data: profile } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", userId)
+        .eq("id", auth.user.id)
         .maybeSingle();
 
-      if (error) {
-        console.error("Database Fetch Error:", error);
-      } else if (profile) {
-        console.log("Profile loaded:", profile);
-        
-        // Dynamic Name
-        const nameEl = document.querySelector(".user-info .name");
-        if (nameEl) {
-           nameEl.textContent = `${profile.first_name || "Aman"} ${profile.last_name || "Kumar"}`;
-        }
-      } else {
-        console.warn("No profile record found in table.");
+      if (profile) {
+        document.querySelector(".user-info .name").textContent = 
+          `${profile.first_name || "Aman"} ${profile.last_name || "Kumar"}`;
       }
+    }
 
-      // Logout handler
-      const logoutBtn = document.getElementById("logoutBtn");
-      if (logoutBtn) {
-        logoutBtn.onclick = async () => {
-          console.log("Logging out...");
-          await FewsionAuth.logout();
-        };
-      }
-
-    } catch (err) {
-      console.error("Critical Script Error:", err);
+    // 2. Logout Logic (Ensure this is inside the event listener)
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        console.log("Logging out...");
+        await FewsionAuth.logout();
+      });
     }
   });
 </script>
