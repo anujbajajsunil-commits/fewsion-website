@@ -220,32 +220,29 @@
 </main>
 <script>
   document.addEventListener("DOMContentLoaded", async () => {
-    // We use the existing 'supabase' variable from fewsion-auth.js
-    
-    // 1. Auth & Data Fetching
-    const auth = await FewsionAuth.requireAuth("creator");
-    if (auth && auth.user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", auth.user.id)
-        .maybeSingle();
+  // 1. Get current path
+  const currentPath = window.location.pathname;
 
-      if (profile) {
-        document.querySelector(".user-info .name").textContent = 
-          `${profile.first_name || "Aman"} ${profile.last_name || "Kumar"}`;
-      }
-    }
+  // 2. Auth Guard
+  const session = await FewsionAuth.requireAuth("creator");
+  if (!session) return;
 
-    // 2. Logout Logic (Ensure this is inside the event listener)
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", async () => {
-        console.log("Logging out...");
-        await FewsionAuth.logout();
-      });
-    }
-  });
+  // 3. Fetch profile to check onboarding status
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", session.user.id)
+    .maybeSingle();
+
+  // 4. THE FIX: Logic that prevents the loop
+  if (!profile && !currentPath.includes("fewsion_editor_portal.html")) {
+    // If no profile, force them to the portal
+    window.location.href = "fewsion_editor_portal.html";
+  } else if (profile && !currentPath.includes("editor-dashboard.html")) {
+    // If profile exists, force them to the dashboard
+    window.location.href = "editor-dashboard.html";
+  }
+});
 </script>
 </body>
 </html>
