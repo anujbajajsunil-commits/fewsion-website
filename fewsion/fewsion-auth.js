@@ -16,63 +16,6 @@ console.log("Supabase URL:", FEWSION_SUPABASE_URL);
 console.log("Supabase Key:", FEWSION_SUPABASE_KEY);
 console.log("Supabase Client:", supabaseClient);
 
-// ─── PUBLIC API ───────────────────────────────────────────────────────────
-// window.FewsionAuth = {
-
-//   /**
-//    * Returns the Supabase client so other scripts can reuse the same instance.
-//    */
-//   client() {
-//     return _sb;
-//   },
-
-//   /**
-//    * Returns the current session user, or null if logged out.
-//    */
-//   async getUser() {
-//     const { data: { user } } = await _sb.auth.getUser();
-//     return user;
-//   },
-
-//   /**
-//    * Fetches the `users` profile row for the current auth user.
-//    * Returns { data, error }.
-//    */
-//   async getProfile(userId) {
-//     return await _sb
-//       .from("users")
-//       .select("*")
-//       .eq("id", userId)
-//       .single();
-//   },
-
-//   /**
-//    * If a user is already logged in AND has a complete profile, redirect them
-//    * to their role dashboard immediately (call this at the top of signup.html).
-//    */
-//   async redirectIfLoggedIn() {
-//     const user = await FewsionAuth.getUser();
-//     if (!user) return;
-
-//     const { data: profile } = await FewsionAuth.getProfile(user.id);
-//     if (profile && profile.role) {
-//       window.location.href = profile.role + "-dashboard.html";
-//     }
-//   },
-
-//   /**
-//    * Signs the user out and redirects to the given page (default: index.html).
-//    */
-//   async signOut(redirectTo = "index.html") {
-//     await _sb.auth.signOut();
-//     window.location.href = redirectTo;
-//   },
-// };
-
-/**
- * fewsion-auth.js
- * Shared Authentication & Role Management
- */
 
 // ─────────────────────────────────────────
 // FEWSION AUTH
