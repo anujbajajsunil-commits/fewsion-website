@@ -873,38 +873,20 @@ const rateLabels = ['Under ₹500', '₹500–1,000', '₹1,500–3,000', '₹3,
  supabase = FewsionAuth.client();
 let currentUser = null;
 
-// Initialize session verification and routing on load
 document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    // Verify Editor Authorization
-    const auth = await FewsionAuth.requireAuth("editor");
-    if (!auth) return;
+  const session = await FewsionAuth.requireAuth("editor");
+  if (!session) return;
 
-    currentUser = auth.user;
-    console.log("Logged In Editor User:", currentUser);
+  // Check if profile exists, but don't redirect if we are ALREADY on the dashboard
+  const { data, error } = await supabase
+    .from("editor_profiles")
+    .select("id")
+    .eq("user_id", session.user.id)
+    .maybeSingle();
 
-    // Check if an editor profile already exists to fast-track them to workspace dashboard
-    const { data, error } = await supabase
-      .from("editor_profiles")
-      .select("id")
-      .eq("user_id", currentUser.id)
-      .maybeSingle();
-
-    if (error) {
-      console.error("Profile check failed:", error);
-      return;
-    }
-
-    console.log("Existing Profile Data:", data);
-
-    if (data) {
-      window.location.href = "editor-dashboard.html";
-      return;
-    }
-
-    console.log("New Editor Session Initialized.");
-  } catch (err) {
-    console.error("Initialization pipeline broken:", err);
+  // ONLY redirect if they have a profile AND aren't already on the dashboard
+  if (data && window.location.pathname.includes("editor-dashboard.html") === false) {
+    window.location.href = "editor-dashboard.html";
   }
 });
 
