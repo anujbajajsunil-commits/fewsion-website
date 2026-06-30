@@ -871,7 +871,7 @@ const rateLabels = ['Under ₹500', '₹500–1,000', '₹1,500–3,000', '₹3,
 
 // Match the architecture of the creator portal by using the global client directly
  supabase = FewsionAuth.client();
-// let currentUser = null;
+let currentUser = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   // 1. Get current path
