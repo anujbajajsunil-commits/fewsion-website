@@ -865,35 +865,45 @@
   </div>
 </div>
 <script>
+  // Use 'var' or 'let' (or just check if it exists) to avoid 'already been declared'
+if (typeof supabase === 'undefined') {
+    var supabase = FewsionAuth.client();
+}
 // 1. Structural State Configuration
 const S = { exp: '', lang: [], format: [], tool: [], skill: [], niche: [], videoCount: '', turn: '', avail: '', collab: [] };
 const rateLabels = ['Under ₹500', '₹500–1,000', '₹1,500–3,000', '₹3,000–6,000', '₹6,000–10,000', '₹10,000–20,000', '₹20,000–40,000', '₹40,000–75,000', '₹75,000–1.5L', 'Negotiable'];
 
 // Match the architecture of the creator portal by using the global client directly
- supabase = FewsionAuth.client();
+ // supabase = FewsionAuth.client();
 let currentUser = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Get current path
-  const currentPath = window.location.pathname;
+  console.log("Checking session...");
 
-  // 2. Auth Guard
-  const session = await FewsionAuth.requireAuth("creator");
-  if (!session) return;
+  // 1. Get the session
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session) {
+    window.location.href = "login.html";
+    return;
+  }
 
-  // 3. Fetch profile to check onboarding status
+  // 2. Fetch the profile to see if onboarding is finished
   const { data: profile } = await supabase
     .from("profiles")
     .select("id")
     .eq("id", session.user.id)
     .maybeSingle();
 
-  // 4. THE FIX: Logic that prevents the loop
+  const currentPath = window.location.pathname;
+
+  // 3. Logic to stop the loop
+  // If no profile AND not already on portal, go to portal
   if (!profile && !currentPath.includes("fewsion_editor_portal.html")) {
-    // If no profile, force them to the portal
     window.location.href = "fewsion_editor_portal.html";
-  } else if (profile && !currentPath.includes("editor-dashboard.html")) {
-    // If profile exists, force them to the dashboard
+  } 
+  // If profile exists AND not already on dashboard, go to dashboard
+  else if (profile && !currentPath.includes("editor-dashboard.html")) {
     window.location.href = "editor-dashboard.html";
   }
 });
