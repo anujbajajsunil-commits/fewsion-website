@@ -219,40 +219,56 @@
   </div>
 </main>
 <script>
-  // 1. Declare it ONCE here at the top
+  // Declare the variable ONCE globally at the very top
   const supabase = FewsionAuth.client();
 
+  // Everything runs inside this single event listener
   document.addEventListener("DOMContentLoaded", async () => {
-    console.log("Dashboard loading...");
+    console.log("--- Initializing Dashboard ---");
 
-    // 2. Auth Guard
-    const auth = await FewsionAuth.requireAuth("creator");
-    if (!auth || !auth.user) return;
+    try {
+      // Auth Check
+      const auth = await FewsionAuth.requireAuth("creator");
+      if (!auth || !auth.user) {
+        console.warn("No session detected.");
+        return;
+      }
 
-    const userId = auth.user.id;
+      const userId = auth.user.id;
+      console.log("Authenticated User ID:", userId);
 
-    // 3. Fetch User Profile
-    // Note: Use the variable 'supabase' directly, do NOT use 'const supabase' again here
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .maybeSingle();
+      // Data Fetch - Ensure the table name 'profiles' is correct
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
 
-    if (error) {
-      console.error("Supabase Error:", error);
-    } else if (profile) {
-      // Update UI...
-      const nameEl = document.querySelector(".user-info .name");
-      if (nameEl) nameEl.textContent = `${profile.first_name || "Aman"} ${profile.last_name || "Kumar"}`;
-    }
+      if (error) {
+        console.error("Database Fetch Error:", error);
+      } else if (profile) {
+        console.log("Profile loaded:", profile);
+        
+        // Dynamic Name
+        const nameEl = document.querySelector(".user-info .name");
+        if (nameEl) {
+           nameEl.textContent = `${profile.first_name || "Aman"} ${profile.last_name || "Kumar"}`;
+        }
+      } else {
+        console.warn("No profile record found in table.");
+      }
 
-    // 4. Logout Button
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", async () => {
-        await FewsionAuth.logout();
-      });
+      // Logout handler
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.onclick = async () => {
+          console.log("Logging out...");
+          await FewsionAuth.logout();
+        };
+      }
+
+    } catch (err) {
+      console.error("Critical Script Error:", err);
     }
   });
 </script>
