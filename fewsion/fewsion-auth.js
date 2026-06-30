@@ -28,14 +28,17 @@ window.FewsionAuth = {
   },
 
   // Get Current Auth User
+  // Get Current Auth User
   async getUser() {
-    const {
-      data: { user },
-      error
-    } = await supabaseClient.auth.getUser();
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    // If no session exists, just return null silently
+    if (!session) return null;
 
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    
     if (error) {
-      console.error("Get User Error:", error);
+      console.error("Error fetching user details:", error);
       return null;
     }
 
