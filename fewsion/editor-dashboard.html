@@ -233,9 +233,9 @@
 
   // 3. Fetch profile to check onboarding status
   const { data: profile } = await supabase
-    .from("profiles")
+    .from("editor_profiles")
     .select("id")
-    .eq("id", session.user.id)
+    .eq("user_id", session.user.id)
     .maybeSingle();
 
   // 4. THE FIX: Logic that prevents the loop
