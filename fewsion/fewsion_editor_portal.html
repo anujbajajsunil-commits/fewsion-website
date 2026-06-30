@@ -877,6 +877,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const session = await FewsionAuth.requireAuth("editor");
   if (!session) return;
 
+  currentUser = session.user;
   // Check if profile exists, but don't redirect if we are ALREADY on the dashboard
   const { data, error } = await supabase
     .from("editor_profiles")
