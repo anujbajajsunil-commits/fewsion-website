@@ -178,8 +178,18 @@
 <script src="fewsion-auth.js"></script>
 <script>
 // Extract global database engine correctly without context scoping re-declaration bugs
- supabase = FewsionAuth.client();
-  const [
+ supabase = FewsionAuth.client();  
+let currentUser = null;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    // 1. Verify role allocation criteria parameters
+    const auth = await FewsionAuth.requireAuth("brand");
+    if (!auth) return;
+
+    currentUser = auth.user;
+//----------------------------NEW CODE--------------------//
+     const [
   profileRes,
   campaignsRes,
   collaborationsRes,
@@ -219,17 +229,49 @@ collaborationsRes.data || [];
 
 const payments =
 paymentsRes.data || [];
-  
-let currentUser = null;
 
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    // 1. Verify role allocation criteria parameters
-    const auth = await FewsionAuth.requireAuth("brand");
-    if (!auth) return;
+const campaignIds =
+campaigns.map(c => c.id);
+let applications = [];
 
-    currentUser = auth.user;
+if (campaignIds.length) {
+  const { data } =
+  await supabase
+    .from("applications")
+    .select("*")
+    .in(
+      "campaign_id",
+      campaignIds
+    );
 
+  applications = data || [];
+}
+document.getElementById(
+  "countBriefs"
+).textContent = campaigns.length;
+
+document.getElementById(
+  "countApplicants"
+).textContent = applications.length;
+
+document.getElementById(
+  "countActive"
+).textContent =
+  collaborations.length;
+
+const totalSpend =
+  payments.reduce(
+    (sum, p) =>
+      sum + Number(p.amount || 0),
+    0
+  );
+
+document.getElementById(
+  "totalSpend"
+).textContent =
+  `₹${totalSpend.toLocaleString()}`;
+    
+// -------------------------------OLD CODE------------------------------------//
     // 2. Extract configuration row matching brand user ID
     const { data: brandProfile, error } = await supabase
       .from("brand_profiles")
