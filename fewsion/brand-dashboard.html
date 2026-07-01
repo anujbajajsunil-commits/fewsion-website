@@ -273,50 +273,50 @@ document.getElementById(
     
 // -------------------------------OLD CODE------------------------------------//
     // 2. Extract configuration row matching brand user ID
-    const { data: brandProfile, error } = await supabase
-      .from("brand_profiles")
-      .select("*")
-      .eq("user_id", currentUser.id)
-      .maybeSingle();
+    // const { data: brandProfile, error } = await supabase
+    //   .from("brand_profiles")
+    //   .select("*")
+    //   .eq("user_id", currentUser.id)
+    //   .maybeSingle();
 
-    if (error) {
-      console.error("Supabase relation trace failure:", error);
-      return;
-    }
+    // if (error) {
+    //   console.error("Supabase relation trace failure:", error);
+    //   return;
+    // }
 
-    // 3. Fallback routing safeguard if row metadata is empty
-    if (!brandProfile) {
-      console.log("No custom profile records discovered. Directing to setup wizard...");
-      window.location.href = "fawsion_brand_portal.html";
-      return;
-    }
+    // // 3. Fallback routing safeguard if row metadata is empty
+    // if (!brandProfile) {
+    //   console.log("No custom profile records discovered. Directing to setup wizard...");
+    //   window.location.href = "fawsion_brand_portal.html";
+    //   return;
+    // }
 
-    console.log("Hydrating Account Workspace View:", brandProfile);
+    // console.log("Hydrating Account Workspace View:", brandProfile);
 
-    // 4. Update core profile views dynamically
-    const company = brandProfile.brand_name || "Brand Partner";
-    document.getElementById("sidebarBrandName").textContent = company;
-    document.getElementById("welcomeHeading").textContent = `Welcome back, ${company}`;
+    // // 4. Update core profile views dynamically
+    // const company = brandProfile.brand_name || "Brand Partner";
+    // document.getElementById("sidebarBrandName").textContent = company;
+    // document.getElementById("welcomeHeading").textContent = `Welcome back, ${company}`;
     
-    const initials = company.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-    document.getElementById("sidebarAvatar").textContent = initials || "B";
+    // const initials = company.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    // document.getElementById("sidebarAvatar").textContent = initials || "B";
 
-    // 5. Query live items directly from 'campaign_briefs' or your relational equivalent table
-    const { data: campaigns, error: campaignError } = await supabase
-      .from("campaign_briefs") 
-      .select("*")
-      .eq("brand_id", currentUser.id); // Looks up items originating from this company owner account
+    // // 5. Query live items directly from 'campaign_briefs' or your relational equivalent table
+    // const { data: campaigns, error: campaignError } = await supabase
+    //   .from("campaign_briefs") 
+    //   .select("*")
+    //   .eq("brand_id", currentUser.id); // Looks up items originating from this company owner account
 
-    const container = document.getElementById("campaignsContainer");
+    // const container = document.getElementById("campaignsContainer");
 
-    if (campaignError) {
-      console.error("Failed fetching live structural briefs:", campaignError);
-      container.innerHTML = `<div class="empty-state-box" style="color: #ef4444;">Error compiling campaign list streams.</div>`;
-      return;
-    }
+    // if (campaignError) {
+    //   console.error("Failed fetching live structural briefs:", campaignError);
+    //   container.innerHTML = `<div class="empty-state-box" style="color: #ef4444;">Error compiling campaign list streams.</div>`;
+    //   return;
+    // }
 
-    // Update the live metrics score grid element
-    document.getElementById("countBriefs").textContent = campaigns ? campaigns.length : 0;
+    // // Update the live metrics score grid element
+    // document.getElementById("countBriefs").textContent = campaigns ? campaigns.length : 0;
 
     // 6. Dynamic Loop Generation Layer
     if (!campaigns || campaigns.length === 0) {
