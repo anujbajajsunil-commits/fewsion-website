@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>For Brands — Fewsion</title>
+<title>Live Campaigns — Fewsion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="fewsion-auth.js"></script>
 <style>
   :root {
     --black: #080808; --deep: #0e0e0e; --card: #141414; --card2: #1a1a1a;
@@ -33,112 +35,60 @@
   .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
   .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; }
 
-  .page-hero { min-height: 90vh; display: flex; align-items: center; padding: 120px 5% 80px; position: relative; overflow: hidden; }
-  .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 70% 50%, rgba(255,107,53,0.1) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 20% 80%, rgba(245,166,35,0.07) 0%, transparent 50%); }
-  .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 80% at 70% 50%, black 30%, transparent 100%); }
-  .hero-content { position: relative; z-index: 2; max-width: 580px; }
-  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,107,53,0.1); border: 1px solid rgba(255,107,53,0.25); border-radius: 50px; padding: 7px 18px; font-size: 13px; color: var(--amber2); font-weight: 500; margin-bottom: 28px; letter-spacing: 0.03em; }
-  .hero-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--amber2); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.4)} }
-  h1 { font-family: var(--font-display); font-size: clamp(40px, 6vw, 76px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; color: var(--white); margin-bottom: 24px; }
-  h1 em { font-style: normal; background: linear-gradient(135deg, var(--amber) 0%, var(--amber2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-clip: text; }
-  .hero-sub { font-size: clamp(16px, 2vw, 19px); color: var(--muted); margin-bottom: 40px; font-weight: 300; line-height: 1.7; }
-  .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
-  .btn-primary { background: var(--amber); color: #000; font-family: var(--font-display); font-size: 15px; font-weight: 700; padding: 14px 32px; border-radius: 50px; border: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s; }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(245,166,35,0.35); }
-  .btn-ghost { background: transparent; color: var(--text); font-family: var(--font-display); font-size: 15px; font-weight: 600; padding: 14px 32px; border-radius: 50px; border: 1px solid var(--border2); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: border-color 0.2s, background 0.2s; }
-  .btn-ghost:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.04); }
-  .hero-visual { position: absolute; right: 5%; top: 50%; transform: translateY(-50%); z-index: 2; width: min(440px, 40vw); }
+  main { padding: 130px 5% 100px; max-width: 1200px; margin: 0 auto; }
 
-  /* CAMPAIGN CARD PREVIEW */
-  .campaign-preview { background: var(--card); border: 1px solid rgba(255,107,53,0.2); border-radius: 20px; padding: 28px; box-shadow: 0 40px 80px rgba(0,0,0,0.6); }
-  .cp-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
-  .cp-logo { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--amber2), var(--amber)); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-  .cp-brand { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--white); }
-  .cp-type { font-size: 12px; color: var(--muted); }
-  .cp-status { margin-left: auto; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: #4ade80; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 50px; }
-  .cp-budget-row { display: flex; justify-content: space-between; align-items: center; background: rgba(245,166,35,0.06); border: 1px solid rgba(245,166,35,0.15); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
-  .cp-budget-label { font-size: 12px; color: var(--muted); }
-  .cp-budget-val { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--amber); }
-  .cp-applicants { margin-bottom: 16px; }
-  .cp-applicants-label { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
-  .cp-creator-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #111; border-radius: 10px; margin-bottom: 8px; }
-  .cp-creator-row:last-child { margin-bottom: 0; }
-  .cp-creator-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 11px; font-weight: 700; flex-shrink: 0; }
-  .cp-creator-name { font-size: 13px; color: var(--text); font-weight: 500; }
-  .cp-creator-score { margin-left: auto; font-size: 12px; color: var(--amber); font-family: var(--font-display); font-weight: 700; }
-  .cp-creator-ctr { font-size: 11px; color: var(--muted); }
-
-  section { padding: 100px 5%; }
+  .dir-hero { margin-bottom: 40px; }
   .section-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--amber); margin-bottom: 16px; }
   .section-tag::before { content: ''; width: 20px; height: 1.5px; background: var(--amber); display: inline-block; }
-  .section-title { font-family: var(--font-display); font-size: clamp(30px, 4vw, 52px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; color: var(--white); margin-bottom: 16px; }
-  .section-title em { font-style: normal; color: var(--amber); }
-  .section-sub { font-size: 17px; color: var(--muted); max-width: 520px; line-height: 1.7; font-weight: 300; margin-bottom: 56px; }
+  .dir-hero h1 { font-family: var(--font-display); font-size: clamp(32px, 4.5vw, 52px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; color: var(--white); margin-bottom: 14px; }
+  .dir-hero h1 em { font-style: normal; color: var(--amber); }
+  .dir-hero p { font-size: 16px; color: var(--muted); max-width: 560px; font-weight: 300; }
 
-  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .feature-card { background: var(--card); padding: 36px 30px; transition: background 0.3s; position: relative; }
-  .feature-card:hover { background: var(--card2); }
-  .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--amber), var(--amber2)); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
-  .feature-card:hover::before { transform: scaleX(1); }
-  .feature-icon { width: 48px; height: 48px; background: var(--amber-glow); border: 1px solid rgba(245,166,35,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 18px; }
-  .feature-card h3 { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--white); margin-bottom: 10px; }
-  .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+  .stats-strip { display: flex; gap: 32px; margin-top: 28px; flex-wrap: wrap; }
+  .stat-pill { display: flex; align-items: baseline; gap: 8px; }
+  .stat-pill .n { font-family: var(--font-display); font-size: 26px; font-weight: 800; color: var(--amber); }
+  .stat-pill .l { font-size: 13px; color: var(--muted); }
 
-  /* BRIEF BUILDER */
-  #brief { background: var(--deep); }
-  .brief-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
-  .brief-ui { background: var(--card); border: 1px solid rgba(245,166,35,0.15); border-radius: var(--radius); padding: 32px; }
-  .brief-ui h4 { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-  .brief-ui h4 span { background: var(--amber-glow); border: 1px solid rgba(245,166,35,0.2); color: var(--amber); font-size: 11px; padding: 3px 10px; border-radius: 50px; }
-  .brief-field { margin-bottom: 14px; }
-  .brief-field label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
-  .brief-field .field-val { background: #111; border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; font-size: 13.5px; color: var(--text); line-height: 1.5; }
-  .brief-field .field-val.highlight { border-color: rgba(245,166,35,0.3); color: var(--amber); }
-  .brief-generate { width: 100%; background: linear-gradient(135deg, var(--amber), var(--amber2)); color: #000; font-family: var(--font-display); font-size: 14px; font-weight: 700; padding: 13px; border-radius: 10px; border: none; cursor: pointer; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .brief-text p { font-size: 16px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; font-weight: 300; }
-  .check-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
-  .check-list li { display: flex; align-items: center; gap: 12px; font-size: 15px; color: var(--text); }
-  .check-list li::before { content: '✓'; width: 22px; height: 22px; border-radius: 50%; background: var(--amber-glow); border: 1px solid rgba(245,166,35,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--amber); font-weight: 700; flex-shrink: 0; }
+  .filter-row { display: flex; gap: 12px; margin: 36px 0 28px; flex-wrap: wrap; }
+  .filter-row input[type=text], .filter-row select {
+    background: var(--card); border: 1px solid var(--border); border-radius: 50px;
+    color: var(--text); padding: 10px 18px; font-size: 13.5px; font-family: var(--font-body);
+    outline: none; transition: border-color 0.2s;
+  }
+  .filter-row input[type=text] { flex: 1; min-width: 200px; }
+  .filter-row input[type=text]:focus, .filter-row select:focus { border-color: rgba(245,166,35,0.4); }
 
-  /* METRICS */
-  #metrics { background: var(--black); }
-  .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 56px; }
-  .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px 24px; text-align: center; transition: border-color 0.3s, transform 0.3s; }
-  .metric-card:hover { border-color: rgba(245,166,35,0.3); transform: translateY(-4px); }
-  .metric-val { font-family: var(--font-display); font-size: 40px; font-weight: 800; color: var(--amber); letter-spacing: -1.5px; margin-bottom: 8px; }
-  .metric-label { font-size: 14px; color: var(--muted); line-height: 1.5; }
+  .campaign-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
 
-  /* COMPARE */
-  #compare { background: var(--deep); }
-  .compare-table { width: 100%; border-collapse: collapse; margin-top: 56px; }
-  .compare-table th { font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 14px 20px; text-align: left; border-bottom: 1px solid var(--border); }
-  .compare-table td { padding: 18px 20px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 14.5px; vertical-align: middle; }
-  .compare-table tr:last-child td { border-bottom: none; }
-  .compare-table tr.us td { background: rgba(245,166,35,0.04); color: var(--text); }
-  .compare-table tr.us td:first-child { font-family: var(--font-display); font-weight: 700; color: var(--amber); }
-  .yes { color: #4ade80; font-weight: 600; }
-  .no { color: #444; }
+  .campaign-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; display: flex; flex-direction: column; gap: 14px; transition: border-color 0.25s, transform 0.25s; }
+  .campaign-card:hover { border-color: rgba(245,166,35,0.25); transform: translateY(-3px); }
 
-  /* PRICING TEASER */
-  #pricing-teaser { background: var(--black); }
-  .plans-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 56px; }
-  .plan-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px 28px; transition: transform 0.3s, border-color 0.3s; }
-  .plan-card.featured { border-color: rgba(245,166,35,0.35); background: linear-gradient(135deg, rgba(245,166,35,0.06), rgba(255,107,53,0.04)); }
-  .plan-card:hover { transform: translateY(-6px); }
-  .plan-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber); background: var(--amber-glow); border: 1px solid rgba(245,166,35,0.2); padding: 4px 12px; border-radius: 50px; margin-bottom: 16px; }
-  .plan-name { font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--white); margin-bottom: 6px; }
-  .plan-price { font-family: var(--font-display); font-size: 36px; font-weight: 800; color: var(--amber); letter-spacing: -1px; margin-bottom: 4px; }
-  .plan-period { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
-  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-  .plan-features li { font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 10px; }
-  .plan-features li::before { content: '→'; color: var(--amber); font-size: 11px; }
+  .cc-brand-row { display: flex; align-items: center; gap: 12px; }
+  .cc-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--amber2), var(--amber)); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; color: #000; font-size: 14px; flex-shrink: 0; }
+  .cc-brand-name { font-size: 14px; font-weight: 600; color: var(--white); }
+  .cc-brand-industry { font-size: 11.5px; color: var(--muted); }
+  .cc-status { margin-left: auto; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 50px; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: #4ade80; text-transform: capitalize; }
 
-  #page-cta { background: linear-gradient(135deg, rgba(245,166,35,0.1) 0%, rgba(255,107,53,0.08) 50%, transparent 100%); border-top: 1px solid var(--border); padding: 100px 5%; text-align: center; }
-  #page-cta h2 { font-family: var(--font-display); font-size: clamp(32px, 5vw, 60px); font-weight: 800; letter-spacing: -2px; color: var(--white); margin-bottom: 16px; line-height: 1.1; }
-  #page-cta h2 em { font-style: normal; color: var(--amber); }
-  #page-cta p { font-size: 18px; color: var(--muted); max-width: 480px; margin: 0 auto 40px; font-weight: 300; }
-  .cta-buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .cc-title { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--white); line-height: 1.3; }
+
+  .cc-meta { display: flex; flex-wrap: wrap; gap: 10px 16px; font-size: 12.5px; color: var(--muted); }
+  .cc-meta span { display: flex; align-items: center; gap: 5px; }
+
+  .cc-budget-row { display: flex; justify-content: space-between; align-items: center; background: rgba(245,166,35,0.06); border: 1px solid rgba(245,166,35,0.15); border-radius: 10px; padding: 12px 14px; }
+  .cc-budget-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .cc-budget-val { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--amber); }
+
+  .cc-apply-btn {
+    width: 100%; background: var(--amber); color: #000; font-family: var(--font-display);
+    font-size: 13.5px; font-weight: 700; padding: 11px; border-radius: 50px; border: none;
+    cursor: pointer; transition: transform 0.2s, opacity 0.2s, background 0.2s;
+  }
+  .cc-apply-btn:hover:not(:disabled) { transform: translateY(-1px); opacity: 0.9; }
+  .cc-apply-btn:disabled { cursor: default; background: var(--card2); color: var(--muted); }
+  .cc-apply-btn.applied { background: rgba(74,222,128,0.12); color: #4ade80; }
+
+  .empty-state-box { grid-column: 1 / -1; padding: 60px 32px; text-align: center; color: var(--muted); border: 1px dashed var(--border2); border-radius: var(--radius); font-size: 14.5px; }
+  .empty-state-box .es-icon { font-size: 32px; margin-bottom: 12px; }
 
   footer { background: var(--black); padding: 60px 5% 32px; border-top: 1px solid var(--border); }
   .footer-top { display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); gap: 48px; margin-bottom: 48px; }
@@ -153,31 +103,14 @@
   .footer-bottom p { font-size: 13px; color: var(--muted2); }
   .footer-bottom .made span { color: var(--amber); }
 
-  /* REVEAL CLASSES FOR INTERSECTION OBSERVER */
-  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.6s ease, transform 0.6s ease; }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-  .reveal-delay-1 { transition-delay: 0.1s; }
-  .reveal-delay-2 { transition-delay: 0.2s; }
-  .reveal-delay-3 { transition-delay: 0.3s; }
-
-  @media (max-width: 1024px) {
-    .features-grid { grid-template-columns: 1fr 1fr; }
-    .brief-layout { grid-template-columns: 1fr; }
-    .metrics-grid { grid-template-columns: 1fr 1fr; }
-    .plans-row { grid-template-columns: 1fr; }
-    .hero-visual { display: none; }
-    .footer-top { grid-template-columns: 1fr 1fr; }
-  }
   @media (max-width: 768px) {
-    section { padding: 70px 5%; }
-    .features-grid { grid-template-columns: 1fr; }
     .nav-links { display: none; }
     .nav-links.open { display: flex; flex-direction: column; position: fixed; inset: 70px 0 0 0; background: rgba(8,8,8,0.97); backdrop-filter: blur(16px); padding: 32px 5%; gap: 24px; z-index: 99; }
     .nav-links.open a { font-size: 22px; color: var(--text); }
     .nav-hamburger { display: flex; }
+    main { padding: 110px 5% 70px; }
+    .campaign-grid { grid-template-columns: 1fr; }
     .footer-top { grid-template-columns: 1fr; gap: 32px; }
-    .compare-table { font-size: 13px; }
-    .compare-table td, .compare-table th { padding: 12px; }
   }
 </style>
 </head>
@@ -187,7 +120,7 @@
   <a class="nav-logo" href="index.html">Few<span>sion</span></a>
   <ul class="nav-links" id="navLinks">
     <li><a href="creators.html">For Creators</a></li>
-    <li><a href="brands.html" class="active">For Brands</a></li>
+    <li><a href="brands.html" class="active">Live Campaigns</a></li>
     <li><a href="editors.html">For Editors</a></li>
     <li><a href="pricing.html">Pricing</a></li>
     <li><a href="about.html">About</a></li>
@@ -198,290 +131,31 @@
   </div>
 </nav>
 
-<section class="page-hero">
-  <div class="hero-bg"></div>
-  <div class="hero-grid"></div>
-  <div class="hero-content">
-    <div class="hero-badge">Brand Portal</div>
-    <h1>Find creators by<br><em>performance,</em><br>not followers.</h1>
-    <p class="hero-sub">Stop guessing. Fewsion matches your D2C brand with verified UGC creators using real CTR data, Creator Score, and AI-powered matching — not vanity metrics.</p>
-    <div class="hero-btns">
-      <a href="signup.html?role=brand" class="btn-primary">Post your first campaign →</a>
-      <a href="#brief" class="btn-ghost">See AI Brief Builder</a>
+<main>
+  <div class="dir-hero">
+    <div class="section-tag">Live Campaigns</div>
+    <h1>Brands are hiring<br><em>right now.</em></h1>
+    <p>Browse live campaigns from verified D2C brands and apply directly. No cold DMs, no guesswork — every brief includes budget, platform, and scope up front.</p>
+    <div class="stats-strip">
+      <div class="stat-pill"><span class="n" id="statCampaigns">—</span><span class="l">live campaigns</span></div>
+      <div class="stat-pill"><span class="n" id="statBrands">—</span><span class="l">brands hiring</span></div>
     </div>
   </div>
-  <div class="hero-visual">
-    <div class="campaign-preview">
-      <div class="cp-header">
-        <div class="cp-logo">🧴</div>
-        <div>
-          <div class="cp-brand">Glow Republic</div>
-          <div class="cp-type">UGC · Skincare · Instagram Reels</div>
-        </div>
-        <div class="cp-status">Live</div>
-      </div>
-      <div class="cp-budget-row">
-        <div>
-          <div class="cp-budget-label">Budget per creator</div>
-          <div class="cp-budget-val">₹12,000</div>
-        </div>
-        <div style="text-align:right">
-          <div class="cp-budget-label">Applicants</div>
-          <div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--white)">14</div>
-        </div>
-      </div>
-      <div class="cp-applicants">
-        <div class="cp-applicants-label">AI-matched top creators</div>
-        <div class="cp-creator-row">
-          <div class="cp-creator-av" style="background:rgba(245,166,35,0.15);color:var(--amber)">PK</div>
-          <div>
-            <div class="cp-creator-name">Priya Kapoor</div>
-            <div class="cp-creator-ctr">5.2% CTR · Skincare</div>
-          </div>
-          <div class="cp-creator-score">Score 94</div>
-        </div>
-        <div class="cp-creator-row">
-          <div class="cp-creator-av" style="background:rgba(74,222,128,0.1);color:#4ade80">RM</div>
-          <div>
-            <div class="cp-creator-name">Rashi Mehta</div>
-            <div class="cp-creator-ctr">4.8% CTR · Beauty</div>
-          </div>
-          <div class="cp-creator-score">Score 91</div>
-        </div>
-        <div class="cp-creator-row">
-          <div class="cp-creator-av" style="background:rgba(255,107,53,0.12);color:var(--amber2)">AS</div>
-          <div>
-            <div class="cp-creator-name">Ananya Singh</div>
-            <div class="cp-creator-ctr">4.1% CTR · Lifestyle</div>
-          </div>
-          <div class="cp-creator-score">Score 88</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<section id="features" style="background: var(--deep);">
-  <div class="section-tag">Brand Portal Features</div>
-  <h2 class="section-title reveal">Everything to run<br><em>great UGC campaigns</em></h2>
-  <p class="section-sub reveal reveal-delay-1">No agency middleman. No sales call needed. Post a campaign in under 5 minutes.</p>
-  <div class="features-grid">
-    <div class="feature-card reveal">
-      <div class="feature-icon">🤖</div>
-      <h3>AI Brief Builder</h3>
-      <p>Describe your campaign in plain language and our AI generates a complete, structured brief — content requirements, tone, deliverables, deadlines — in seconds.</p>
-    </div>
-    <div class="feature-card reveal reveal-delay-1">
-      <div class="feature-icon">🎯</div>
-      <h3>Performance-First Matching</h3>
-      <p>Search and filter creators by real CTR, Creator Score, niche, language, and platform. No more follower count guesswork — every data point is verified.</p>
-    </div>
-    <div class="feature-card reveal reveal-delay-2">
-      <div class="feature-icon">🔒</div>
-      <h3>Escrow-Protected Payments</h3>
-      <p>Deposit your campaign budget upfront via Razorpay escrow. Funds release to the creator only after you approve the content. Zero payment disputes.</p>
-    </div>
-    <div class="feature-card reveal">
-      <div class="feature-icon">📈</div>
-      <h3>Performance Tracker</h3>
-      <p>See real post-campaign data — views, clicks, CTR, and conversions — linked to every piece of content your creators delivered. Measure true ROI.</p>
-    </div>
-    <div class="feature-card reveal reveal-delay-1">
-      <div class="feature-icon">🏪</div>
-      <h3>Brand Storefront</h3>
-      <p>Your public brand page shows past campaigns, creator reviews, and your brand identity. Quality creators apply to brands they want to work with.</p>
-    </div>
-    <div class="feature-card reveal reveal-delay-2">
-      <div class="feature-icon">📋</div>
-      <h3>AI Contract Generator</h3>
-      <p>One-click contracts covering usage rights, exclusivity, revision limits, and payment terms — auto-generated before every project. No lawyers required.</p>
+  <div class="filter-row">
+    <input type="text" id="searchInput" placeholder="Search by brand or campaign title...">
+    <select id="platformFilter">
+      <option value="">All platforms</option>
+    </select>
+  </div>
+
+  <div class="campaign-grid" id="campaignGrid">
+    <div class="empty-state-box">
+      <div class="es-icon">⏳</div>
+      Loading live campaigns...
     </div>
   </div>
-</section>
-
-<section id="brief">
-  <div class="brief-layout">
-    <div class="brief-ui reveal">
-      <h4>AI Brief Builder <span>✨ AI-powered</span></h4>
-      <div class="brief-field">
-        <label>Campaign Goal</label>
-        <div class="field-val highlight">Drive trial purchases for new SPF moisturiser</div>
-      </div>
-      <div class="brief-field">
-        <label>Content Type</label>
-        <div class="field-val">UGC Review · 30–60 second Instagram Reel</div>
-      </div>
-      <div class="brief-field">
-        <label>Target Audience</label>
-        <div class="field-val">Women 22–35, skincare-aware, metro cities</div>
-      </div>
-      <div class="brief-field">
-        <label>Budget Per Creator</label>
-        <div class="field-val">₹8,000 – ₹15,000</div>
-      </div>
-      <div class="brief-field">
-        <label>AI-Generated Brief Preview</label>
-        <div class="field-val" style="line-height:1.6;font-size:13px;color:var(--muted)">Show authentic first-use reaction, highlight texture and glow. Include product name naturally. No scripted feel. Deliver raw + edited files by [date]. Usage rights: 12 months digital...</div>
-      </div>
-      <button class="brief-generate">✨ Generate full brief</button>
-    </div>
-    <div class="brief-text reveal reveal-delay-1">
-      <div class="section-tag">AI Brief Builder</div>
-      <h2 class="section-title">From idea to live<br>campaign in <em>5 minutes</em></h2>
-      <p>Most brand-creator collab failures start with a bad brief. Vague goals, missing specs, and unclear expectations cause revisions, delays, and drop-off.</p>
-      <p>Fewsion's AI brief builder prompts you for the right information, then auto-generated a complete, professional brief that creators actually understand.</p>
-      <ul class="check-list">
-        <li>Content requirements, tone & visual references</li>
-        <li>Platform-specific specs (aspect ratio, length, text)</li>
-        <li>Usage rights & exclusivity terms auto-drafted</li>
-        <li>Deliverable checklist sent to creator automatically</li>
-        <li>Revision rounds and approval flow built-in</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<section id="metrics">
-  <div class="section-tag">Why It Works</div>
-  <h2 class="section-title reveal">Results brands<br><em>actually see</em></h2>
-  <p class="section-sub reveal reveal-delay-1">Early data from pilot campaigns on the Fewsion platform.</p>
-  <div class="metrics-grid">
-    <div class="metric-card reveal">
-      <div class="metric-val">4.7%</div>
-      <div class="metric-label">Average CTR on creator content vs 1.2% industry average</div>
-    </div>
-    <div class="metric-card reveal reveal-delay-1">
-      <div class="metric-val">3.2×</div>
-      <div class="metric-label">More content options vs traditional agency sourcing</div>
-    </div>
-    <div class="metric-card reveal reveal-delay-2">
-      <div class="metric-val">92%</div>
-      <div class="metric-label">On-time delivery rate across all Fewsion campaigns</div>
-    </div>
-    <div class="metric-card reveal reveal-delay-3">
-      <div class="metric-val">0</div>
-      <div class="metric-label">Payment disputes on escrow-protected projects</div>
-    </div>
-  </div>
-</section>
-
-<section id="compare">
-  <div class="section-tag">vs. The Alternatives</div>
-  <h2 class="section-title reveal">Why not just use<br>an <em>agency?</em></h2>
-  <p class="section-sub reveal reveal-delay-1">Agencies work for big budgets. Fewsion is built for D2C brands moving fast.</p>
-  <table class="compare-table reveal">
-    <thead>
-      <tr>
-        <th>Factor</th>
-        <th>Traditional Agency</th>
-        <th>Freelance / WhatsApp</th>
-        <th>Fewsion</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Time to launch campaign</td>
-        <td class="no">2–4 weeks</td>
-        <td class="no">Days of hunting</td>
-        <td class="yes">Under 5 minutes</td>
-      </tr>
-      <tr>
-        <td>Creator vetting</td>
-        <td>Manual, follower-based</td>
-        <td class="no">None</td>
-        <td class="yes">AI + verified CTR data</td>
-      </tr>
-      <tr>
-        <td>Payment protection</td>
-        <td class="no">Invoice + net-30</td>
-        <td class="no">Trust-based only</td>
-        <td class="yes">Razorpay escrow</td>
-      </tr>
-      <tr>
-        <td>Performance data</td>
-        <td>Agency reports only</td>
-        <td class="no">None</td>
-        <td class="yes">Real-time tracker</td>
-      </tr>
-      <tr>
-        <td>Agency/platform commission</td>
-        <td class="no">25–40%</td>
-        <td>None (but hidden risk)</td>
-        <td class="yes">10–15% only</td>
-      </tr>
-      <tr>
-        <td>Minimum spend</td>
-        <td class="no">₹5L+ monthly</td>
-        <td>Any</td>
-        <td class="yes">Any — start from ₹5,000</td>
-      </tr>
-      <tr class="us">
-        <td>Contracts & IP</td>
-        <td>Agency-drafted, slow</td>
-        <td class="no">Usually none</td>
-        <td class="yes">AI-generated, instant</td>
-      </tr>
-    </tbody>
-  </table>
-</section>
-
-<section id="pricing-teaser" style="background:var(--deep);">
-  <div class="section-tag">Simple Pricing</div>
-  <h2 class="section-title reveal">No lock-in.<br><em>Pay as you grow.</em></h2>
-  <p class="section-sub reveal reveal-delay-1">Start free and scale up as your campaigns do.</p>
-  <div class="plans-row">
-    <div class="plan-card reveal">
-      <div class="plan-tag">Starter</div>
-      <div class="plan-name">Free</div>
-      <div class="plan-price">₹0</div>
-      <div class="plan-period">Always free to post campaigns</div>
-      <ul class="plan-features">
-        <li>Up to 3 active campaigns</li>
-        <li>AI basic matching</li>
-        <li>Escrow payments</li>
-        <li>Standard creator search</li>
-        <li>10–15% transaction fee</li>
-      </ul>
-    </div>
-    <div class="plan-card featured reveal reveal-delay-1">
-      <div class="plan-tag">Most Popular</div>
-      <div class="plan-name">Brand Premium</div>
-      <div class="plan-price">₹2,999</div>
-      <div class="plan-period">per month</div>
-      <ul class="plan-features">
-        <li>Unlimited campaigns</li>
-        <li>AI chatbot creator matching</li>
-        <li>Bulk outreach to creators</li>
-        <li>Performance tracker dashboard</li>
-        <li>Brand storefront & reviews</li>
-        <li>Priority support</li>
-      </ul>
-    </div>
-    <div class="plan-card reveal reveal-delay-2">
-      <div class="plan-tag">Enterprise</div>
-      <div class="plan-name">Custom</div>
-      <div class="plan-price">Talk to us</div>
-      <div class="plan-period">for large teams</div>
-      <ul class="plan-features">
-        <li>Dedicated account manager</li>
-        <li>White-glove creator matching</li>
-        <li>Custom contract templates</li>
-        <li>API access for integrations</li>
-        <li>Volume pricing on commissions</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<section id="page-cta">
-  <div class="section-tag" style="justify-content:center;display:flex;">Get Started</div>
-  <h2>Post your first campaign.<br><em>Free. In 5 minutes.</em></h2>
-  <p>No sales call. No minimum spend. Start finding performance-verified creators today.</p>
-  <div class="cta-buttons">
-    <a href="signup.html?role=brand" class="btn-primary">Post a campaign →</a>
-    <a href="pricing.html" class="btn-ghost">Compare all plans</a>
-  </div>
-</section>
+</main>
 
 <footer>
   <div class="footer-top">
@@ -489,7 +163,7 @@
       <div class="logo">Few<span>sion</span></div>
       <p>India's first performance-first creator marketplace. Connecting brands, creators, and editors — powered by AI.</p>
     </div>
-    <div class="footer-col"><h5>Platform</h5><ul><li><a href="creators.html">For Creators</a></li><li><a href="brands.html">For Brands</a></li><li><a href="editors.html">For Editors</a></li><li><a href="pricing.html">Pricing</a></li></ul></div>
+    <div class="footer-col"><h5>Platform</h5><ul><li><a href="creators.html">For Creators</a></li><li><a href="brands.html">Live Campaigns</a></li><li><a href="editors.html">For Editors</a></li><li><a href="pricing.html">Pricing</a></li></ul></div>
     <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About</a></li><li><a href="#">Blog</a></li><li><a href="#">Careers</a></li><li><a href="#">Contact</a></li></ul></div>
     <div class="footer-col"><h5>Legal</h5><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li><li><a href="#">Brand Agreement</a></li></ul></div>
   </div>
@@ -500,39 +174,232 @@
 </footer>
 
 <script>
-  // 1. Navbar Scroll Background Change
+  supabase = FewsionAuth.client();
+  let currentUser = null;
+  let currentUserRole = null;
+  let allCampaigns = [];
+  let brandsMap = {};
+  let appliedCampaignIds = new Set();
+
+  // 1. Navbar scroll background
   const navbar = document.getElementById('navbar');
   window.addEventListener('scroll', () => {
     navbar.classList.toggle('scrolled', window.scrollY > 20);
   });
 
-  // 2. Mobile Hamburger Menu Toggle
+  // 2. Mobile hamburger menu
   function toggleMenu() {
-    const navLinks = document.getElementById('navLinks');
-    navLinks.classList.toggle('open');
+    document.getElementById('navLinks').classList.toggle('open');
   }
 
-  // 3. Scroll Reveal Animations (Intersection Observer)
-  document.addEventListener('DOMContentLoaded', () => {
-    const revealElements = document.querySelectorAll('.reveal');
+  function initials(name) {
+    if (!name) return "?";
+    return name.trim().split(/\s+/).slice(0, 2).map(w => w[0].toUpperCase()).join("");
+  }
 
-    const revealCallback = (entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target); // Run animation once
-        }
-      });
-    };
+  function renderCampaigns(list) {
+    const grid = document.getElementById('campaignGrid');
 
-    const revealObserver = new IntersectionObserver(revealCallback, {
-      root: null,
-      threshold: 0.15, // Triggers when 15% of the element enters viewport
-      rootMargin: '0px 0px -40px 0px'
+    if (!list.length) {
+      grid.innerHTML = `
+        <div class="empty-state-box">
+          <div class="es-icon">🔍</div>
+          No live campaigns match right now. Check back soon or clear your filters.
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = list.map(item => {
+      const brand = brandsMap[item.brand_id] || {};
+      const brandName = brand.brand_name || "Brand Partner";
+      const industry = brand.industry || "";
+      const title = item.campaign_title || "Untitled Campaign";
+      const platform = item.target_platform || "Multi-platform";
+      const budgetValue = item.budget_allocated ? `₹${parseInt(item.budget_allocated).toLocaleString()}` : "Negotiable";
+      const status = item.status_state || "Live";
+      const postedDate = item.created_at ? new Date(item.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : "";
+      const alreadyApplied = appliedCampaignIds.has(item.id);
+
+      return `
+        <div class="campaign-card">
+          <div class="cc-brand-row">
+            <div class="cc-avatar">${initials(brandName)}</div>
+            <div>
+              <div class="cc-brand-name">${brandName}</div>
+              ${industry ? `<div class="cc-brand-industry">${industry}</div>` : ''}
+            </div>
+            <div class="cc-status">${status}</div>
+          </div>
+          <div class="cc-title">${title}</div>
+          <div class="cc-meta">
+            <span>📱 ${platform}</span>
+            ${postedDate ? `<span>🗓️ Posted ${postedDate}</span>` : ''}
+          </div>
+          <div class="cc-budget-row">
+            <span class="cc-budget-label">Budget</span>
+            <span class="cc-budget-val">${budgetValue}</span>
+          </div>
+          <button class="cc-apply-btn ${alreadyApplied ? 'applied' : ''}" data-campaign-id="${item.id}" ${alreadyApplied ? 'disabled' : ''}>
+            ${alreadyApplied ? '✓ Applied' : 'Apply now'}
+          </button>
+        </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.cc-apply-btn:not(.applied)').forEach(btn => {
+      btn.addEventListener('click', () => handleApply(btn.dataset.campaignId, btn));
+    });
+  }
+
+  function applyFilters() {
+    const search = document.getElementById('searchInput').value.trim().toLowerCase();
+    const platform = document.getElementById('platformFilter').value;
+
+    const filtered = allCampaigns.filter(item => {
+      const brand = brandsMap[item.brand_id] || {};
+      const matchesSearch = !search ||
+        (item.campaign_title || '').toLowerCase().includes(search) ||
+        (brand.brand_name || '').toLowerCase().includes(search);
+      const matchesPlatform = !platform || item.target_platform === platform;
+      return matchesSearch && matchesPlatform;
     });
 
-    revealElements.forEach(el => revealObserver.observe(el));
-  });
+    renderCampaigns(filtered);
+  }
+
+  async function handleApply(campaignId, btn) {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      window.location.href = `login.html?redirect=brands.html`;
+      return;
+    }
+
+    // Brand accounts shouldn't apply to their own or others' campaigns
+    if (currentUserRole === 'brand') {
+      alert("Brand accounts can't apply to campaigns.");
+      return;
+    }
+
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = 'Applying...';
+
+    try {
+      // Guard against duplicate applications
+      const { data: existing, error: existingErr } = await supabase
+        .from('applications')
+        .select('id')
+        .eq('campaign_id', campaignId)
+        .eq('creator_id', session.user.id)
+        .maybeSingle();
+
+      if (existingErr) throw existingErr;
+
+      if (existing) {
+        btn.textContent = '✓ Applied';
+        btn.classList.add('applied');
+        appliedCampaignIds.add(campaignId);
+        return;
+      }
+
+      const { error: insertErr } = await supabase
+        .from('applications')
+        .insert({ campaign_id: campaignId, creator_id: session.user.id, status: 'pending' });
+
+      if (insertErr) throw insertErr;
+
+      btn.textContent = '✓ Applied';
+      btn.classList.add('applied');
+      appliedCampaignIds.add(campaignId);
+
+    } catch (err) {
+      console.error('Application submission error:', err);
+      btn.disabled = false;
+      btn.textContent = originalText;
+      alert('Something went wrong submitting your application. Please try again.');
+    }
+  }
+
+  async function loadCampaigns() {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session) {
+      currentUser = session.user;
+      const { data: userRow } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', currentUser.id)
+        .maybeSingle();
+      currentUserRole = userRow ? userRow.role : null;
+    }
+
+    const { data: campaigns, error: campaignsError } = await supabase
+      .from('campaign_briefs')
+      .select('*')
+      .eq('status_state', 'Live')
+      .order('created_at', { ascending: false });
+
+    if (campaignsError) {
+      console.error('Failed fetching live campaigns:', campaignsError);
+      document.getElementById('campaignGrid').innerHTML = `
+        <div class="empty-state-box" style="color:#ef4444;">
+          Couldn't load campaigns right now. Please refresh.
+        </div>`;
+      return;
+    }
+
+    allCampaigns = campaigns || [];
+
+    // Fetch brand info for every brand_id present
+    const brandIds = [...new Set(allCampaigns.map(c => c.brand_id).filter(Boolean))];
+    if (brandIds.length) {
+      const { data: brands, error: brandsErr } = await supabase
+        .from('brand_profiles')
+        .select('user_id, brand_name, industry')
+        .in('user_id', brandIds);
+
+      if (brandsErr) {
+        console.error('Failed fetching brand profiles:', brandsErr);
+      } else {
+        (brands || []).forEach(b => { brandsMap[b.user_id] = b; });
+      }
+    }
+
+    // If logged in, pre-mark campaigns this user already applied to
+    if (currentUser) {
+      const campaignIds = allCampaigns.map(c => c.id);
+      if (campaignIds.length) {
+        const { data: myApplications } = await supabase
+          .from('applications')
+          .select('campaign_id')
+          .eq('creator_id', currentUser.id)
+          .in('campaign_id', campaignIds);
+
+        (myApplications || []).forEach(a => appliedCampaignIds.add(a.campaign_id));
+      }
+    }
+
+    // Stats strip
+    document.getElementById('statCampaigns').textContent = allCampaigns.length;
+    document.getElementById('statBrands').textContent = brandIds.length;
+
+    // Populate platform filter options from actual data
+    const platforms = [...new Set(allCampaigns.map(c => c.target_platform).filter(Boolean))];
+    const platformSelect = document.getElementById('platformFilter');
+    platforms.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p;
+      platformSelect.appendChild(opt);
+    });
+
+    renderCampaigns(allCampaigns);
+  }
+
+  document.getElementById('searchInput').addEventListener('input', applyFilters);
+  document.getElementById('platformFilter').addEventListener('change', applyFilters);
+
+  document.addEventListener('DOMContentLoaded', loadCampaigns);
 </script>
 </body>
 </html>
