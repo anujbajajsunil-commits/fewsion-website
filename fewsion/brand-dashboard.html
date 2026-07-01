@@ -272,12 +272,12 @@ document.getElementById(
   `₹${totalSpend.toLocaleString()}`;
     
 // -------------------------------OLD CODE------------------------------------//
-    2. Extract configuration row matching brand user ID
-    const { data: brandProfile, error } = await supabase
-      .from("brand_profiles")
-      .select("*")
-      .eq("user_id", currentUser.id)
-      .maybeSingle();
+    //2. Extract configuration row matching brand user ID
+    // const { data: brandProfile, error } = await supabase
+    //   .from("brand_profiles")
+    //   .select("*")
+    //   .eq("user_id", currentUser.id)
+    //   .maybeSingle();
 
     if (error) {
       console.error("Supabase relation trace failure:", error);
@@ -302,10 +302,10 @@ document.getElementById(
     document.getElementById("sidebarAvatar").textContent = initials || "B";
 
     // 5. Query live items directly from 'campaign_briefs' or your relational equivalent table
-    const { data: campaigns, error: campaignError } = await supabase
-      .from("campaign_briefs") 
-      .select("*")
-      .eq("brand_id", currentUser.id); // Looks up items originating from this company owner account
+    // const { data: campaigns, error: campaignError } = await supabase
+    //   .from("campaign_briefs") 
+    //   .select("*")
+    //   .eq("brand_id", currentUser.id); // Looks up items originating from this company owner account
 
     const container = document.getElementById("campaignsContainer");
 
@@ -317,8 +317,9 @@ document.getElementById(
 
     // Update the live metrics score grid element
     document.getElementById("countBriefs").textContent = campaigns ? campaigns.length : 0;
-
-    6. Dynamic Loop Generation Layer
+const container =
+document.getElementById("campaignsContainer");
+   // 6. Dynamic Loop Generation Layer
     if (!campaigns || campaigns.length === 0) {
       container.innerHTML = `
         <div class="empty-state-box">
