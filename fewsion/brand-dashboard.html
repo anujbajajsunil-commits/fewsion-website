@@ -174,6 +174,13 @@
       </div>
     </div>
   </div>
+
+  <div class="section-box" style="margin-top: 32px;">
+    <h2>Applications</h2>
+    <div id="applicationsContainer">
+      <div class="empty-state-box">Loading applications...</div>
+    </div>
+  </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -235,14 +242,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const collaborations = collaborationsRes.data || [];
     const notifications = notificationsRes.data || [];
 
-    // 3. Applications are keyed off campaign IDs, so fetch after campaigns resolve
+    // 3. Applications are keyed off campaign IDs, so fetch after campaigns resolve.
+    // Join applicant details from users via the applications_creator_id_fkey relationship.
     const campaignIds = campaigns.map(c => c.id);
     let applications = [];
     if (campaignIds.length) {
       const { data, error: applicationsError } = await supabase
         .from("applications")
-        .select("*")
-        .in("campaign_id", campaignIds);
+        .select("*, users(first_name, last_name, email, role)")
+        .in("campaign_id", campaignIds)
+        .order("applied_at", { ascending: false });
 
       if (applicationsError) {
         console.error("Failed fetching applications:", applicationsError);
@@ -340,10 +349,86 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     }
 
+    // 8. Render applications list (approve / reject / pending controls)
+    renderApplications(applications, campaigns);
+
   } catch (err) {
     console.error("Dashboard engine initialization exception caught:", err);
   }
 });
+
+function renderApplications(applications, campaigns) {
+  const container = document.getElementById("applicationsContainer");
+  if (!container) return;
+
+  if (!applications.length) {
+    container.innerHTML = `<div class="empty-state-box">No applications yet.</div>`;
+    return;
+  }
+
+  const campaignTitleById = {};
+  campaigns.forEach(c => { campaignTitleById[c.id] = c.campaign_title || "Untitled Campaign"; });
+
+  container.innerHTML = "";
+  applications.forEach(app => {
+    const applicant = app.users || {};
+    const applicantName = [applicant.first_name, applicant.last_name].filter(Boolean).join(" ") || applicant.email || "Unknown applicant";
+    const campaignTitle = campaignTitleById[app.campaign_id] || "Untitled Campaign";
+    const status = (app.status || "pending").toLowerCase();
+
+    const row = document.createElement("div");
+    row.className = "campaign-item";
+    row.innerHTML = `
+      <div class="campaign-info">
+        <h3>${applicantName} ${applicant.role ? `<span style="color:var(--muted);font-weight:400;font-size:12px;">(${applicant.role})</span>` : ""}</h3>
+        <div class="campaign-meta">
+          <span>Campaign: ${campaignTitle}</span>
+          <span>Applied: ${app.applied_at ? new Date(app.applied_at).toLocaleDateString() : "—"}</span>
+          <span class="status-tag ${status === 'approved' ? 'active-live' : ''}" data-status-label>${status}</span>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; flex-shrink:0;">
+        <button class="action-btn-approve" data-app-id="${app.id}" ${status === 'approved' ? 'disabled' : ''}
+          style="background: rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.3); color:#4ade80; font-size:12px; font-weight:600; padding:6px 14px; border-radius:50px; cursor:pointer;">
+          Approve
+        </button>
+        <button class="action-btn-reject" data-app-id="${app.id}" ${status === 'rejected' ? 'disabled' : ''}
+          style="background: rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:12px; font-weight:600; padding:6px 14px; border-radius:50px; cursor:pointer;">
+          Reject
+        </button>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+
+  container.querySelectorAll(".action-btn-approve").forEach(btn => {
+    btn.addEventListener("click", () => updateApplicationStatus(btn.dataset.appId, "approved"));
+  });
+  container.querySelectorAll(".action-btn-reject").forEach(btn => {
+    btn.addEventListener("click", () => updateApplicationStatus(btn.dataset.appId, "rejected"));
+  });
+}
+
+async function updateApplicationStatus(applicationId, newStatus) {
+  const { error } = await supabase
+    .from("applications")
+    .update({ status: newStatus })
+    .eq("id", applicationId);
+
+  if (error) {
+    console.error("Failed to update application status:", error);
+    alert("Couldn't update this application. Please try again.");
+    return;
+  }
+
+  // Reflect the change in the row immediately rather than refetching everything
+  const row = document.querySelector(`[data-app-id="${applicationId}"]`).closest(".campaign-item");
+  const statusLabel = row.querySelector("[data-status-label]");
+  statusLabel.textContent = newStatus;
+  statusLabel.classList.toggle("active-live", newStatus === "approved");
+  row.querySelector(".action-btn-approve").disabled = newStatus === "approved";
+  row.querySelector(".action-btn-reject").disabled = newStatus === "rejected";
+}
 
 // 8. Secure Session Invalidation Logic
 document.getElementById("logoutBtn").addEventListener("click", async (e) => {
