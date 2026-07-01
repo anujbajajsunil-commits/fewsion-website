@@ -179,6 +179,47 @@
 <script>
 // Extract global database engine correctly without context scoping re-declaration bugs
  supabase = FewsionAuth.client();
+  const [
+  profileRes,
+  campaignsRes,
+  collaborationsRes,
+  paymentsRes
+] = await Promise.all([
+
+  supabase
+    .from("brand_profiles")
+    .select("*")
+    .eq("user_id", currentUser.id)
+    .maybeSingle(),
+
+  supabase
+    .from("campaign_briefs")
+    .select("*")
+    .eq("brand_id", currentUser.id),
+
+  supabase
+    .from("collaborations")
+    .select("*")
+    .eq("brand_id", currentUser.id),
+
+  supabase
+    .from("payments")
+    .select("*")
+    .eq("brand_id", currentUser.id)
+]);
+
+  const brandProfile =
+profileRes.data;
+
+const campaigns =
+campaignsRes.data || [];
+
+const collaborations =
+collaborationsRes.data || [];
+
+const payments =
+paymentsRes.data || [];
+  
 let currentUser = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -217,12 +258,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     const initials = company.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
     document.getElementById("sidebarAvatar").textContent = initials || "B";
-
-    document.getElementById("cardWebsite").textContent = brandProfile.company_website || "None set";
-    document.getElementById("cardIndustry").textContent = brandProfile.industry || "General";
-    
-    const categoriesArray = brandProfile.product_categories || [];
-    document.getElementById("cardCategories").textContent = categoriesArray.length > 0 ? categoriesArray.join(", ") : "Not selected";
 
     // 5. Query live items directly from 'campaign_briefs' or your relational equivalent table
     const { data: campaigns, error: campaignError } = await supabase
