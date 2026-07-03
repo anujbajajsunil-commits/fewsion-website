@@ -4,6 +4,618 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Creator Dashboard — Fewsion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808; --deep: #0e0e0e; --card: #141414; --card2: #1a1a1a;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+    --amber: #F5A623; --amber2: #FF6B35; --amber-glow: rgba(245,166,35,0.08);
+    --text: #f0ece4; --muted: #888; --muted2: #555; --white: #ffffff;
+    --green: #4ade80; --red: #ef4444; --blue: #378ADD;
+    --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+    --radius: 16px; --radius-sm: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--black); color: var(--text); font-family: var(--font-body); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+  aside { width: 260px; background: var(--deep); border-right: 1px solid var(--border); padding: 32px 24px; display: flex; flex-direction: column; gap: 40px; position: fixed; top: 0; bottom: 0; left: 0; z-index: 10; }
+  .side-logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--white); text-decoration: none; }
+  .side-logo span { color: var(--amber); }
+  .side-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .side-menu a { display: flex; align-items: center; gap: 14px; padding: 12px 16px; color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; border-radius: var(--radius-sm); transition: background 0.2s, color 0.2s; }
+  .side-menu a:hover, .side-menu a.active { background: var(--card); color: var(--white); }
+  .side-menu a.active { border-left: 3px solid var(--amber); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .side-menu a .badge-count { margin-left: auto; background: var(--amber); color: #000; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 50px; }
+  .side-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); }
+  .user-badge { display: flex; align-items: center; gap: 12px; }
+  .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--amber), var(--amber2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; color: #000; font-size: 13px; }
+  .user-info .name { font-size: 13px; font-weight: 600; color: var(--white); }
+  .user-info .role { font-size: 11px; color: var(--amber); font-weight: 500; }
+  .logout-btn { width: 100%; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--red); font-family: var(--font-display); font-size: 13px; font-weight: 600; padding: 10px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; }
+  .logout-btn:hover { background: rgba(239, 68, 68, 0.2); }
+
+  main { margin-left: 260px; flex: 1; padding: 40px 5%; max-width: 1400px; }
+  header.page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; gap: 20px; }
+  h1 { font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--white); letter-spacing: -0.5px; }
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+  .btn-browse { background: var(--amber); color: #000; font-family: var(--font-display); font-size: 14px; font-weight: 700; padding: 10px 20px; border-radius: 50px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s; border: none; cursor: pointer; }
+  .btn-browse:hover { transform: translateY(-1px); }
+  .btn-ghost { background: var(--card); border: 1px solid var(--border2); color: var(--text); font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 50px; cursor: pointer; }
+  .btn-ghost:hover { border-color: var(--white); color: var(--white); }
+
+  .bell-wrap { position: relative; }
+  .bell-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: 1px solid var(--border2); color: var(--text); cursor: pointer; font-size: 16px; position: relative; }
+  .bell-btn .dot { position: absolute; top: 6px; right: 7px; width: 8px; height: 8px; background: var(--amber); border-radius: 50%; display: none; }
+  .bell-btn.has-unread .dot { display: block; }
+  .notif-panel { display: none; position: absolute; right: 0; top: 48px; width: 340px; max-height: 420px; overflow-y: auto; background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius-sm); box-shadow: 0 12px 40px rgba(0,0,0,0.5); z-index: 30; padding: 12px; }
+  .notif-panel.open { display: block; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .stat-value { font-family: var(--font-display); font-size: 32px; font-weight: 800; color: var(--white); }
+  .stat-change { font-size: 12px; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+  .stat-change.up { color: var(--green); }
+
+  .dashboard-row { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; }
+  .section-box { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 32px; }
+  .section-box h2 { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 20px; }
+
+  .campaign-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--deep); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; }
+  .campaign-info h3 { font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+  .campaign-meta { font-size: 12px; color: var(--muted); display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .status-tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 50px; text-transform: capitalize; background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.2); color: var(--amber); }
+  .status-tag.accepted, .status-tag.approved, .status-tag.active { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: var(--green); }
+  .status-tag.rejected { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: var(--red); }
+
+  .empty-state-box { padding: 32px; text-align: center; color: var(--muted); border: 1px dashed var(--border2); border-radius: var(--radius-sm); font-size: 14px; }
+
+  .feed-item { display: flex; gap: 12px; font-size: 13.5px; line-height: 1.5; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .feed-item:last-child { border: none; margin-bottom: 0; padding-bottom: 0; }
+  .feed-icon { width: 24px; height: 24px; background: var(--amber-glow); border: 1px solid rgba(245,166,35,0.2); color: var(--amber); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+  .feed-text span { color: var(--white); font-weight: 500; }
+  .feed-time { font-size: 11px; color: var(--muted2); margin-top: 2px; }
+
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.data-table th { text-align: left; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; border-bottom: 1px solid var(--border2); }
+  table.data-table td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+  table.data-table tr:last-child td { border-bottom: none; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; text-decoration: none; cursor: pointer; margin-bottom: 20px; background: none; border: none; }
+  .back-link:hover { color: var(--white); }
+
+  .thread-list { display: flex; flex-direction: column; gap: 8px; }
+  .thread-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--deep); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; }
+  .thread-row:hover { border-color: var(--border2); }
+  .thread-window { display: flex; flex-direction: column; height: 480px; background: var(--deep); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .thread-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+  .msg-bubble { max-width: 70%; padding: 10px 14px; border-radius: 14px; font-size: 13.5px; line-height: 1.5; }
+  .msg-bubble.mine { align-self: flex-end; background: var(--amber); color: #000; }
+  .msg-bubble.theirs { align-self: flex-start; background: var(--card2); color: var(--text); }
+  .msg-time { font-size: 10px; opacity: 0.6; margin-top: 4px; }
+  .thread-input-row { display: flex; gap: 8px; padding: 14px; border-top: 1px solid var(--border); }
+  .thread-input-row input { flex: 1; background: var(--card2); border: 1px solid var(--border2); border-radius: 50px; padding: 10px 16px; color: var(--white); font-size: 13px; outline: none; }
+  .thread-input-row button { background: var(--amber); border: none; color: #000; font-weight: 700; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-size: 13px; }
+
+  .review-card { padding: 14px 16px; background: var(--deep); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; }
+  .stars { color: var(--amber); font-size: 13px; }
+
+  .loading-state { text-align: center; padding: 80px 0; color: var(--muted); }
+
+  @media (max-width: 1024px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    aside { display: none; }
+    main { margin-left: 0; padding-top: 20px; }
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <a class="side-logo" href="#overview">Few<span>sion</span></a>
+  <ul class="side-menu" id="sideMenu">
+    <li><a href="#overview" data-route="overview">📊 Overview</a></li>
+    <li><a href="#applications" data-route="applications">📣 My Applications</a></li>
+    <li><a href="#collaborations" data-route="collaborations">🎞️ Active Collabs</a></li>
+    <li><a href="#payments" data-route="payments">💳 Earnings</a></li>
+    <li><a href="#messages" data-route="messages">💬 Messages</a></li>
+    <li><a href="#reviews" data-route="reviews">⭐ Reviews</a></li>
+  </ul>
+  <div class="side-footer">
+    <div class="user-badge">
+      <div class="user-avatar" id="sidebarAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="sidebarName">Loading...</div>
+        <div class="role" id="sidebarScore">★ Score --</div>
+      </div>
+    </div>
+    <button id="logoutBtn" class="logout-btn">🚪 Log Out Account</button>
+  </div>
+</aside>
+
+<main>
+  <header class="page-header">
+    <div>
+      <h1 id="pageTitle">Overview</h1>
+      <p style="color: var(--muted); font-size: 14px; margin-top: 4px;" id="pageSubtitle">Track active campaign deliverables and clear escrow releases.</p>
+    </div>
+    <div class="header-actions">
+      <div class="bell-wrap">
+        <button class="bell-btn" id="bellBtn"><span class="dot" id="bellDot"></span>🔔</button>
+        <div class="notif-panel" id="notifPanel"></div>
+      </div>
+      <button class="btn-browse" onclick="window.location.href='creator_profile_builder.html'">🔍 Find Collaboration</button>
+    </div>
+  </header>
+
+  <div id="viewRoot">
+    <div class="loading-state">Loading your workspace...</div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="fewsion-auth.js"></script>
+<script src="fewsion-creator-data.js"></script>
+<script>
+// ---------------------------------------------------------------------
+// Bootstrapping
+// ---------------------------------------------------------------------
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const user = await FewsionCreatorData.init();
+    if (!user) return;
+
+    if (!FewsionCreatorData.state.profile) {
+      window.location.href = "creator_profile_builder.html";
+      return;
+    }
+
+    hydrateSidebar();
+    FewsionCreatorData.onChange(onDataChange);
+    window.addEventListener("hashchange", route);
+    route();
+  } catch (err) {
+    console.error("Dashboard init failed:", err);
+    document.getElementById("viewRoot").innerHTML = `<div class="empty-state-box">Something went wrong loading your dashboard. Please refresh.</div>`;
+  }
+});
+
+function hydrateSidebar() {
+  const profile = FewsionCreatorData.state.profile;
+  const name = profile.creator_name || "Creator";
+  document.getElementById("sidebarName").textContent = name;
+  const initials = name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+  document.getElementById("sidebarAvatar").textContent = initials || "C";
+  document.getElementById("sidebarScore").textContent = `★ Score ${profile.ai_total_score || "--"}`;
+}
+
+function onDataChange(section) {
+  updateNavBadges();
+  renderNotifPanel();
+  const current = currentRoute();
+  if (section === "all" || section === current.name) {
+    renderRoute(current);
+  }
+  if (section.startsWith("messages:") && current.name === "messages" && current.params.collabId === section.split(":")[1]) {
+    renderRoute(current);
+  }
+}
+
+function updateNavBadges() {
+  const unread = FewsionCreatorData.unreadNotificationCount();
+  document.getElementById("bellBtn").classList.toggle("has-unread", unread > 0);
+}
+
+// ---------------------------------------------------------------------
+// Router
+// ---------------------------------------------------------------------
+function currentRoute() {
+  const hash = (window.location.hash || "#overview").slice(1);
+  const [name, param] = hash.split("/");
+  if (name === "messages" && param) return { name: "messages", params: { collabId: param } };
+  return { name: name || "overview", params: {} };
+}
+
+function route() {
+  const r = currentRoute();
+  document.querySelectorAll(".side-menu a").forEach((a) => {
+    a.classList.toggle("active", a.dataset.route === r.name);
+  });
+  renderRoute(r);
+}
+
+function renderRoute(r) {
+  const titles = {
+    overview: ["Overview", "Track active campaign deliverables and clear escrow releases."],
+    applications: ["My applications", "Every brand campaign you've applied to."],
+    collaborations: ["Active collaborations", "Deliverables and deadlines for your live campaigns."],
+    payments: ["Earnings", "Track payments and escrow releases across collaborations."],
+    messages: ["Messages", "Conversations with your active brand partners."],
+    reviews: ["Reviews", "Feedback left by brands you've worked with."],
+  };
+  const [title, subtitle] = titles[r.name] || titles.overview;
+  document.getElementById("pageTitle").textContent = title;
+  document.getElementById("pageSubtitle").textContent = subtitle;
+
+  const root = document.getElementById("viewRoot");
+  switch (r.name) {
+    case "applications": return renderApplicationsView(root);
+    case "collaborations": return renderCollaborationsView(root);
+    case "payments": return renderPaymentsView(root);
+    case "messages": return renderMessagesView(root, r.params.collabId);
+    case "reviews": return renderReviewsView(root);
+    default: return renderOverview(root);
+  }
+}
+
+// ---------------------------------------------------------------------
+// View: Overview
+// ---------------------------------------------------------------------
+function renderOverview(root) {
+  const { profile, analytics, applications, collaborations, notifications } = FewsionCreatorData.state;
+  const earnings = FewsionCreatorData.totalEarnings();
+  const avgRating = FewsionCreatorData.averageRating();
+
+  root.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Creator score</div>
+        <div class="stat-value">${profile.ai_total_score || "--"}<span style="font-size:16px;color:var(--muted)">/100</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Follower scale</div>
+        <div class="stat-value" style="font-size:24px;padding-top:6px">${profile.follower_count ? profile.follower_count.toLocaleString() : "0"}</div>
+        <div class="stat-change up">Platform: ${escapeHtml(profile.primary_platform || "--")}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Engagement rate</div>
+        <div class="stat-value" style="font-size:24px;padding-top:6px">${profile.engagement_rate ? profile.engagement_rate + "%" : "--%"}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total earnings</div>
+        <div class="stat-value" style="font-size:20px;color:var(--amber);padding-top:8px">₹${earnings.toLocaleString()}</div>
+      </div>
+    </div>
+
+    <div class="dashboard-row">
+      <div class="section-box">
+        <h2>Recent applications</h2>
+        <div id="ovApplications"></div>
+      </div>
+      <div class="section-box">
+        <h2>Snapshot</h2>
+        <div class="feed-item">
+          <div class="feed-icon">📁</div>
+          <div class="feed-text"><span>${applications.length}</span> total applications submitted<div class="feed-time">${collaborations.length} active collaborations</div></div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-icon">✓</div>
+          <div class="feed-text"><span>${analytics ? analytics.completed_campaigns || 0 : 0}</span> campaigns completed<div class="feed-time">${analytics ? (analytics.profile_views || 0) + " profile views" : ""}</div></div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-icon">⭐</div>
+          <div class="feed-text"><span>${avgRating || "No ratings yet"}</span>${avgRating ? " average rating" : ""}<div class="feed-time">${FewsionCreatorData.state.reviews.length} review(s)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-box">
+      <h2>Recent activity</h2>
+      <div id="ovFeed"></div>
+    </div>
+  `;
+
+  const appsEl = document.getElementById("ovApplications");
+  if (!applications.length) {
+    appsEl.innerHTML = `<div class="empty-state-box">You haven't applied to any campaigns yet. Click "Find Collaboration" above to get started.</div>`;
+  } else {
+    appsEl.innerHTML = "";
+    applications.slice(0, 5).forEach((a) => appsEl.appendChild(applicationRowEl(a)));
+  }
+
+  const feed = document.getElementById("ovFeed");
+  if (!notifications.length) {
+    feed.innerHTML = `
+      <div class="feed-item">
+        <div class="feed-icon">🔒</div>
+        <div class="feed-text"><span>Supabase vault connections</span> verified for your profile parameters.<div class="feed-time">Active session</div></div>
+      </div>`;
+  } else {
+    feed.innerHTML = notifications.slice(0, 6).map(notifItemHtml).join("");
+  }
+}
+
+function applicationRowEl(app) {
+  const status = (app.status || "pending").toLowerCase();
+  const row = document.createElement("div");
+  row.className = "campaign-item";
+  row.innerHTML = `
+    <div class="campaign-info">
+      <h3>${escapeHtml(app.campaign_title || "Untitled campaign")}</h3>
+      <div class="campaign-meta">
+        <span>Brand: ${escapeHtml(app.brand_name || "Brand partner")}</span>
+        <span>Applied: ${app.applied_at ? new Date(app.applied_at).toLocaleDateString() : "—"}</span>
+        <span class="status-tag ${status}">${status}</span>
+      </div>
+    </div>
+  `;
+  return row;
+}
+
+function notifItemHtml(n) {
+  return `
+    <div class="feed-item">
+      <div class="feed-icon">${n.is_read ? "✓" : "🔔"}</div>
+      <div class="feed-text">
+        <span>${escapeHtml(n.title || "Notification")}</span>${n.message ? " — " + escapeHtml(n.message) : ""}
+        <div class="feed-time">${n.created_at ? new Date(n.created_at).toLocaleString() : ""}</div>
+      </div>
+    </div>`;
+}
+
+// ---------------------------------------------------------------------
+// View: Applications
+// ---------------------------------------------------------------------
+function renderApplicationsView(root) {
+  const { applications } = FewsionCreatorData.state;
+  root.innerHTML = `<div class="section-box"><h2>All applications</h2><div id="allApplications"></div></div>`;
+  const list = document.getElementById("allApplications");
+  if (!applications.length) {
+    list.innerHTML = `<div class="empty-state-box">No applications yet. Browse open campaigns to apply.</div>`;
+    return;
+  }
+  list.innerHTML = "";
+  applications.forEach((a) => list.appendChild(applicationRowEl(a)));
+}
+
+// ---------------------------------------------------------------------
+// View: Collaborations (editor pipeline)
+// ---------------------------------------------------------------------
+function renderCollaborationsView(root) {
+  const { collaborations } = FewsionCreatorData.state;
+  root.innerHTML = `<div class="section-box"><h2>Active & past collaborations</h2><div id="allCollabs"></div></div>`;
+  const list = document.getElementById("allCollabs");
+  if (!collaborations.length) {
+    list.innerHTML = `<div class="empty-state-box">No collaborations yet. They'll show up here once a brand approves your application.</div>`;
+    return;
+  }
+  list.innerHTML = "";
+  collaborations.forEach((c) => {
+    const row = document.createElement("div");
+    row.className = "campaign-item";
+    row.innerHTML = `
+      <div class="campaign-info">
+        <h3>${escapeHtml(c.campaign_title || "Untitled campaign")}</h3>
+        <div class="campaign-meta">
+          <span>Brand: ${escapeHtml(c.brand_name || "Brand partner")}</span>
+          <span>Payment: ${c.payment ? "₹" + Number(c.payment).toLocaleString() : "—"}</span>
+          <span>Deadline: ${c.deadline ? new Date(c.deadline).toLocaleDateString() : "—"}</span>
+          <span class="status-tag ${(c.status || "active").toLowerCase()}">${escapeHtml(c.status || "active")}</span>
+        </div>
+      </div>
+      <button class="btn-ghost" onclick="window.location.hash='#messages/${c.id}'">Message</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ---------------------------------------------------------------------
+// View: Payments / Earnings
+// ---------------------------------------------------------------------
+function renderPaymentsView(root) {
+  const { payments, collaborations } = FewsionCreatorData.state;
+  const total = FewsionCreatorData.totalEarnings();
+  const released = FewsionCreatorData.totalEarnings(true);
+
+  root.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Total logged</div><div class="stat-value" style="font-size:22px;color:var(--amber)">₹${total.toLocaleString()}</div></div>
+      <div class="stat-card"><div class="stat-label">Released</div><div class="stat-value" style="font-size:22px;color:var(--green)">₹${released.toLocaleString()}</div></div>
+      <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" style="font-size:22px">₹${(total - released).toLocaleString()}</div></div>
+    </div>
+    <div class="section-box">
+      <h2>Payment history</h2>
+      <div id="paymentsTableWrap"></div>
+    </div>
+  `;
+
+  const wrap = document.getElementById("paymentsTableWrap");
+  if (!payments.length) {
+    wrap.innerHTML = `<div class="empty-state-box">No payments logged yet.</div>`;
+    return;
+  }
+  wrap.innerHTML = `
+    <table class="data-table">
+      <thead><tr><th>Amount</th><th>Status</th><th>Campaign</th><th>Released</th></tr></thead>
+      <tbody>
+        ${payments.map((p) => {
+          const collab = collaborations.find((c) => c.id === p.collaboration_id);
+          return `
+            <tr>
+              <td>₹${Number(p.amount || 0).toLocaleString()}</td>
+              <td><span class="status-tag ${p.status === "released" ? "active" : ""}">${escapeHtml(p.status || "pending")}</span></td>
+              <td>${collab ? escapeHtml(collab.campaign_title || "Untitled") : "—"}</td>
+              <td>${p.released_at ? new Date(p.released_at).toLocaleDateString() : "—"}</td>
+            </tr>`;
+        }).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+// ---------------------------------------------------------------------
+// View: Messages
+// ---------------------------------------------------------------------
+function renderMessagesView(root, collabId) {
+  const { collaborations } = FewsionCreatorData.state;
+
+  if (!collabId) {
+    root.innerHTML = `<div class="section-box"><h2>Conversations</h2><div class="thread-list" id="threadList"></div></div>`;
+    const list = document.getElementById("threadList");
+    if (!collaborations.length) {
+      list.innerHTML = `<div class="empty-state-box">Messages open up once a brand approves you into an active collaboration.</div>`;
+      return;
+    }
+    list.innerHTML = "";
+    collaborations.forEach((c) => {
+      const row = document.createElement("div");
+      row.className = "thread-row";
+      row.innerHTML = `
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--white)">${escapeHtml(c.brand_name || "Brand partner")}</div>
+          <div style="font-size:12px;color:var(--muted)">${escapeHtml(c.campaign_title || "Untitled campaign")}</div>
+        </div>
+        <span style="color:var(--muted);font-size:13px">Open →</span>
+      `;
+      row.addEventListener("click", () => { window.location.hash = `#messages/${c.id}`; });
+      list.appendChild(row);
+    });
+    return;
+  }
+
+  root.innerHTML = `
+    <button class="back-link" onclick="window.location.hash='#messages'">← All conversations</button>
+    <div class="thread-window">
+      <div class="thread-messages" id="threadMessages"><div class="empty-state-box">Loading conversation...</div></div>
+      <div class="thread-input-row">
+        <input type="text" id="threadInput" placeholder="Type a message..." />
+        <button id="threadSendBtn">Send</button>
+      </div>
+    </div>
+  `;
+
+  const currentUser = FewsionCreatorData.getUser();
+
+  async function refreshThread() {
+    const msgs = FewsionCreatorData.state.messages[collabId] || (await FewsionCreatorData.loadMessages(collabId));
+    const el = document.getElementById("threadMessages");
+    if (!el) return;
+    if (!msgs.length) {
+      el.innerHTML = `<div class="empty-state-box">No messages yet. Say hello!</div>`;
+    } else {
+      el.innerHTML = msgs.map((m) => `
+        <div class="msg-bubble ${m.sender_id === currentUser.id ? "mine" : "theirs"}">
+          ${escapeHtml(m.content)}
+          <div class="msg-time">${new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+        </div>
+      `).join("");
+    }
+    el.scrollTop = el.scrollHeight;
+  }
+  refreshThread();
+
+  const sendBtn = document.getElementById("threadSendBtn");
+  const input = document.getElementById("threadInput");
+  async function send() {
+    const val = input.value;
+    if (!val.trim()) return;
+    input.value = "";
+    try {
+      await FewsionCreatorData.sendMessage(collabId, val);
+      refreshThread();
+    } catch (err) {
+      console.error(err);
+      alert("Message failed to send.");
+    }
+  }
+  sendBtn.addEventListener("click", send);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+}
+
+// ---------------------------------------------------------------------
+// View: Reviews
+// ---------------------------------------------------------------------
+function renderReviewsView(root) {
+  const { reviews } = FewsionCreatorData.state;
+  const avg = FewsionCreatorData.averageRating();
+
+  root.innerHTML = `
+    <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr)">
+      <div class="stat-card"><div class="stat-label">Average rating</div><div class="stat-value">${avg || "--"}<span style="font-size:16px;color:var(--muted)">/5</span></div></div>
+      <div class="stat-card"><div class="stat-label">Total reviews</div><div class="stat-value">${reviews.length}</div></div>
+    </div>
+    <div class="section-box"><h2>All reviews</h2><div id="reviewList"></div></div>
+  `;
+  const list = document.getElementById("reviewList");
+  if (!reviews.length) {
+    list.innerHTML = `<div class="empty-state-box">No reviews yet. They'll appear here after you complete a collaboration.</div>`;
+    return;
+  }
+  list.innerHTML = reviews.map((r) => `
+    <div class="review-card">
+      <div class="stars">${"★".repeat(r.rating || 0)}${"☆".repeat(5 - (r.rating || 0))}</div>
+      <p style="font-size:13.5px;margin-top:8px;color:var(--text)">${escapeHtml(r.review || "No written feedback provided.")}</p>
+    </div>
+  `).join("");
+}
+
+// ---------------------------------------------------------------------
+// Notifications panel
+// ---------------------------------------------------------------------
+function renderNotifPanel() {
+  const panel = document.getElementById("notifPanel");
+  const notifications = FewsionCreatorData.state.notifications;
+  if (!notifications.length) {
+    panel.innerHTML = `<div class="empty-state-box" style="border:none;padding:20px">No notifications yet.</div>`;
+    return;
+  }
+  panel.innerHTML = notifications.slice(0, 15).map(notifItemHtml).join("");
+}
+
+document.getElementById("bellBtn").addEventListener("click", async (e) => {
+  e.stopPropagation();
+  const panel = document.getElementById("notifPanel");
+  panel.classList.toggle("open");
+  if (panel.classList.contains("open")) {
+    await FewsionCreatorData.markNotificationsRead();
+  }
+});
+document.addEventListener("click", (e) => {
+  const panel = document.getElementById("notifPanel");
+  if (!panel.contains(e.target) && e.target.id !== "bellBtn") panel.classList.remove("open");
+});
+
+// ---------------------------------------------------------------------
+// Logout
+// ---------------------------------------------------------------------
+document.getElementById("logoutBtn").addEventListener("click", async (e) => {
+  e.preventDefault();
+  if (!confirm("Are you sure you want to log out of Fewsion?")) return;
+  try {
+    document.body.style.opacity = "0.3";
+    document.body.style.transition = "opacity 0.2s ease";
+    localStorage.clear();
+    sessionStorage.clear();
+    await FewsionAuth.signOut("login.html");
+  } catch (err) {
+    document.body.style.opacity = "1";
+    console.error("Logout runtime failure:", err);
+    alert("Error logging out. Please try again.");
+  }
+});
+
+// ---------------------------------------------------------------------
+// Utils
+// ---------------------------------------------------------------------
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+}
+</script>
+</body>
+</html>
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Dashboard — Fewsion</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="fewsion-auth.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -262,4 +874,4 @@
   });
 </script>
 </body>
-</html>
+</html> -->
