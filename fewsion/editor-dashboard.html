@@ -103,6 +103,9 @@
   .profile-summary-row .lbl { color: var(--muted); }
   .profile-summary-row .val { color: var(--white); font-weight: 500; text-align: right; max-width: 60%; }
 
+  .review-card { padding: 14px 16px; background: var(--deep); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; }
+  .stars { color: var(--amber); font-size: 13px; }
+
   .loading-state { text-align: center; padding: 80px 0; color: var(--muted); }
 
   @media (max-width: 1024px) {
@@ -124,6 +127,7 @@
     <li><a href="#overview" data-route="overview">🎞️ Video Workspace</a></li>
     <li><a href="#payments" data-route="payments">💳 Payout History</a></li>
     <li><a href="#messages" data-route="messages">💬 Feedback Threads</a></li>
+    <li><a href="#reviews" data-route="reviews">⭐ Reviews</a></li>
     <li><a href="#settings" data-route="settings">⚙️ Profile Settings</a></li>
   </ul>
   <div class="side-footer">
@@ -238,6 +242,7 @@ function renderRoute(r) {
     overview: ["Editor Pipeline", "Grab newly uploaded raw assets and push final render links."],
     payments: ["Payout history", "Track earnings across every collaboration."],
     messages: ["Feedback threads", "Conversations with the brands and creators you're editing for."],
+    reviews: ["Reviews", "Feedback left by brands and creators you've worked with."],
     settings: ["Profile settings", "Your public editor profile, as brands and creators see it."],
   };
   const [title, subtitle] = titles[r.name] || titles.overview;
@@ -248,6 +253,7 @@ function renderRoute(r) {
   switch (r.name) {
     case "payments": return renderPaymentsView(root);
     case "messages": return renderMessagesView(root, r.params.collabId);
+    case "reviews": return renderReviewsView(root);
     case "settings": return renderSettingsView(root);
     default: return renderOverview(root);
   }
@@ -262,7 +268,10 @@ function renderOverview(root) {
   const completed = FewsionEditorData.completedCollaborations();
   const revenue = FewsionEditorData.totalRevenue();
 
+  const invites = FewsionEditorData.pendingInvites();
+
   root.innerHTML = `
+    ${invites.length ? `<div class="section-box" style="border-color:var(--amber)"><h2>Pending collab invites (${invites.length})</h2><div id="invitesList"></div></div>` : ""}
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">Avg turnaround</div>
@@ -296,6 +305,37 @@ function renderOverview(root) {
       </div>
     </div>
   `;
+
+  if (invites.length) {
+    const invitesEl = document.getElementById("invitesList");
+    invitesEl.innerHTML = "";
+    invites.forEach((c) => {
+      const row = document.createElement("div");
+      row.className = "pipeline-item";
+      row.innerHTML = `
+        <div class="pipeline-info">
+          <h3>${escapeHtml(c.campaign_title || "Untitled campaign")}</h3>
+          <div class="pipeline-meta"><span>Brand: ${escapeHtml(c.brand_name || "Brand")}</span></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="action-btn-approve" style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:var(--green);font-size:12px;font-weight:600;padding:6px 14px;border-radius:50px;cursor:pointer">Accept</button>
+          <button class="action-btn-reject" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--red);font-size:12px;font-weight:600;padding:6px 14px;border-radius:50px;cursor:pointer">Decline</button>
+        </div>
+      `;
+      const [acceptBtn, declineBtn] = row.querySelectorAll("button");
+      acceptBtn.addEventListener("click", async () => {
+        acceptBtn.disabled = true; declineBtn.disabled = true;
+        try { await FewsionEditorData.respondToInvite(c.id, true); }
+        catch (err) { console.error(err); alert("Couldn't accept the invite."); acceptBtn.disabled = false; declineBtn.disabled = false; }
+      });
+      declineBtn.addEventListener("click", async () => {
+        acceptBtn.disabled = true; declineBtn.disabled = true;
+        try { await FewsionEditorData.respondToInvite(c.id, false); }
+        catch (err) { console.error(err); alert("Couldn't decline the invite."); acceptBtn.disabled = false; declineBtn.disabled = false; }
+      });
+      invitesEl.appendChild(row);
+    });
+  }
 
   const timelineEl = document.getElementById("timelineList");
   if (!FewsionEditorData.state.collaborations.length) {
@@ -464,6 +504,33 @@ function renderMessagesView(root, collabId) {
   }
   sendBtn.addEventListener("click", send);
   input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+}
+
+// ---------------------------------------------------------------------
+// View: Reviews (performance rating / reputation)
+// ---------------------------------------------------------------------
+function renderReviewsView(root) {
+  const { reviews } = FewsionEditorData.state;
+  const avg = FewsionEditorData.averageRating();
+
+  root.innerHTML = `
+    <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr)">
+      <div class="stat-card"><div class="stat-label">Average rating</div><div class="stat-value">${avg || "--"}<span style="font-size:16px;color:var(--muted)">/5</span></div></div>
+      <div class="stat-card"><div class="stat-label">Total reviews</div><div class="stat-value">${reviews.length}</div></div>
+    </div>
+    <div class="section-box"><h2>All reviews</h2><div id="reviewList"></div></div>
+  `;
+  const list = document.getElementById("reviewList");
+  if (!reviews.length) {
+    list.innerHTML = `<div class="empty-state-box">No reviews yet. They'll appear here after you complete a collaboration — this is what builds your long-term reputation on Fewsion.</div>`;
+    return;
+  }
+  list.innerHTML = reviews.map((r) => `
+    <div class="review-card">
+      <div class="stars">${"★".repeat(r.rating || 0)}${"☆".repeat(5 - (r.rating || 0))}</div>
+      <p style="font-size:13.5px;margin-top:8px;color:var(--text)">${escapeHtml(r.review || "No written feedback provided.")}</p>
+    </div>
+  `).join("");
 }
 
 // ---------------------------------------------------------------------
