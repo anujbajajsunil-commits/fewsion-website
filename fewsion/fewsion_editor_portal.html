@@ -945,7 +945,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Auth Error:", err);
   }
 });
-
+window.go = go;
+window.mp = mp;
+window.sp = sp;
+window.startAnalysis = startAnalysis;
+window.updateRate = updateRate;
 // 2. Interactive Input Triggers
 function updateRate() { 
   document.getElementById('rateVal').textContent = rateLabels[document.getElementById('rateRange').value] || 'Negotiable'; 
@@ -1234,9 +1238,4 @@ function renderProfile(d,r){
   document.getElementById('loadState').style.display='none';
   document.getElementById('profileOutput').style.display='block';
 }
-   window.go = go;
-window.mp = mp;
-window.sp = sp;
-window.startAnalysis = startAnalysis;
-window.updateRate = updateRate;
 </script>
