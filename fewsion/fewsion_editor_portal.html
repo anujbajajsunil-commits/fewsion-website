@@ -1078,7 +1078,11 @@ async function startAnalysis() {
     renderProfile(profileData, computedResult);
     
     // Smooth transition straight to the dashboard workspace context
-    window.location.href = 'editor-dashboard.html';
+  setTimeout(() => {
+  window.location.replace(
+    "editor-dashboard.html"
+  );
+}, 1000);
 
   } catch (err) {
     console.error('Critical storage exception caught:', err);
