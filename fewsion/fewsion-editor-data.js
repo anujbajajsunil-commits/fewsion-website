@@ -17,6 +17,7 @@ const FewsionEditorData = (() => {
     payments: [],
     notifications: [],
     messages: {}, // keyed by collaboration_id -> array of messages
+    reviews: [],
   };
 
   const listeners = new Set();
@@ -50,19 +51,22 @@ const FewsionEditorData = (() => {
   }
 
   async function loadAll() {
-    const [profileRes, notifRes, collabRes] = await Promise.all([
+    const [profileRes, notifRes, collabRes, reviewsRes] = await Promise.all([
       supabase.from("editor_profiles").select("*").eq("user_id", currentUser.id).maybeSingle(),
       supabase.from("notifications").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: false }).limit(50),
       supabase.from("collaborations").select("*").eq("editor_id", currentUser.id).order("created_at", { ascending: false }),
+      supabase.from("reviews").select("*").eq("reviewee_id", currentUser.id),
     ]);
 
     logIfError("editor_profiles", profileRes.error);
     logIfError("notifications", notifRes.error);
     logIfError("collaborations", collabRes.error);
+    logIfError("reviews", reviewsRes.error);
 
     state.profile = profileRes.data || null;
     state.notifications = notifRes.data || [];
     state.collaborations = collabRes.data || [];
+    state.reviews = reviewsRes.data || [];
 
     await enrichWithCampaignAndBrand();
 
@@ -265,6 +269,34 @@ const FewsionEditorData = (() => {
     return currentUser;
   }
 
+  // ---------------------------------------------------------------------
+  // Pending collab invites (from creators/brands assigning this editor)
+  // ---------------------------------------------------------------------
+
+  function pendingInvites() {
+    return state.collaborations.filter((c) => c.editor_invite_status === "pending");
+  }
+
+  async function respondToInvite(collaborationId, accept) {
+    const newInviteStatus = accept ? "accepted" : "declined";
+    const updates = { editor_invite_status: newInviteStatus };
+    // If declined, free the slot up so the creator/brand can invite someone else
+    if (!accept) updates.editor_id = null;
+
+    const { error } = await supabase.from("collaborations").update(updates).eq("id", collaborationId);
+    if (error) throw error;
+
+    const collab = state.collaborations.find((c) => c.id === collaborationId);
+    if (collab) Object.assign(collab, updates);
+    emit("collaborations");
+  }
+
+  function averageRating() {
+    const withRating = state.reviews.filter((r) => r.rating != null);
+    if (!withRating.length) return null;
+    return (withRating.reduce((s, r) => s + r.rating, 0) / withRating.length).toFixed(1);
+  }
+
   return {
     init,
     state,
@@ -279,5 +311,8 @@ const FewsionEditorData = (() => {
     activeCollaborations,
     completedCollaborations,
     getUser,
+    pendingInvites,
+    respondToInvite,
+    averageRating,
   };
 })();
