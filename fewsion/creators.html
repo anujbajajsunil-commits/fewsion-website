@@ -2499,9 +2499,15 @@ SUPABASE CONFIG
 Replace with your actual project credentials
 =========================================*/
 
-const SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://vdtpdqpmxxcwkqslhvww.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_zZ43Mm55wlCtH30mffIUtw_iUZd1Kb3";
+// anon/public key
 
+if (!window.supabase) {
+  console.error("Supabase library not loaded!");
+}
+// ─── BOOT ──────────────────────────────────────────────────────────────────
+// const supabaseClient = window.supabase.createClient(FEWSION_SUPABASE_URL, FEWSION_SUPABASE_KEY);
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
