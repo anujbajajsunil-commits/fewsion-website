@@ -866,358 +866,346 @@
   </div>
 </div>
 <script>
-  // Use 'var' or 'let' (or just check if it exists) to avoid 'already been declared'
-const supabase = FewsionAuth.client();
-let currentUser = null;
+  // ── Global state ──
+  const supabase = FewsionAuth.client();
+  let currentUser = null;
 
-// 1. Structural State Configuration
-const S = { exp: '', lang: [], format: [], tool: [], skill: [], niche: [], videoCount: '', turn: '', avail: '', collab: [] };
-const rateLabels = ['Under ₹500', '₹500–1,000', '₹1,500–3,000', '₹3,000–6,000', '₹6,000–10,000', '₹10,000–20,000', '₹20,000–40,000', '₹40,000–75,000', '₹75,000–1.5L', 'Negotiable'];
+  const S = { exp: '', lang: [], format: [], tool: [], skill: [], niche: [], videoCount: '', turn: '', avail: '', collab: [] };
+  const rateLabels = ['Under ₹500', '₹500–1,000', '₹1,500–3,000', '₹3,000–6,000', '₹6,000–10,000', '₹10,000–20,000', '₹20,000–40,000', '₹40,000–75,000', '₹75,000–1.5L', 'Negotiable'];
 
-// ======================
-// AUTH CHECK
-// ======================
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    console.log("Checking session...");
+  // ── Auth check ──
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      console.log("Checking session...");
+      const { data: { session }, error } = await supabase.auth.getSession();
 
-    const { data: { session }, error } = await supabase.auth.getSession();
-
-    if (error) {
-      console.error(error);
-      return;
-    }
-
-    if (!session) {
-      if (!window.location.pathname.includes("login.html")) {
-        window.location.replace("login.html");
+      if (error) {
+        console.error(error);
+        return;
       }
-      return;
-    }
 
-    currentUser = session.user;
-    console.log("User:", currentUser.id);
-
-    const { data: profile, error: profileError } = await supabase
-      .from("editor_profiles")
-      .select("id")
-      .eq("user_id", currentUser.id)
-      .maybeSingle();
-
-    if (profileError) {
-      console.error(profileError);
-      return;
-    }
-
-    const page = window.location.pathname.split("/").pop();
-    console.log("Current Page:", page);
-    console.log("Profile:", profile);
-
-    if (!profile) {
-      if (page !== "fewsion_editor_portal.html") {
-        window.location.replace("fewsion_editor_portal.html");
+      if (!session) {
+        if (!window.location.pathname.includes("login.html")) {
+          window.location.replace("login.html");
+        }
+        return;
       }
-    } else {
-      if (page !== "editor-dashboard.html") {
-        window.location.replace("editor-dashboard.html");
+
+      currentUser = session.user;
+      console.log("User:", currentUser.id);
+
+      const { data: profile, error: profileError } = await supabase
+        .from("editor_profiles")
+        .select("id")
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error(profileError);
+        return;
       }
+
+      const page = window.location.pathname.split("/").pop();
+      console.log("Current Page:", page);
+      console.log("Profile:", profile);
+
+      if (!profile) {
+        if (page !== "fewsion_editor_portal.html") {
+          window.location.replace("fewsion_editor_portal.html");
+        }
+      } else {
+        if (page !== "editor-dashboard.html") {
+          window.location.replace("editor-dashboard.html");
+        }
+      }
+    } catch (err) {
+      console.error("Auth Error:", err);
     }
-  } catch (err) {
-    console.error("Auth Error:", err);
-  }
-});
-
-window.go = go;
-window.mp = mp;
-window.sp = sp;
-window.startAnalysis = startAnalysis;
-window.updateRate = updateRate;
-// 2. Interactive Input Triggers
-function updateRate() { 
-  document.getElementById('rateVal').textContent = rateLabels[document.getElementById('rateRange').value] || 'Negotiable'; 
-}
-
-function sp(el, g) {
-  const cont = el.closest('.pill-group');
-  if (cont) cont.querySelectorAll('.pill').forEach(p => p.classList.remove('sc', 'sm'));
-  el.classList.add('sc');
-  S[g] = el.textContent.trim();
-}
-
-// Fixed minor bug here ensuring pill selection assigns exactly what is parsed to the array map
-function mp(el, g) {
-  el.classList.toggle('sm');
-  S[g] = [...document.querySelectorAll('#' + g + 'Pills .pill.sm')].map(p => p.textContent.trim());
-}
-
-function go(n) {
-  document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', i === n));
-  document.querySelectorAll('.pb-step').forEach((p, i) => {
-    p.classList.remove('done', 'current');
-    if (i < n) p.classList.add('done');
-    else if (i === n) p.classList.add('current');
   });
-}
 
-// 3. Execution Pipeline & PostgreSQL Push Engine
-async function startAnalysis() {
-  const name = document.getElementById('editorName').value.trim();
-  const clients = document.getElementById('pastClients').value.trim();
-  const portfolio = document.getElementById('portfolio').value.trim();
-  
-  if (!name || !clients || !portfolio) {
-    const e = document.getElementById('genErr');
-    e.textContent = 'Please fill in your name, past clients/creators, and portfolio link before continuing.';
-    e.style.display = 'block';
-    return;
+  // ── UI interaction functions ──
+  function updateRate() {
+    document.getElementById('rateVal').textContent = rateLabels[document.getElementById('rateRange').value] || 'Negotiable';
   }
-  
-  document.getElementById('genErr').style.display = 'none';
-  go(4);
 
-  const msgEl = document.getElementById('loadMsg');
-  msgEl.textContent = "Processing technical capability scoring index...";
+  function sp(el, g) {
+    const cont = el.closest('.pill-group');
+    if (cont) cont.querySelectorAll('.pill').forEach(p => p.classList.remove('sc', 'sm'));
+    el.classList.add('sc');
+    S[g] = el.textContent.trim();
+  }
 
-  const profileData = {
-    name,
-    city: document.getElementById('editorCity').value.trim(),
-    bio: document.getElementById('bio').value.trim(),
-    experience: S.exp,
-    languages: S.lang,
-    formats: S.format,
-    tools: S.tool,
-    skills: S.skill,
-    niches: S.niche,
-    videoCount: S.videoCount,
-    pastClients: clients,
-    bestVideo: document.getElementById('bestVideo').value.trim(),
-    achievements: document.getElementById('achievements').value.trim(),
-    portfolio,
-    turnaround: S.turn,
-    availability: S.avail,
-    rate: rateLabels[document.getElementById('rateRange').value],
-    collabTypes: S.collab,
-    extraNote: document.getElementById('extraNote').value.trim()
-  };
+  function mp(el, g) {
+    el.classList.toggle('sm');
+    S[g] = [...document.querySelectorAll('#' + g + 'Pills .pill.sm')].map(p => p.textContent.trim());
+  }
 
-  // Immediate evaluation summary block generation for dynamic performance feedback
-  const computedResult = fallback(profileData);
+  function go(n) {
+    document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', i === n));
+    document.querySelectorAll('.pb-step').forEach((p, i) => {
+      p.classList.remove('done', 'current');
+      if (i < n) p.classList.add('done');
+      else if (i === n) p.classList.add('current');
+    });
+  }
 
-  try {
-    // Verify user profile availability before running transmission layers
-    const user = currentUser;
-    if (!user) {
-      alert('Your session has expired. Please log in again.');
-      window.location.href = 'login.html';
+  // ── Submission / analysis pipeline ──
+  async function startAnalysis() {
+    const name = document.getElementById('editorName').value.trim();
+    const clients = document.getElementById('pastClients').value.trim();
+    const portfolio = document.getElementById('portfolio').value.trim();
+
+    if (!name || !clients || !portfolio) {
+      const e = document.getElementById('genErr');
+      e.textContent = 'Please fill in your name, past clients/creators, and portfolio link before continuing.';
+      e.style.display = 'block';
       return;
     }
 
-    // Build perfect target schema payload matching row columns explicitly
-    const editorPayload = {
-      user_id: user.id,
-      editor_name: profileData.name,
-      city_state: profileData.city || null,
-      experience_duration: profileData.experience || null,
-      one_line_bio: profileData.bio || null,
-      languages: profileData.languages,             // Maps safely to text[] arrays
-      specialised_formats: profileData.formats,      // Maps safely to text[] arrays
-      primary_software: profileData.tools,           // Maps safely to text[] arrays
-      special_skills: profileData.skills,            // Maps safely to text[] arrays
-      edited_creator_niches: profileData.niches,     // Maps safely to text[] arrays
-      total_videos_edited: profileData.videoCount || null,
-      past_clients: profileData.pastClients,         // Strict non-nullable string row
-      best_performing_video: profileData.bestVideo || null,
-      notable_achievements: profileData.achievements || null,
-      portfolio_url: profileData.portfolio,          // Strict non-nullable string row
-      turnaround_time: profileData.turnaround || null,
-      availability_status: profileData.availability || null,
-      rate_short_form: profileData.rate || null,
-      preferred_collab_types: profileData.collabTypes, // Maps safely to text[] arrays
-      extra_notes: profileData.extraNote || null,
-      ai_total_score: parseInt(computedResult.total_score) || 75,
-      ai_grade: computedResult.grade
+    document.getElementById('genErr').style.display = 'none';
+    go(4);
+
+    const msgEl = document.getElementById('loadMsg');
+    msgEl.textContent = "Processing technical capability scoring index...";
+
+    const profileData = {
+      name,
+      city: document.getElementById('editorCity').value.trim(),
+      bio: document.getElementById('bio').value.trim(),
+      experience: S.exp,
+      languages: S.lang,
+      formats: S.format,
+      tools: S.tool,
+      skills: S.skill,
+      niches: S.niche,
+      videoCount: S.videoCount,
+      pastClients: clients,
+      bestVideo: document.getElementById('bestVideo').value.trim(),
+      achievements: document.getElementById('achievements').value.trim(),
+      portfolio,
+      turnaround: S.turn,
+      availability: S.avail,
+      rate: rateLabels[document.getElementById('rateRange').value],
+      collabTypes: S.collab,
+      extraNote: document.getElementById('extraNote').value.trim()
     };
 
-    msgEl.textContent = "Transmitting technical record portfolio rows to Supabase secure vaults...";
-    console.log('Saving editor profile payload packet:', editorPayload);
+    const computedResult = fallback(profileData);
 
-    // Upsert target row packet directly on key collision parameters
-    const { data: dbData, error: dbError } = await supabase
-      .from('editor_profiles')
-      .upsert(editorPayload, { onConflict: 'user_id' })
-      .select()
-      .single();
+    try {
+      const user = currentUser;
+      if (!user) {
+        alert('Your session has expired. Please log in again.');
+        window.location.href = 'login.html';
+        return;
+      }
 
-    if (dbError) {
-      console.error('Supabase Transaction Error:', dbError);
-      alert(dbError.message);
-      return;
+      const editorPayload = {
+        user_id: user.id,
+        editor_name: profileData.name,
+        city_state: profileData.city || null,
+        experience_duration: profileData.experience || null,
+        one_line_bio: profileData.bio || null,
+        languages: profileData.languages,
+        specialised_formats: profileData.formats,
+        primary_software: profileData.tools,
+        special_skills: profileData.skills,
+        edited_creator_niches: profileData.niches,
+        total_videos_edited: profileData.videoCount || null,
+        past_clients: profileData.pastClients,
+        best_performing_video: profileData.bestVideo || null,
+        notable_achievements: profileData.achievements || null,
+        portfolio_url: profileData.portfolio,
+        turnaround_time: profileData.turnaround || null,
+        availability_status: profileData.availability || null,
+        rate_short_form: profileData.rate || null,
+        preferred_collab_types: profileData.collabTypes,
+        extra_notes: profileData.extraNote || null,
+        ai_total_score: parseInt(computedResult.total_score) || 75,
+        ai_grade: computedResult.grade
+      };
+
+      msgEl.textContent = "Transmitting technical record portfolio rows to Supabase secure vaults...";
+      console.log('Saving editor profile payload packet:', editorPayload);
+
+      const { data: dbData, error: dbError } = await supabase
+        .from('editor_profiles')
+        .upsert(editorPayload, { onConflict: 'user_id' })
+        .select()
+        .single();
+
+      if (dbError) {
+        console.error('Supabase Transaction Error:', dbError);
+        alert(dbError.message);
+        return;
+      }
+
+      console.log('Editor entry successfully pushed to cloud engine:', dbData);
+
+      renderProfile(profileData, computedResult);
+
+      setTimeout(() => {
+        window.location.replace("editor-dashboard.html");
+      }, 1000);
+
+    } catch (err) {
+      console.error('Critical storage exception caught:', err);
+      renderProfile(profileData, computedResult);
     }
-
-    console.log('Editor entry successfully pushed to cloud engine:', dbData);
-
-    // Display compiled profile inside layout frame
-    renderProfile(profileData, computedResult);
-    
-    // Smooth transition straight to the dashboard workspace context
-  setTimeout(() => {
-  window.location.replace(
-    "editor-dashboard.html"
-  );
-}, 1000);
-
-  } catch (err) {
-    console.error('Critical storage exception caught:', err);
-    // Display fallback view state locally to guarantee dynamic layout stability
-    renderProfile(profileData, computedResult);
   }
-}
 
-// 4. Fallback Static Evaluation Models
-function buildPrompt(d){ return ``; } 
+  // ── Fallback static evaluation model ──
+  function buildPrompt(d) { return ``; }
 
-function fallback(d){
-  const expMap={'Less than 1 year':20,'1–2 years':40,'2–4 years':60,'4–7 years':80,'7+ years':95};
-  const volMap={'Fewer than 20':20,'20–50':40,'50–150':60,'150–500':80,'500+':95};
-  const exp=expMap[d.experience]||50;
-  const vol=volMap[d.videoCount]||50;
-  const skill=Math.min(95,40+d.tools.length*8+d.skills.length*4);
-  const niche=Math.min(95,40+d.niches.length*7);
-  const track=d.achievements?75:d.bestVideo?65:50;
-  const avail=d.turnaround==='24 hours'?95:d.turnaround==='2–3 days'?82:70;
-  const exp_score=Math.round((exp+vol)/2);
-  const total=Math.round(skill*.25+exp_score*.25+niche*.20+track*.20+avail*.10);
-  const grade=total>=90?'A+':total>=80?'A':total>=70?'B+':total>=60?'B':total>=50?'C+':'C';
-  return{
-    total_score:total,grade,
-    grade_label:total>=80?'Top-tier editor':total>=65?'Experienced talent':'Rising talent',
-    summary:`${d.name} brings hands-on editing experience across ${d.formats.slice(0,2).join(' and ')||'multiple formats'}. ${d.niches.length>2?'Strong niche versatility across '+d.niches.slice(0,3).join(', ')+'.':'Building niche depth in creator content.'} A solid choice for creators looking for reliable turnaround.`,
-    skill_score:skill,experience_score:exp_score,niche_score:niche,track_record_score:track,availability_score:avail,
-    strengths:['Clear format specialisation','Hands-on industry experience','Communicates availability upfront'],
-    improvements:['Add specific view/result metrics to past work','Include a showreel with diverse content examples'],
-    best_fit_creators:['Mid-tier YouTubers','Instagram lifestyle creators','D2C brand content teams'],
-    best_fit_brands:['D2C product brands','EdTech platforms','Consumer apps'],
-    standout_signal:d.achievements||'Consistent track record across multiple creator niches.'
-  };
-}
+  function fallback(d) {
+    const expMap = { 'Less than 1 year': 20, '1–2 years': 40, '2–4 years': 60, '4–7 years': 80, '7+ years': 95 };
+    const volMap = { 'Fewer than 20': 20, '20–50': 40, '50–150': 60, '150–500': 80, '500+': 95 };
+    const exp = expMap[d.experience] || 50;
+    const vol = volMap[d.videoCount] || 50;
+    const skill = Math.min(95, 40 + d.tools.length * 8 + d.skills.length * 4);
+    const niche = Math.min(95, 40 + d.niches.length * 7);
+    const track = d.achievements ? 75 : d.bestVideo ? 65 : 50;
+    const avail = d.turnaround === '24 hours' ? 95 : d.turnaround === '2–3 days' ? 82 : 70;
+    const exp_score = Math.round((exp + vol) / 2);
+    const total = Math.round(skill * .25 + exp_score * .25 + niche * .20 + track * .20 + avail * .10);
+    const grade = total >= 90 ? 'A+' : total >= 80 ? 'A' : total >= 70 ? 'B+' : total >= 60 ? 'B' : total >= 50 ? 'C+' : 'C';
+    return {
+      total_score: total, grade,
+      grade_label: total >= 80 ? 'Top-tier editor' : total >= 65 ? 'Experienced talent' : 'Rising talent',
+      summary: `${d.name} brings hands-on editing experience across ${d.formats.slice(0, 2).join(' and ') || 'multiple formats'}. ${d.niches.length > 2 ? 'Strong niche versatility across ' + d.niches.slice(0, 3).join(', ') + '.' : 'Building niche depth in creator content.'} A solid choice for creators looking for reliable turnaround.`,
+      skill_score: skill, experience_score: exp_score, niche_score: niche, track_record_score: track, availability_score: avail,
+      strengths: ['Clear format specialisation', 'Hands-on industry experience', 'Communicates availability upfront'],
+      improvements: ['Add specific view/result metrics to past work', 'Include a showreel with diverse content examples'],
+      best_fit_creators: ['Mid-tier YouTubers', 'Instagram lifestyle creators', 'D2C brand content teams'],
+      best_fit_brands: ['D2C product brands', 'EdTech platforms', 'Consumer apps'],
+      standout_signal: d.achievements || 'Consistent track record across multiple creator niches.'
+    };
+  }
 
-function sc(s){return s>=85?'#D85A30':s>=70?'#1D9E75':s>=50?'#BA7517':'#A32D2D';}
-function gc(g){
-  if(g.startsWith('A'))return{bg:'#E1F5EE',c:'#085041'};
-  if(g.startsWith('B'))return{bg:'#FAECE7',c:'#712B13'};
-  return{bg:'#FAEEDA',c:'#633806'};
-}
+  function sc(s) { return s >= 85 ? '#D85A30' : s >= 70 ? '#1D9E75' : s >= 50 ? '#BA7517' : '#A32D2D'; }
+  function gc(g) {
+    if (g.startsWith('A')) return { bg: '#E1F5EE', c: '#085041' };
+    if (g.startsWith('B')) return { bg: '#FAECE7', c: '#712B13' };
+    return { bg: '#FAEEDA', c: '#633806' };
+  }
 
-// 5. Interface Layout Builder Function
-function renderProfile(d,r){
-  const total=Math.min(100,Math.max(0,Math.round(r.total_score)));
-  const circ=2*Math.PI*28;
-  const offset=circ-(total/100)*circ;
-  const gcol=gc(r.grade);
-  const initials=d.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  // ── Profile rendering ──
+  function renderProfile(d, r) {
+    const total = Math.min(100, Math.max(0, Math.round(r.total_score)));
+    const circ = 2 * Math.PI * 28;
+    const offset = circ - (total / 100) * circ;
+    const gcol = gc(r.grade);
+    const initials = d.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
-  const metrics=[
-    {label:'Skills & tools',val:r.skill_score},
-    {label:'Experience',val:r.experience_score},
-    {label:'Niche coverage',val:r.niche_score},
-    {label:'Track record',val:r.track_record_score},
-    {label:'Availability',val:r.availability_score}
-  ];
+    const metrics = [
+      { label: 'Skills & tools', val: r.skill_score },
+      { label: 'Experience', val: r.experience_score },
+      { label: 'Niche coverage', val: r.niche_score },
+      { label: 'Track record', val: r.track_record_score },
+      { label: 'Availability', val: r.availability_score }
+    ];
 
-  document.getElementById('profileContent').innerHTML=`
-    <div class="profile-header-card">
-      <div class="profile-banner">
-        <div class="avatar">${initials}</div>
-        <div style="flex:1">
-          <p style="font-size:17px;font-weight:500;color:#712B13">${d.name}</p>
-          <p style="font-size:13px;color:#993C1D;margin-top:2px">${d.bio||'Video editor'}</p>
-          <div class="tag-row">
-            ${d.city?`<span class="tag tag-coral"><i class="ti ti-map-pin" style="font-size:11px" aria-hidden="true"></i> ${d.city}</span>`:''}
-            ${d.experience?`<span class="tag tag-coral"><i class="ti ti-clock" style="font-size:11px" aria-hidden="true"></i> ${d.experience}</span>`:''}
-            ${d.availability?`<span class="tag tag-teal">${d.availability}</span>`:''}
-          </div>
-        </div>
-        <div style="text-align:center;flex-shrink:0">
-          <div class="score-ring-sm">
-            <svg width="72" height="72" viewBox="0 0 72 72">
-              <circle cx="36" cy="36" r="28" fill="none" stroke="var(--color-border-tertiary)" stroke-width="6"/>
-              <circle cx="36" cy="36" r="28" fill="none" stroke="${sc(total)}" stroke-width="6" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" stroke-linecap="round"/>
-            </svg>
-            <div class="ring-label">
-              <span style="font-size:20px;font-weight:500;color:var(--color-text-primary)">${total}</span>
-              <span style="font-size:10px;color:var(--color-text-secondary)">/100</span>
+    document.getElementById('profileContent').innerHTML = `
+      <div class="profile-header-card">
+        <div class="profile-banner">
+          <div class="avatar">${initials}</div>
+          <div style="flex:1">
+            <p style="font-size:17px;font-weight:500;color:#712B13">${d.name}</p>
+            <p style="font-size:13px;color:#993C1D;margin-top:2px">${d.bio || 'Video editor'}</p>
+            <div class="tag-row">
+              ${d.city ? `<span class="tag tag-coral"><i class="ti ti-map-pin" style="font-size:11px" aria-hidden="true"></i> ${d.city}</span>` : ''}
+              ${d.experience ? `<span class="tag tag-coral"><i class="ti ti-clock" style="font-size:11px" aria-hidden="true"></i> ${d.experience}</span>` : ''}
+              ${d.availability ? `<span class="tag tag-teal">${d.availability}</span>` : ''}
             </div>
           </div>
-          <span style="display:inline-block;font-size:11px;padding:3px 10px;border-radius:12px;background:${gcol.bg};color:${gcol.c};margin-top:4px">Grade ${r.grade}</span>
+          <div style="text-align:center;flex-shrink:0">
+            <div class="score-ring-sm">
+              <svg width="72" height="72" viewBox="0 0 72 72">
+                <circle cx="36" cy="36" r="28" fill="none" stroke="var(--color-border-tertiary)" stroke-width="6"/>
+                <circle cx="36" cy="36" r="28" fill="none" stroke="${sc(total)}" stroke-width="6" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" stroke-linecap="round"/>
+              </svg>
+              <div class="ring-label">
+                <span style="font-size:20px;font-weight:500;color:var(--color-text-primary)">${total}</span>
+                <span style="font-size:10px;color:var(--color-text-secondary)">/100</span>
+              </div>
+            </div>
+            <span style="display:inline-block;font-size:11px;padding:3px 10px;border-radius:12px;background:${gcol.bg};color:${gcol.c};margin-top:4px">Grade ${r.grade}</span>
+          </div>
+        </div>
+        <div class="profile-body">
+          <div class="ai-chip"><i class="ti ti-sparkles" style="font-size:12px" aria-hidden="true"></i> AI-generated profile summary</div>
+          <p style="font-size:13px;line-height:1.65;margin-bottom:12px">${r.summary}</p>
+          ${r.standout_signal ? `<div style="background:#FAECE7;border-radius:10px;padding:10px 12px;font-size:13px;color:#712B13;display:flex;align-items:flex-start;gap:8px"><i class="ti ti-award" style="font-size:16px;flex-shrink:0;margin-top:1px" aria-hidden="true"></i><span>${r.standout_signal}</span></div>` : ''}
+          <div class="info-grid" style="margin-top:12px">
+            <div class="info-row"><span class="lbl">Turnaround</span><span class="val">${d.turnaround || '—'}</span></div>
+            <div class="info-row"><span class="lbl">Rate (short-form)</span><span class="val">${d.rate || '—'}</span></div>
+            <div class="info-row"><span class="lbl">Videos edited</span><span class="val">${d.videoCount || '—'}</span></div>
+            <div class="info-row"><span class="lbl">Languages</span><span class="val">${d.languages.slice(0, 2).join(', ') || '—'}</span></div>
+          </div>
+          <div class="tag-row">
+            ${d.formats.slice(0, 4).map(f => `<span class="tag tag-coral">${f}</span>`).join('')}
+            ${d.tools.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}
+          </div>
+          ${d.portfolio ? `<div style="margin-top:10px"><a href="${d.portfolio}" target="_blank" style="font-size:13px;color:#D85A30;display:inline-flex;align-items:center;gap:6px;text-decoration:none"><i class="ti ti-external-link" style="font-size:14px" aria-hidden="true"></i> View portfolio / showreel</a></div>` : ''}
         </div>
       </div>
-      <div class="profile-body">
-        <div class="ai-chip"><i class="ti ti-sparkles" style="font-size:12px" aria-hidden="true"></i> AI-generated profile summary</div>
-        <p style="font-size:13px;line-height:1.65;margin-bottom:12px">${r.summary}</p>
-        ${r.standout_signal?`<div style="background:#FAECE7;border-radius:10px;padding:10px 12px;font-size:13px;color:#712B13;display:flex;align-items:flex-start;gap:8px"><i class="ti ti-award" style="font-size:16px;flex-shrink:0;margin-top:1px" aria-hidden="true"></i><span>${r.standout_signal}</span></div>`:''}
-        <div class="info-grid" style="margin-top:12px">
-          <div class="info-row"><span class="lbl">Turnaround</span><span class="val">${d.turnaround||'—'}</span></div>
-          <div class="info-row"><span class="lbl">Rate (short-form)</span><span class="val">${d.rate||'—'}</span></div>
-          <div class="info-row"><span class="lbl">Videos edited</span><span class="val">${d.videoCount||'—'}</span></div>
-          <div class="info-row"><span class="lbl">Languages</span><span class="val">${d.languages.slice(0,2).join(', ')||'—'}</span></div>
+
+      <div class="metrics-grid">
+        ${metrics.map(m => `
+          <div class="m-card">
+            <div class="mv">${Math.round(m.val)}</div>
+            <div class="ml">${m.label}</div>
+            <div class="mbar"><div class="mfill" style="width:${Math.round(m.val)}%;background:${sc(m.val)}"></div></div>
+          </div>`).join('')}
+      </div>
+
+      <div class="analysis-card">
+        <h3><i class="ti ti-circle-check" style="font-size:16px;color:#1D9E75" aria-hidden="true"></i> Strengths</h3>
+        ${(r.strengths || []).map(s => `<div class="finding"><div class="fi fi-good">✓</div><span>${s}</span></div>`).join('')}
+      </div>
+
+      <div class="analysis-card">
+        <h3><i class="ti ti-alert-circle" style="font-size:16px;color:#BA7517" aria-hidden="true"></i> Areas to improve</h3>
+        ${(r.improvements || []).map(i => `<div class="finding"><div class="fi fi-warn">!</div><span>${i}</span></div>`).join('')}
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
+        <div class="analysis-card" style="margin-bottom:0">
+          <h3><i class="ti ti-user-star" style="font-size:16px;color:#D85A30" aria-hidden="true"></i> Best-fit creators</h3>
+          <div class="tag-row" style="margin-top:4px">
+            ${(r.best_fit_creators || []).map(c => `<span class="tag tag-coral">${c}</span>`).join('')}
+          </div>
         </div>
+        <div class="analysis-card" style="margin-bottom:0">
+          <h3><i class="ti ti-building-store" style="font-size:16px;color:#1D9E75" aria-hidden="true"></i> Best-fit brands</h3>
+          <div class="tag-row" style="margin-top:4px">
+            ${(r.best_fit_brands || []).map(b => `<span class="tag tag-teal">${b}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="analysis-card" style="background:var(--color-background-secondary)">
+        <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Preferred collaborations</p>
         <div class="tag-row">
-          ${d.formats.slice(0,4).map(f=>`<span class="tag tag-coral">${f}</span>`).join('')}
-          ${d.tools.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}
+          ${d.collabTypes.map(c => `<span class="tag">${c}</span>`).join('')}
+          ${!d.collabTypes.length ? '<span style="font-size:13px;color:var(--color-text-secondary)">Not specified</span>' : ''}
         </div>
-        ${d.portfolio?`<div style="margin-top:10px"><a href="${d.portfolio}" target="_blank" style="font-size:13px;color:#D85A30;display:inline-flex;align-items:center;gap:6px;text-decoration:none"><i class="ti ti-external-link" style="font-size:14px" aria-hidden="true"></i> View portfolio / showreel</a></div>`:''}
+        ${d.extraNote ? `<p style="font-size:13px;margin-top:10px;line-height:1.6;color:var(--color-text-primary)">${d.extraNote}</p>` : ''}
       </div>
-    </div>
 
-    <div class="metrics-grid">
-      ${metrics.map(m=>`
-        <div class="m-card">
-          <div class="mv">${Math.round(m.val)}</div>
-          <div class="ml">${m.label}</div>
-          <div class="mbar"><div class="mfill" style="width:${Math.round(m.val)}%;background:${sc(m.val)}"></div></div>
-        </div>`).join('')}
-    </div>
-
-    <div class="analysis-card">
-      <h3><i class="ti ti-circle-check" style="font-size:16px;color:#1D9E75" aria-hidden="true"></i> Strengths</h3>
-      ${(r.strengths||[]).map(s=>`<div class="finding"><div class="fi fi-good">✓</div><span>${s}</span></div>`).join('')}
-    </div>
-
-    <div class="analysis-card">
-      <h3><i class="ti ti-alert-circle" style="font-size:16px;color:#BA7517" aria-hidden="true"></i> Areas to improve</h3>
-      ${(r.improvements||[]).map(i=>`<div class="finding"><div class="fi fi-warn">!</div><span>${i}</span></div>`).join('')}
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
-      <div class="analysis-card" style="margin-bottom:0">
-        <h3><i class="ti ti-user-star" style="font-size:16px;color:#D85A30" aria-hidden="true"></i> Best-fit creators</h3>
-        <div class="tag-row" style="margin-top:4px">
-          ${(r.best_fit_creators||[]).map(c=>`<span class="tag tag-coral">${c}</span>`).join('')}
-        </div>
+      <div class="nav-row" style="margin-top:24px">
+        <button class="btn-next" onclick="window.location.href='editor-dashboard.html'" style="width:100%; text-align:center; display:block;">Enter Editor Dashboard Workspace →</button>
       </div>
-      <div class="analysis-card" style="margin-bottom:0">
-        <h3><i class="ti ti-building-store" style="font-size:16px;color:#1D9E75" aria-hidden="true"></i> Best-fit brands</h3>
-        <div class="tag-row" style="margin-top:4px">
-          ${(r.best_fit_brands||[]).map(b=>`<span class="tag tag-teal">${b}</span>`).join('')}
-        </div>
-      </div>
-    </div>
+    `;
 
-    <div class="analysis-card" style="background:var(--color-background-secondary)">
-      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Preferred collaborations</p>
-      <div class="tag-row">
-        ${d.collabTypes.map(c=>`<span class="tag">${c}</span>`).join('')}
-        ${!d.collabTypes.length?'<span style="font-size:13px;color:var(--color-text-secondary)">Not specified</span>':''}
-      </div>
-      ${d.extraNote?`<p style="font-size:13px;margin-top:10px;line-height:1.6;color:var(--color-text-primary)">${d.extraNote}</p>`:''}
-    </div>
+    document.getElementById('loadState').style.display = 'none';
+    document.getElementById('profileOutput').style.display = 'block';
+  }
 
-    <div class="nav-row" style="margin-top:24px">
-      <button class="btn-next" onclick="window.location.href='editor-dashboard.html'" style="width:100%; text-align:center; display:block;">Enter Editor Dashboard Workspace →</button>
-    </div>
-  `;
-
-  document.getElementById('loadState').style.display='none';
-  document.getElementById('profileOutput').style.display='block';
-}
+  // ── Expose functions to inline onclick handlers ──
+  window.go = go;
+  window.mp = mp;
+  window.sp = sp;
+  window.startAnalysis = startAnalysis;
+  window.updateRate = updateRate;
 </script>
