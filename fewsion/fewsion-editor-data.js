@@ -18,6 +18,8 @@ const FewsionEditorData = (() => {
     notifications: [],
     messages: {}, // keyed by collaboration_id -> array of messages
     reviews: [],
+     portfolioItems: [],
+     campaigns: [],
   };
 
   const listeners = new Set();
@@ -56,17 +58,20 @@ const FewsionEditorData = (() => {
       supabase.from("notifications").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: false }).limit(50),
       supabase.from("collaborations").select("*").eq("editor_id", currentUser.id).order("created_at", { ascending: false }),
       supabase.from("reviews").select("*").eq("reviewee_id", currentUser.id),
+      supabase.from("portfolio_items").select("*").eq("editor_id", currentUser.id).order("created_at", { ascending: false }),
     ]);
 
     logIfError("editor_profiles", profileRes.error);
     logIfError("notifications", notifRes.error);
     logIfError("collaborations", collabRes.error);
     logIfError("reviews", reviewsRes.error);
+    logIfError("portfolio_items", portfolioRes.error);
 
     state.profile = profileRes.data || null;
     state.notifications = notifRes.data || [];
     state.collaborations = collabRes.data || [];
     state.reviews = reviewsRes.data || [];
+     state.portfolioItems = portfolioRes.data || [];
 
     await enrichWithCampaignAndBrand();
 
@@ -210,7 +215,84 @@ const FewsionEditorData = (() => {
     emit("messages:" + collaborationId);
     return data;
   }
+//-------------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// Portfolio items
+// ---------------------------------------------------------------------
 
+async function addPortfolioItem({ title, link, views, ctr, engagement, niche }) {
+  const { data, error } = await supabase
+    .from("portfolio_items")
+    .insert({
+      editor_id: currentUser.id,
+      title,
+      link,
+      views: views || 0,
+      ctr: ctr || 0,
+      engagement: engagement || 0,
+      niche: niche || null,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  state.portfolioItems.unshift(data);
+  emit("portfolio");
+  return data;
+}
+
+async function deletePortfolioItem(itemId) {
+  const { error } = await supabase.from("portfolio_items").delete().eq("id", itemId).eq("editor_id", currentUser.id);
+  if (error) throw error;
+  const idx = state.portfolioItems.findIndex((p) => p.id === itemId);
+  if (idx > -1) state.portfolioItems.splice(idx, 1);
+  emit("portfolio");
+}
+
+// ---------------------------------------------------------------------
+// Campaigns (browse & apply)
+// ---------------------------------------------------------------------
+
+async function loadOpenCampaigns() {
+  const { data: campaigns, error } = await supabase
+    .from("campaigns")
+    .select("*")
+    .eq("status", "open")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  const { data: myApps, error: appErr } = await supabase
+    .from("campaign_applications")
+    .select("campaign_id")
+    .eq("editor_id", currentUser.id);
+
+  if (appErr) console.error("Failed to load campaign applications:", appErr);
+
+  const appliedIds = new Set((myApps || []).map((a) => a.campaign_id));
+  const enriched = (campaigns || []).map((c) => ({ ...c, already_applied: appliedIds.has(c.id) }));
+
+  state.campaigns = enriched;
+  emit("campaigns");
+  return enriched;
+}
+
+async function applyToCampaign(campaignId) {
+  const { error } = await supabase
+    .from("campaign_applications")
+    .insert({ campaign_id: campaignId, editor_id: currentUser.id });
+
+  if (error) throw error;
+
+  if (state.campaigns) {
+    const c = state.campaigns.find((c) => c.id === campaignId);
+    if (c) c.already_applied = true;
+  }
+  emit("campaigns");
+}
+
+  
   // ---------------------------------------------------------------------
   // Notifications
   // ---------------------------------------------------------------------
@@ -314,5 +396,9 @@ const FewsionEditorData = (() => {
     pendingInvites,
     respondToInvite,
     averageRating,
+     addPortfolioItem,      // NEW
+  deletePortfolioItem,   // NEW
+  loadOpenCampaigns,     // NEW
+  applyToCampaign, 
   };
 })();
