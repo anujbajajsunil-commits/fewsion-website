@@ -19,6 +19,73 @@
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--black); color: var(--text); font-family: var(--font-body); display: flex; min-height: 100vh; overflow-x: hidden; }
+/* Hamburger button — hidden on desktop */
+.hamburger-btn {
+  display: none;
+  width: 40px; height: 40px;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  color: var(--white);
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 15;
+}
+.sidebar-backdrop.open { display: block; }
+
+@media (max-width: 1024px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .hamburger-btn { display: block; }
+
+  aside {
+    display: flex; /* keep it in DOM, just slide off-screen */
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    width: 240px;
+    z-index: 20;
+  }
+  aside.open { transform: translateX(0); }
+
+  main { margin-left: 0; padding: 20px 16px; }
+
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-value { font-size: 22px; }
+
+  header.page-header { flex-wrap: wrap; }
+  .header-actions { width: 100%; justify-content: space-between; }
+
+  .form-inline { grid-template-columns: 1fr; }
+
+  .campaign-card { flex-direction: column; align-items: flex-start; }
+  .btn-apply { width: 100%; }
+
+  .thread-window { height: 65vh; }
+  .msg-bubble { max-width: 85%; }
+
+  .notif-panel { width: 90vw; right: -10px; }
+
+  table.data-table { display: block; overflow-x: auto; white-space: nowrap; }
+
+  .portfolio-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 420px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  h1 { font-size: 22px; }
+}
+  
+  
  .nav-hamburger {
     display: none;
     flex-direction: column;
@@ -160,12 +227,12 @@
 
 <main id="mainWorkspace">
   <header class="page-header">
-    <div>
-      <h1 id="pageTitle">Overview</h1>
-      <p style="color: var(--muted); font-size: 14px; margin-top: 4px;" id="pageSubtitle">Monitor your active UGC content and applications.</p>
-    <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
-    <span></span><span></span><span></span>
-  </div>
+   <div style="display:flex;align-items:center;gap:14px">
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">☰</button>
+      <div>
+        <h1 id="pageTitle">Brand Data</h1>
+        <p style="color: var(--muted); font-size: 14px; margin-top: 4px;" id="pageSubtitle">Post a Campaign & Get Creators</p>
+      </div>
     </div>
     <div class="header-actions">
       <div class="bell-wrap">
@@ -180,7 +247,7 @@
     <div class="loading-state">Loading your workspace...</div>
   </div>
 </main>
-
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="fewsion-auth.js"></script>
 <script src="brands-dash.js"></script>
@@ -682,6 +749,29 @@ document.getElementById("logoutBtn").addEventListener("click", async (e) => {
 function escapeHtml(str) {
   if (str === null || str === undefined) return "";
   return String(str).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+
+
+  //Toggle 
+  const asideEl = document.querySelector("aside");
+const backdrop = document.getElementById("sidebarBackdrop");
+const hamburgerBtn = document.getElementById("hamburgerBtn");
+
+function openSidebar() {
+  asideEl.classList.add("open");
+  backdrop.classList.add("open");
+}
+function closeSidebar() {
+  asideEl.classList.remove("open");
+  backdrop.classList.remove("open");
+}
+
+hamburgerBtn.addEventListener("click", openSidebar);
+backdrop.addEventListener("click", closeSidebar);
+
+// Close sidebar automatically when a nav link is tapped (mobile)
+document.querySelectorAll(".side-menu a").forEach((a) => {
+  a.addEventListener("click", () => { if (window.innerWidth <= 768) closeSidebar(); });
+});
 }
 </script>
 </body>
