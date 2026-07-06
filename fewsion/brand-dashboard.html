@@ -86,21 +86,7 @@
 }
   
   
- .nav-hamburger {
-    display: none;
-    flex-direction: column;
-    gap: 5px;
-    cursor: pointer;
-    padding: 4px;
-  }
-  .nav-hamburger span {
-    display: block;
-    width: 24px;
-    height: 2px;
-    background: var(--text);
-    border-radius: 2px;
-    transition: all 0.3s;
-  }
+ 
   aside { width: 260px; background: var(--deep); border-right: 1px solid var(--border); padding: 32px 24px; display: flex; flex-direction: column; gap: 40px; position: fixed; top: 0; bottom: 0; left: 0; z-index: 10; }
   .side-logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--white); text-decoration: none; }
   .side-logo span { color: var(--amber); }
@@ -749,9 +735,8 @@ document.getElementById("logoutBtn").addEventListener("click", async (e) => {
 function escapeHtml(str) {
   if (str === null || str === undefined) return "";
   return String(str).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
-
-
-  //Toggle 
+}
+   //Toggle 
   const asideEl = document.querySelector("aside");
 const backdrop = document.getElementById("sidebarBackdrop");
 const hamburgerBtn = document.getElementById("hamburgerBtn");
@@ -772,7 +757,6 @@ backdrop.addEventListener("click", closeSidebar);
 document.querySelectorAll(".side-menu a").forEach((a) => {
   a.addEventListener("click", () => { if (window.innerWidth <= 768) closeSidebar(); });
 });
-}
 </script>
 </body>
 </html>
