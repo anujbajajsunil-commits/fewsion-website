@@ -53,7 +53,7 @@ const FewsionEditorData = (() => {
   }
 
   async function loadAll() {
-    const [profileRes, notifRes, collabRes, reviewsRes] = await Promise.all([
+    const [profileRes, notifRes, collabRes, reviewsRes, portfolioRes] = await Promise.all([
       supabase.from("editor_profiles").select("*").eq("user_id", currentUser.id).maybeSingle(),
       supabase.from("notifications").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: false }).limit(50),
       supabase.from("collaborations").select("*").eq("editor_id", currentUser.id).order("created_at", { ascending: false }),
