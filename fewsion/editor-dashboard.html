@@ -229,12 +229,12 @@
 
 <main>
   <header class="page-header">
-    <!-- <div> -->
-        
-    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">☰</button>
- 
-      <h1 id="pageTitle">Editor Pipeline</h1>
-      <p style="color: var(--muted); font-size: 14px; margin-top: 4px;" id="pageSubtitle">Grab newly uploaded raw assets and push final render links.</p>
+    <div style="display:flex;align-items:center;gap:14px">
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">☰</button>
+      <div>
+        <h1 id="pageTitle">Editor Pipeline</h1>
+        <p style="color: var(--muted); font-size: 14px; margin-top: 4px;" id="pageSubtitle">Grab newly uploaded raw assets and push final render links.</p>
+      </div>
     </div>
     <div class="header-actions">
       <div class="bell-wrap">
@@ -249,7 +249,7 @@
     <div class="loading-state">Loading your workspace...</div>
   </div>
 </main>
-
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="fewsion-auth.js"></script>
 <script src="fewsion-editor-data.js"></script>
@@ -874,7 +874,7 @@ document.querySelectorAll(".side-menu a").forEach((a) => {
   a.addEventListener("click", () => { if (window.innerWidth <= 768) closeSidebar(); });
 });
 </script>
-          <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+         
 </body>
 </html>
 
