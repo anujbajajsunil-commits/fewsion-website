@@ -867,15 +867,12 @@
 </div>
 <script>
   // Use 'var' or 'let' (or just check if it exists) to avoid 'already been declared'
- supabase = FewsionAuth.client();
+const supabase = FewsionAuth.client();
+let currentUser = null;
+
 // 1. Structural State Configuration
 const S = { exp: '', lang: [], format: [], tool: [], skill: [], niche: [], videoCount: '', turn: '', avail: '', collab: [] };
 const rateLabels = ['Under ₹500', '₹500–1,000', '₹1,500–3,000', '₹3,000–6,000', '₹6,000–10,000', '₹10,000–20,000', '₹20,000–40,000', '₹40,000–75,000', '₹75,000–1.5L', 'Negotiable'];
-
-// Match the architecture of the creator portal by using the global client directly
-document.addEventListener("DOMContentLoaded", async () => {
-const supabase = FewsionAuth.client();
-let currentUser = null;
 
 // ======================
 // AUTH CHECK
@@ -884,17 +881,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     console.log("Checking session...");
 
-    const {
-      data: { session },
-      error
-    } = await supabase.auth.getSession();
+    const { data: { session }, error } = await supabase.auth.getSession();
 
     if (error) {
       console.error(error);
       return;
     }
 
-    // Not logged in
     if (!session) {
       if (!window.location.pathname.includes("login.html")) {
         window.location.replace("login.html");
@@ -903,48 +896,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     currentUser = session.user;
-
     console.log("User:", currentUser.id);
 
-    // Check if profile exists
-    const { data: profile, error: profileError } =
-      await supabase
-        .from("editor_profiles")
-        .select("id")
-        .eq("user_id", currentUser.id)
-        .maybeSingle();
+    const { data: profile, error: profileError } = await supabase
+      .from("editor_profiles")
+      .select("id")
+      .eq("user_id", currentUser.id)
+      .maybeSingle();
 
     if (profileError) {
       console.error(profileError);
       return;
     }
 
-    const page =
-      window.location.pathname
-        .split("/")
-        .pop();
-
+    const page = window.location.pathname.split("/").pop();
     console.log("Current Page:", page);
     console.log("Profile:", profile);
 
-    // Prevent redirect loops
     if (!profile) {
       if (page !== "fewsion_editor_portal.html") {
-        window.location.replace(
-          "fewsion_editor_portal.html"
-        );
+        window.location.replace("fewsion_editor_portal.html");
       }
     } else {
       if (page !== "editor-dashboard.html") {
-        window.location.replace(
-          "editor-dashboard.html"
-        );
+        window.location.replace("editor-dashboard.html");
       }
     }
   } catch (err) {
     console.error("Auth Error:", err);
   }
 });
+
 window.go = go;
 window.mp = mp;
 window.sp = sp;
