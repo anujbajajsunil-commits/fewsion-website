@@ -274,6 +274,8 @@ function renderRoute(r) {
 
   const root = document.getElementById("viewRoot");
   switch (r.name) {
+      case "portfolio": return renderPortfolioView(root);
+  case "campaigns": return renderCampaignsView(root);
     case "payments": return renderPaymentsView(root);
     case "messages": return renderMessagesView(root, r.params.collabId);
     case "reviews": return renderReviewsView(root);
