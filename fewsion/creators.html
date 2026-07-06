@@ -2576,36 +2576,32 @@ function updateNav(){
 
 /*=========================================
 FETCH CREATORS
-NOTE: column names below (display_name, avatar_initials,
-niche, platform, followers_count, engagement_rate, city,
-state, created_at) are best-guess based on your sample
-card + existing query. Rename to match your actual
-creator_profiles / users schema if different.
+Matches actual schema:
+creator_profiles(user_id, creator_name, primary_niche,
+primary_platform, target_location, follower_count,
+engagement_rate, ai_total_score, ai_grade, created_at)
+users(id, role, specialisations [text, comma-separated], language)
 =========================================*/
 
 async function fetchCreators(){
   showSkeletons();
 
-  const { data, error } = await supabaseClient
+  const { data: profiles, error } = await supabaseClient
     .from("creator_profiles")
     .select(`
       id,
-      display_name,
-      niche,
-      platform,
-      followers_count,
+      user_id,
+      creator_name,
+      primary_niche,
+      primary_platform,
+      target_location,
+      follower_count,
       engagement_rate,
+      avg_views_per_post,
       ai_total_score,
-      city,
-      state,
-      created_at,
-      users (
-        language,
-        specialisations,
-        role
-      )
+      ai_grade,
+      created_at
     `)
-    .eq("users.role", "creator")
     .order("ai_total_score", { ascending: false });
 
   if(error){
@@ -2616,11 +2612,159 @@ async function fetchCreators(){
     return;
   }
 
-  creators = data || [];
+  if(!profiles || profiles.length === 0){
+    creators = [];
+    filteredCreators = [];
+    creatorCount.innerHTML = "0+";
+    creatorGrid.innerHTML = "";
+    emptyState.style.display = "block";
+    loadMoreBtn.style.display = "none";
+    return;
+  }
+
+  const userIds = [...new Set(profiles.map(p => p.user_id).filter(Boolean))];
+
+  const { data: usersData, error: usersError } = await supabaseClient
+    .from("users")
+    .select("id, role, specialisations, language, niches, platform")
+    .in("id", userIds)
+    .eq("role", "creator");
+
+  if(usersError){
+    console.error(usersError);
+  }
+
+  const usersById = {};
+  (usersData || []).forEach(u => { usersById[u.id] = u; });
+
+  // Only show profiles whose linked user record exists and has role=creator
+  creators = profiles
+    .filter(p => usersById[p.user_id])
+    .map(p => ({ ...p, user: usersById[p.user_id] }));
+
   filteredCreators = [...creators];
   creatorCount.innerHTML = creators.length + "+";
   currentPage = 1;
   renderCreators();
+}
+
+/*=========================================
+HELPER: parse comma-separated specialisations text into array
+=========================================*/
+
+function parseTags(specialisations){
+  if(!specialisations) return [];
+  return specialisations
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+/*=========================================
+FILTER + SORT + RENDER (updated field names)
+=========================================*/
+
+function renderCreators(){
+  const term = searchInput.value.trim().toLowerCase();
+  const platform = platformFilter.value;
+  const niche = nicheFilter.value;
+  const sortBy = sortFilter.value;
+
+  filteredCreators = creators.filter(c => {
+    const matchesPlatform = !platform || c.primary_platform === platform;
+    const matchesNiche = !niche || c.primary_niche === niche;
+
+    const haystack = [
+      c.primary_niche,
+      c.primary_platform,
+      c.target_location,
+      ...(parseTags(c.user && c.user.specialisations))
+    ].join(" ").toLowerCase();
+
+    const matchesTerm = !term || haystack.includes(term);
+
+    return matchesPlatform && matchesNiche && matchesTerm;
+  });
+
+  filteredCreators.sort((a, b) => {
+    if(sortBy === "followers") return (b.follower_count || 0) - (a.follower_count || 0);
+    if(sortBy === "engagement") return (b.engagement_rate || 0) - (a.engagement_rate || 0);
+    if(sortBy === "latest") return new Date(b.created_at) - new Date(a.created_at);
+    return (b.ai_total_score || 0) - (a.ai_total_score || 0);
+  });
+
+  updateCount();
+
+  if(filteredCreators.length === 0){
+    creatorGrid.innerHTML = "";
+    emptyState.style.display = "block";
+    loadMoreBtn.style.display = "none";
+    return;
+  }
+
+  emptyState.style.display = "none";
+
+  const visible = filteredCreators.slice(0, currentPage * perPage);
+  creatorGrid.innerHTML = visible.map(buildCreatorCard).join("");
+
+  loadMoreBtn.style.display =
+    visible.length >= filteredCreators.length ? "none" : "inline-flex";
+
+  bindCardEvents();
+
+  requestAnimationFrame(() => {
+    document.querySelectorAll(".fade-up").forEach(el => el.classList.add("show"));
+  });
+}
+
+/*=========================================
+CARD BUILDER (updated field names)
+=========================================*/
+
+function buildCreatorCard(c){
+  const location = c.target_location || "India";
+  const tags = parseTags(c.user && c.user.specialisations).slice(0, 4);
+  const grade = c.ai_grade || getGrade(c.ai_total_score || 0);
+
+  const nameBlock = loggedIn
+    ? `<h3>${escapeHtml(c.creator_name || "Creator")}</h3>`
+    : `<div class="locked-name" data-id="${c.id}">
+         <h3 class="blur-text">${escapeHtml(c.creator_name || "Creator Name")}</h3>
+         <span class="lock-badge">🔒 Login to Reveal</span>
+       </div>`;
+
+  const buttonBlock = loggedIn
+    ? `<button class="unlock-btn" data-view="${c.id}">View Profile</button>`
+    : `<button class="unlock-btn unlock-locked" data-id="${c.id}">Login to View Profile</button>`;
+
+  return `
+    <div class="creator-card fade-up">
+      <div class="creator-top">
+        <div class="creator-avatar">${getInitials(c.creator_name)}</div>
+        <div class="creator-info">
+          ${nameBlock}
+          <p>${escapeHtml(c.primary_niche || "Creator")} • ${escapeHtml(c.primary_platform || "")}</p>
+        </div>
+        <div class="score-badge">${grade}</div>
+      </div>
+
+      <div class="creator-stats">
+        <div><h4>${formatCount(c.follower_count)}</h4><span>Followers</span></div>
+        <div><h4>${formatPercent(c.engagement_rate)}</h4><span>Engagement</span></div>
+        <div><h4>${c.ai_total_score ?? "-"}</h4><span>AI Score</span></div>
+      </div>
+
+      <div class="creator-location">
+        📍 ${loggedIn ? escapeHtml(location) : "Login to view exact location"}
+      </div>
+
+      <div class="creator-tags">
+        ${tags.length ? tags.map(t => `<span>${escapeHtml(t)}</span>`).join("") : `<span>UGC</span>`}
+      </div>
+
+      ${buttonBlock}
+    </div>
+  `;
 }
 
 /*=========================================
