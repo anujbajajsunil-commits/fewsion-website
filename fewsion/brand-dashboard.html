@@ -648,7 +648,57 @@ function renderMessagesView(root, collabId) {
   sendBtn.addEventListener("click", send);
   input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
 }
+//----------------------------------------------------------------
+  //E Contract
+  //--------------------------------------------------------------------
+  async function generateContract(collabId, btn) {
+  btn.disabled = true;
+  btn.textContent = "Generating...";
+  try {
+    const { data, error } = await supabase.functions.invoke("generate-contract", {
+      body: { collaboration_id: collabId },
+    });
+    if (error) throw error;
+    showContractModal(data.contract);
+  } catch (err) {
+    alert("Couldn't generate contract: " + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Generate Contract";
+  }
+}
 
+  function showContractModal(contract) {
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100";
+  overlay.innerHTML = `
+    <div style="background:#141414;border:1px solid rgba(255,255,255,0.1);border-radius:16px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;padding:28px">
+      <h2 style="font-family:'Syne',sans-serif;color:#fff;margin-bottom:6px">Collaboration Agreement</h2>
+      <p style="font-size:12px;color:#888;margin-bottom:16px">Auto-generated from your campaign terms. Not a substitute for legal advice — review before signing.</p>
+      <pre style="white-space:pre-wrap;font-family:'DM Sans',sans-serif;font-size:13.5px;color:#f0ece4;line-height:1.6;background:#0e0e0e;padding:16px;border-radius:8px;margin-bottom:16px">${escapeHtml(contract.contract_text)}</pre>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="padding:10px 20px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:50px;cursor:pointer">Close</button>
+        <button id="signBtn" style="padding:10px 20px;background:#F5A623;border:none;color:#000;font-weight:700;border-radius:50px;cursor:pointer">Sign & Send</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById("signBtn").addEventListener("click", () => signContract(contract.id, overlay));
+}
+
+async function signContract(contractId, overlay) {
+  const name = prompt("Type your full legal name to sign:");
+  if (!name) return;
+  const user = FewsionEditorData.getUser(); // or your equivalent
+  const isbrand = /* determine role */ true;
+  const field = isbrand ? "brand" : "counterparty";
+  const { error } = await supabase.from("contracts").update({
+    [`${field}_signed_at`]: new Date().toISOString(),
+    [`${field}_signature_name`]: name,
+  }).eq("id", contractId);
+  if (error) return alert("Couldn't sign: " + error.message);
+  alert("Signed. Once both parties sign, the contract is finalized.");
+  overlay.remove();
+}
 // ---------------------------------------------------------------------
 // Notifications panel
 // ---------------------------------------------------------------------
