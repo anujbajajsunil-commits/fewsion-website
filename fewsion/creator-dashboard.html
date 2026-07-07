@@ -166,6 +166,7 @@
 // ---------------------------------------------------------------------
 // Bootstrapping
 // ---------------------------------------------------------------------
+   supabase = FewsionAuth.client();
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const user = await FewsionCreatorData.init();
@@ -389,7 +390,7 @@ function renderCollaborationsView(root) {
   collaborations.forEach((c) => {
     const row = document.createElement("div");
     row.className = "campaign-item";
-    row.innerHTML = `
+   row.innerHTML = `
       <div class="campaign-info">
         <h3>${escapeHtml(c.campaign_title || "Untitled campaign")}</h3>
         <div class="campaign-meta">
@@ -399,7 +400,10 @@ function renderCollaborationsView(root) {
           <span class="status-tag ${(c.status || "active").toLowerCase()}">${escapeHtml(c.status || "active")}</span>
         </div>
       </div>
-      <button class="btn-ghost" onclick="window.location.hash='#messages/${c.id}'">Message</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn-ghost" onclick="window.location.hash='#messages/${c.id}'">Message</button>
+        <button class="btn-ghost" onclick="viewContract('${c.id}')">View Contract</button>
+      </div>
     `;
     list.appendChild(row);
   });
@@ -599,7 +603,59 @@ document.getElementById("logoutBtn").addEventListener("click", async (e) => {
     alert("Error logging out. Please try again.");
   }
 });
+//--------------------------
+// CONTRACT FUNCTION
+  // ---------------------------------------------------------------------
+// Contracts
+// ---------------------------------------------------------------------
+async function viewContract(collabId) {
+  const { data: contract, error } = await supabase
+    .from("contracts")
+    .select("*")
+    .eq("collaboration_id", collabId)
+    .maybeSingle();
 
+  if (error) return alert("Couldn't load contract: " + error.message);
+  if (!contract) return alert("The brand hasn't generated a contract for this collaboration yet.");
+
+  showContractModal(contract);
+}
+
+function showContractModal(contract) {
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100";
+  overlay.innerHTML = `
+    <div style="background:#141414;border:1px solid rgba(255,255,255,0.1);border-radius:16px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;padding:28px">
+      <h2 style="font-family:'Syne',sans-serif;color:#fff;margin-bottom:6px">Collaboration Agreement</h2>
+      <p style="font-size:12px;color:#888;margin-bottom:16px">Auto-generated from the campaign terms. Not a substitute for legal advice — review before signing.</p>
+      <pre style="white-space:pre-wrap;font-family:'DM Sans',sans-serif;font-size:13.5px;color:#f0ece4;line-height:1.6;background:#0e0e0e;padding:16px;border-radius:8px;margin-bottom:16px">${escapeHtml(contract.contract_text)}</pre>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="padding:10px 20px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:50px;cursor:pointer">Close</button>
+        <button id="signBtn" style="padding:10px 20px;background:#F5A623;border:none;color:#000;font-weight:700;border-radius:50px;cursor:pointer">Sign & Send</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById("signBtn").addEventListener("click", () => signContract(contract.id, overlay));
+}
+
+async function signContract(contractId, overlay) {
+  const name = prompt("Type your full legal name to sign:");
+  if (!name) return;
+
+  const { data: updated, error } = await supabase.from("contracts").update({
+    counterparty_signed_at: new Date().toISOString(),
+    counterparty_signature_name: name,
+  }).eq("id", contractId).select().single();
+
+  if (error) return alert("Couldn't sign: " + error.message);
+
+  if (updated?.brand_signed_at && updated?.counterparty_signed_at) {
+    await supabase.from("contracts").update({ status: "signed_both" }).eq("id", contractId);
+  }
+
+  alert("Signed. Once the brand also signs, the contract is finalized.");
+  overlay.remove();
+}
 // ---------------------------------------------------------------------
 // Utils
 // ---------------------------------------------------------------------
