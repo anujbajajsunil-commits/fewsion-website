@@ -543,6 +543,7 @@ function pipelineRowEl(c) {
     <div style="display:flex;align-items:center;gap:10px">
       <div style="font-size:13px;color:var(--muted);font-weight:600">${deadline ? "Due " + deadline : ""}</div>
       <button class="btn-ghost" onclick="window.location.hash='#messages/${c.id}'">Message</button>
+      <button class="btn-ghost" onclick="viewContract('${c.id}')">View Contract</button>
     </div>
   `;
   return row;
