@@ -894,9 +894,33 @@
       currentUser = session.user;
       console.log("User:", currentUser.id);
 
-      const { data: profile, error: profileError } = await supabase
+      // const { data: profile, error: profileError } = await supabase
+      //   .from("editor_profiles")
+      //   .select("id")
+      //   .eq("user_id", currentUser.id)
+      //   .maybeSingle();
+
+      // if (profileError) {
+      //   console.error(profileError);
+      //   return;
+      // }
+
+      // const page = window.location.pathname.split("/").pop();
+      // console.log("Current Page:", page);
+      // console.log("Profile:", profile);
+
+      // if (!profile) {
+      //   if (page !== "fewsion_editor_portal") {
+      //     window.location.replace("fewsion_editor_portal");
+      //   }
+      // } else {
+      //   if (page !== "editor-dashboard.html") {
+      //     window.location.replace("editor-dashboard.html");
+      //   }
+      // }
+const { data: profile, error: profileError } = await supabase
         .from("editor_profiles")
-        .select("id")
+        .select("*")
         .eq("user_id", currentUser.id)
         .maybeSingle();
 
@@ -906,18 +930,23 @@
       }
 
       const page = window.location.pathname.split("/").pop();
-      console.log("Current Page:", page);
+      const params = new URLSearchParams(window.location.search);
+      const forceEdit = params.get('edit') === 'true';
+      console.log("Current Page:", page, "forceEdit:", forceEdit);
       console.log("Profile:", profile);
 
       if (!profile) {
         if (page !== "fewsion_editor_portal") {
           window.location.replace("fewsion_editor_portal");
         }
-      } else {
+      } else if (!forceEdit) {
         if (page !== "editor-dashboard.html") {
           window.location.replace("editor-dashboard.html");
         }
+      } else {
+        prefillForm(profile);
       }
+       // ----------------------------------
     } catch (err) {
       console.error("Auth Error:", err);
     }
@@ -1200,6 +1229,54 @@
 
     document.getElementById('loadState').style.display = 'none';
     document.getElementById('profileOutput').style.display = 'block';
+  }
+   function prefillForm(p) {
+    document.getElementById('editorName').value = p.editor_name || '';
+    document.getElementById('editorCity').value = p.city_state || '';
+    document.getElementById('bio').value = p.one_line_bio || '';
+    document.getElementById('pastClients').value = p.past_clients || '';
+    document.getElementById('bestVideo').value = p.best_performing_video || '';
+    document.getElementById('achievements').value = p.notable_achievements || '';
+    document.getElementById('portfolio').value = p.portfolio_url || '';
+    document.getElementById('extraNote').value = p.extra_notes || '';
+
+    selectPillByText('expPills', 'exp', p.experience_duration);
+    selectPillByText('videoCountPills', 'videoCount', p.total_videos_edited);
+    selectPillByText('turnPills', 'turn', p.turnaround_time);
+    selectPillByText('availPills', 'avail', p.availability_status);
+
+    selectPillsByText('langPills', 'lang', p.languages);
+    selectPillsByText('formatPills', 'format', p.specialised_formats);
+    selectPillsByText('toolPills', 'tool', p.primary_software);
+    selectPillsByText('skillPills', 'skill', p.special_skills);
+    selectPillsByText('nichePills', 'niche', p.edited_creator_niches);
+    selectPillsByText('collabPills', 'collab', p.preferred_collab_types);
+
+    if (p.rate_short_form) {
+      const idx = rateLabels.indexOf(p.rate_short_form);
+      if (idx >= 0) {
+        document.getElementById('rateRange').value = idx;
+        updateRate();
+      }
+    }
+  }
+
+  function selectPillByText(containerId, key, text) {
+    if (!text) return;
+    document.querySelectorAll('#' + containerId + ' .pill').forEach(p => {
+      if (p.textContent.trim() === text) {
+        p.classList.add('sc');
+        S[key] = text;
+      }
+    });
+  }
+
+  function selectPillsByText(containerId, key, arr) {
+    if (!arr || !arr.length) return;
+    document.querySelectorAll('#' + containerId + ' .pill').forEach(p => {
+      if (arr.includes(p.textContent.trim())) p.classList.add('sm');
+    });
+    S[key] = [...arr];
   }
 
   // ── Expose functions to inline onclick handlers ──
