@@ -703,15 +703,12 @@ function renderMessagesView(root, collabId) {
 async function signContract(contractId, overlay) {
   const name = prompt("Type your full legal name to sign:");
   if (!name) return;
-  const user = FewsionEditorData.getUser(); // or your equivalent
-  const isbrand = /* determine role */ true;
-  const field = isbrand ? "brand" : "counterparty";
   const { error } = await supabase.from("contracts").update({
-    [`${field}_signed_at`]: new Date().toISOString(),
-    [`${field}_signature_name`]: name,
+    brand_signed_at: new Date().toISOString(),
+    brand_signature_name: name,
   }).eq("id", contractId);
   if (error) return alert("Couldn't sign: " + error.message);
-  alert("Signed. Once both parties sign, the contract is finalized.");
+  alert("Signed. Once the creator/editor also signs, the contract is finalized.");
   overlay.remove();
 }
 // ---------------------------------------------------------------------
