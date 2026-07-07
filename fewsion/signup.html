@@ -331,7 +331,7 @@ async function checkExistingProfile() {
   // Query the users table by email (email column must exist in the table)
   const { data: profiles } = await sb
     .from('users')
-    .select('id, first_name, last_name, role, company_name, email')
+    .select('id, first_name, last_name, role, email')
     .eq('email', email)
     .maybeSingle();
  
@@ -342,7 +342,7 @@ async function checkExistingProfile() {
     const fields = [
       { key: 'Name', val: `${profiles.first_name} ${profiles.last_name}` },
       { key: 'Role', val: profiles.role ? profiles.role.charAt(0).toUpperCase() + profiles.role.slice(1) : '—' },
-      { key: 'Company', val: profiles.company_name || '—' },
+      // { key: 'Company', val: profiles.company_name || '—' },
     ];
     document.getElementById('existingProfileFields').innerHTML = fields.map(f => `
       <div class="profile-field">
