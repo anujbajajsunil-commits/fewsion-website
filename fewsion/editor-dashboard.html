@@ -361,7 +361,7 @@ function renderRoute(r) {
     <div class="section-box">
       <h2>Your niches</h2>
       <div>${niches.length ? niches.map(n => `<span class="niche-chip">🏷️ ${escapeHtml(n)}</span>`).join("") : '<span style="color:var(--muted);font-size:13px">No niches tagged yet.</span>'}</div>
-      <div style="margin-top:16px"><button class="btn-ghost" onclick="window.location.href='fewsion_editor_portal.html'">Edit niches</button></div>
+      <div style="margin-top:16px"><button class="btn-ghost" onclick="window.location.href='fewsion_editor_portal.html?edit=true'">Edit niches</button></div>
     </div>
 
     <div class="section-box">
