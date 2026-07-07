@@ -706,7 +706,7 @@ function renderMessagesView(root, collabId) {
   document.getElementById("signBtn").addEventListener("click", () => signContract(contract.id, overlay));
 }
 
-  async function signContract(contractId, overlay) {
+async function signContract(contractId, overlay) {
   const name = prompt("Type your full legal name to sign:");
   if (!name) return;
 
