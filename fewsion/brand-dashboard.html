@@ -448,22 +448,37 @@ function renderCampaignDetail(root, id) {
   if (!apps.length) appsEl.innerHTML = `<div class="empty-state-box">No applications yet.</div>`;
   else { appsEl.innerHTML = ""; apps.forEach((a) => appsEl.appendChild(applicationRowEl(a))); }
 
-  const collabsEl = document.getElementById("detailCollabs");
-  if (!collabs.length) {
-    collabsEl.innerHTML = `<div class="empty-state-box">No active collaborations yet.</div>`;
-  } else {
-    collabsEl.innerHTML = collabs.map((c) => `
-      <div class="campaign-item" style="cursor:default">
-        <div class="campaign-info">
-          <h3>Collaboration</h3>
-          <div class="campaign-meta">
-            <span>Status: ${escapeHtml(c.status || "active")}</span>
-            <span>Payment: ${c.payment ? "₹" + Number(c.payment).toLocaleString() : "—"}</span>
-          </div>
-        </div>
-        <button class="btn-ghost" onclick="window.location.hash='#messages/${c.id}'">Message</button>
+  // const collabsEl = document.getElementById("detailCollabs");
+  // if (!collabs.length) {
+  //   collabsEl.innerHTML = `<div class="empty-state-box">No active collaborations yet.</div>`;
+  // } else {
+  //   collabsEl.innerHTML = collabs.map((c) => `
+  //     <div class="campaign-item" style="cursor:default">
+  //       <div class="campaign-info">
+  //         <h3>Collaboration</h3>
+  //         <div class="campaign-meta">
+  //           <span>Status: ${escapeHtml(c.status || "active")}</span>
+  //           <span>Payment: ${c.payment ? "₹" + Number(c.payment).toLocaleString() : "—"}</span>
+  //         </div>
+  //       </div>
+  //       <button class="btn-ghost" onclick="window.location.hash='#messages/${c.id}'">Message</button>
+  //     </div>
+  //   `).join("");
+  collabsEl.innerHTML = collabs.map((c) => `
+  <div class="campaign-item" style="cursor:default">
+    <div class="campaign-info">
+      <h3>Collaboration</h3>
+      <div class="campaign-meta">
+        <span>Status: ${escapeHtml(c.status || "active")}</span>
+        <span>Payment: ${c.payment ? "₹" + Number(c.payment).toLocaleString() : "—"}</span>
       </div>
-    `).join("");
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-ghost" onclick="window.location.hash='#messages/${c.id}'">Message</button>
+      <button class="btn-ghost" onclick="generateContract('${c.id}', this)">Generate Contract</button>
+    </div>
+  </div>
+`).join("");
   }
 }
 
