@@ -206,7 +206,8 @@
 // ---------------------------------------------------------------------
 // Bootstrapping
 // ---------------------------------------------------------------------
-document.addEventListener("DOMContentLoaded", async () => {
+ supabase = FewsionAuth.client();
+  document.addEventListener("DOMContentLoaded", async () => {
   try {
     const user = await FewsionData.init();
     if (!user) return; // FewsionData.init() already redirected via FewsionAuth
