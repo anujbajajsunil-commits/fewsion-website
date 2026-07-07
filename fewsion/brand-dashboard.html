@@ -706,17 +706,35 @@ function renderMessagesView(root, collabId) {
   document.getElementById("signBtn").addEventListener("click", () => signContract(contract.id, overlay));
 }
 
-async function signContract(contractId, overlay) {
+  async function signContract(contractId, overlay) {
   const name = prompt("Type your full legal name to sign:");
   if (!name) return;
-  const { error } = await supabase.from("contracts").update({
+
+  const { data: updated, error } = await supabase.from("contracts").update({
     brand_signed_at: new Date().toISOString(),
     brand_signature_name: name,
-  }).eq("id", contractId);
+  }).eq("id", contractId).select().single();
+
   if (error) return alert("Couldn't sign: " + error.message);
+
+  if (updated?.brand_signed_at && updated?.counterparty_signed_at) {
+    await supabase.from("contracts").update({ status: "signed_both" }).eq("id", contractId);
+  }
+
   alert("Signed. Once the creator/editor also signs, the contract is finalized.");
   overlay.remove();
 }
+// async function signContract(contractId, overlay) {
+//   const name = prompt("Type your full legal name to sign:");
+//   if (!name) return;
+//   const { error } = await supabase.from("contracts").update({
+//     brand_signed_at: new Date().toISOString(),
+//     brand_signature_name: name,
+//   }).eq("id", contractId);
+//   if (error) return alert("Couldn't sign: " + error.message);
+//   alert("Signed. Once the creator/editor also signs, the contract is finalized.");
+//   overlay.remove();
+// }
 // ---------------------------------------------------------------------
 // Notifications panel
 // ---------------------------------------------------------------------
