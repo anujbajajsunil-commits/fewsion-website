@@ -787,11 +787,10 @@ function escapeHtml(str) {
   if (str === null || str === undefined) return "";
   return String(str).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
 }
-document.addEventListener('DOMContentLoaded', () => {   //Toggle 
-  const asideEl = document.querySelector("aside");
+    const asideEl = document.querySelector("aside");
 const backdrop = document.getElementById("sidebarBackdrop");
 const hamburgerBtn = document.getElementById("hamburgerBtn");
-
+document.addEventListener('DOMContentLoaded', () => {   //Toggle 
 function openSidebar() {
   asideEl.classList.add("open");
   backdrop.classList.add("open");
