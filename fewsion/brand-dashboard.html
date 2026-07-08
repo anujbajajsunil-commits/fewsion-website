@@ -142,15 +142,42 @@
   .view { display: none; }
   .view.active { display: block; }
 
-  /* @media (max-width: 1024px) {
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .dashboard-row { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 768px) {
-    aside { display: none; }
-    main { margin-left: 0; padding-top: 20px; }
-    .stats-grid { grid-template-columns: 1fr; }
-  } */
+  @media (max-width:768px){
+
+aside{
+    position:fixed;
+    left:-260px;
+    top:0;
+    bottom:0;
+    transition:left .3s ease;
+    z-index:1000;
+}
+
+aside.open{
+    left:0;
+}
+
+.sidebar-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    display:none;
+    z-index:999;
+}
+
+.sidebar-backdrop.open{
+    display:block;
+}
+
+main{
+    margin-left:0;
+}
+
+.hamburger-btn{
+    display:flex;
+}
+
+}
 </style>
 </head>
 <body>
