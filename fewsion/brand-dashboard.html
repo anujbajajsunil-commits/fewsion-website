@@ -829,12 +829,13 @@ function openSidebar() {
   asideEl.classList.add("open");
   backdrop.classList.add("open");
 }
+  
+hamburgerBtn.addEventListener("click", openSidebar);
 function closeSidebar() {
   asideEl.classList.remove("open");
   backdrop.classList.remove("open");
 }
 
-hamburgerBtn.addEventListener("click", openSidebar);
 backdrop.addEventListener("click", closeSidebar);
 
 // Close sidebar automatically when a nav link is tapped (mobile)
