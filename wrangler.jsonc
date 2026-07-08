@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "fewsion-website",
+  "compatibility_date": "2026-07-07",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "fewsion"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
