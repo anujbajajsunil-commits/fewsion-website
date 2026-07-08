@@ -142,16 +142,6 @@
   .view { display: none; }
   .view.active { display: block; }
 /* -------------------------------------------------------------- */
- /* @media (max-width: 1024px) {
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .dashboard-row { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 768px) {
-    aside { display: none; }
-    main { margin-left: 0; padding-top: 20px; }
-    .stats-grid { grid-template-columns: 1fr; }
-  } */
-  /* Hamburger button — hidden on desktop */
 .hamburger-btn {
   display: none;
   width: 40px; height: 40px;
@@ -171,7 +161,6 @@
   z-index: 15;
 }
 .sidebar-backdrop.open { display: block; }
-
 @media (max-width: 1024px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .dashboard-row { grid-template-columns: 1fr; }
@@ -179,39 +168,29 @@
 
 @media (max-width: 768px) {
   .hamburger-btn { display: block; }
-
   aside {
-    display: flex; /* keep it in DOM, just slide off-screen */
+    display: flex;
     transform: translateX(-100%);
     transition: transform 0.25s ease;
     width: 240px;
     z-index: 20;
   }
   aside.open { transform: translateX(0); }
-
   main { margin-left: 0; padding: 20px 16px; }
-
   .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-  .stat-value { font-size: 22px; }
-
   header.page-header { flex-wrap: wrap; }
   .header-actions { width: 100%; justify-content: space-between; }
-
-  .form-inline { grid-template-columns: 1fr; }
-
-  .campaign-card { flex-direction: column; align-items: flex-start; }
-  .btn-apply { width: 100%; }
-
   .thread-window { height: 65vh; }
   .msg-bubble { max-width: 85%; }
-
   .notif-panel { width: 90vw; right: -10px; }
-
   table.data-table { display: block; overflow-x: auto; white-space: nowrap; }
-
-  .portfolio-grid { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 420px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  h1 { font-size: 22px; }
+}
+  
 @media (max-width: 420px) {
   .stats-grid { grid-template-columns: 1fr; }
   h1 { font-size: 22px; }
