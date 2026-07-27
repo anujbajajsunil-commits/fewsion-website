@@ -40,7 +40,49 @@
     line-height: 1.6;
     overflow-x: hidden;
   }
+/*Theme Toggle  */
+#theme-toggle {
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 999px;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
 
+#theme-toggle:hover {
+  background: var(--amber-glow);
+  border-color: var(--amber);
+}
+
+.icon-moon { display: none; }
+.icon-sun { display: inline; }
+
+[data-theme="light"] .icon-sun { display: none; }
+[data-theme="light"] .icon-moon { display: inline; }
+
+/* Light theme overrides — same variable names, new values */
+[data-theme="light"] {
+  --black: #ffffff;
+  --deep: #f7f7f5;
+  --card: #ffffff;
+  --card2: #f2f0eb;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --amber: #D9880F;
+  --amber2: #E85A1F;
+  --amber-glow: rgba(217,136,15,0.12);
+  --text: #141414;
+  --muted: #666;
+  --muted2: #999;
+  --white: #080808;
+}
+  /*-------------------------------------  */
   /* NOISE OVERLAY */
   body::before {
     content: '';
@@ -910,6 +952,10 @@
     <li><a href="#solution">How It Works</a></li>
     <li><a href="signup.html" class="nav-cta">Sign up </a></li>
     <li><a href="login.html" class="nav-cta">Login</a></li>
+    <li><button id="theme-toggle" aria-label="Toggle theme">
+  <span class="icon-sun">☀️</span>
+  <span class="icon-moon">🌙</span>
+</button></li>
   </ul>
   <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
     <span></span><span></span><span></span>
@@ -1750,6 +1796,20 @@
 </div>
 
 <script>
+const themeToggle = document.getElementById('theme-toggle');
+  const root = document.documentElement;
+
+  const savedTheme = localStorage.getItem('fewsion-theme') || 'dark';
+  root.setAttribute('data-theme', savedTheme);
+
+  themeToggle.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('fewsion-theme', next);
+  });
+// --------------------------------------------------------------------------
+  
 (function() {
   // ── STATE ──
   const state = {
