@@ -4,7 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fewsion — Where Brands Meet Creators</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<!-- Tailwind CSS v4 CDN -->
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+  <!-- GSAP & ScrollTrigger for React-like Motion Physics -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
@@ -162,7 +167,7 @@
     transition: all 0.3s;
   }
 
-  /* ─── HERO ─── */
+  /* ─── HERO ───
   #hero {
     min-height: 100vh;
     display: flex;
@@ -314,8 +319,37 @@
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
-  }
+  }  */
+  /* Orbital Motion */
+    @keyframes orbit-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-orbit {
+      animation: orbit-spin 24s linear infinite;
+    }
+    .animate-orbit > .orbit-node {
+      animation: orbit-spin 24s linear infinite reverse;
+    }
 
+    /* Core Pulsing Glow */
+    @keyframes core-glow {
+      0%, 100% { box-shadow: 0 0 40px -6px oklch(0.8 0.16 75 / 55%); }
+      50% { box-shadow: 0 0 80px -6px oklch(0.8 0.16 75 / 85%); }
+    }
+    .animate-core-glow {
+      animation: core-glow 3s ease-in-out infinite;
+    }
+
+    /* Dashed Path Flow */
+    @keyframes dash-flow {
+      to { stroke-dashoffset: -24; }
+    }
+    .animate-dash-flow {
+      stroke-dasharray: 6 6;
+      animation: dash-flow 1.2s linear infinite;
+    }
+  
   /* ─── SECTIONS ─── */
   section { padding: 100px 5%; }
   .section-tag {
