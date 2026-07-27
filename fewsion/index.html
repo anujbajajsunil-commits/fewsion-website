@@ -246,7 +246,7 @@
     font-weight: 300;
     line-height: 1.7;
     animation: fadeUp 0.8s 0.2s ease both;
-  }*/
+  }
   .hero-btns {
     display: flex;
     gap: 14px;
@@ -320,6 +320,23 @@
     from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
   }  */
+  .btn-primary {
+  font-family: var(--font-body);
+  font-weight: 600;
+  background: var(--gradient-primary);
+  color: #000000; /* Dark text gives maximum contrast on vibrant amber */
+  padding: 14px 28px;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--glow-primary);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glow-strong);
+}
  /* Grid Background */
     .bg-grid {
       background-image:
