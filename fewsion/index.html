@@ -476,58 +476,35 @@
       z-index: -1;
     }
   
- /* --- Orbital Container & Nodes --- */
-.orbit-node {
-  /* Swaps from dark black to light gray/white in light mode */
-  background-color: var(--bg-card); 
-  border: 1px solid var(--border-hover);
-  color: var(--text-primary);
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
+  /* Orbital Motion */
+    @keyframes orbit-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-orbit {
+      animation: orbit-spin 24s linear infinite;
+    }
+    .animate-orbit > .orbit-node {
+      animation: orbit-spin 24s linear infinite reverse;
+    }
 
-/* --- Core Glow Element (Fewsion AI Core) --- */
-.animate-core-glow {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-hover);
-  color: var(--text-primary);
-  animation: core-glow 3s ease-in-out infinite;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
+    /* Core Pulsing Glow */
+    @keyframes core-glow {
+      0%, 100% { box-shadow: 0 0 40px -6px oklch(0.8 0.16 75 / 55%); }
+      50% { box-shadow: 0 0 80px -6px oklch(0.8 0.16 75 / 85%); }
+    }
+    .animate-core-glow {
+      animation: core-glow 3s ease-in-out infinite;
+    }
 
-/* Dynamic Core Keyframes (replaces fixed oklch glow) */
-@keyframes core-glow {
-  0%, 100% { 
-    box-shadow: 0 0 30px -4px var(--amber-glow); 
-  }
-  50% { 
-    box-shadow: 0 0 60px 2px var(--amber-glow); 
-  }
-}
-
-/* --- SVG Dashed Orbit Rings --- */
-.animate-dash-flow {
-  /* Forces SVG paths/circles to use the dynamic border variable */
-  stroke: var(--border-hover) !important;
-  stroke-dasharray: 6 6;
-  animation: dash-flow 1.2s linear infinite;
-  transition: stroke 0.3s ease;
-}
-
-/* Orbital Motion (Kept intact) */
-@keyframes orbit-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.animate-orbit {
-  animation: orbit-spin 24s linear infinite;
-}
-.animate-orbit > .orbit-node {
-  animation: orbit-spin 24s linear infinite reverse;
-}
-
-@keyframes dash-flow {
-  to { stroke-dashoffset: -24; }
-}
+    /* Dashed Path Flow */
+    @keyframes dash-flow {
+      to { stroke-dashoffset: -24; }
+    }
+    .animate-dash-flow {
+      stroke-dasharray: 6 6;
+      animation: dash-flow 1.2s linear infinite;
+    }
   
   /* ─── SECTIONS ─── */
   section { padding: 100px 5%; }
