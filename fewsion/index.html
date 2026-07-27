@@ -66,7 +66,7 @@
   --primary-hover: #ffb83d;
   --accent: var(--amber2);
   
-  /* High-impact CTA gradient (Buttons, Highlights) */
+  /* High-impact CTA gradient */
   --gradient-primary: linear-gradient(135deg, var(--amber) 0%, var(--amber2) 100%);
   --gradient-text: linear-gradient(180deg, #ffffff 0%, var(--text) 100%);
   
@@ -83,12 +83,33 @@
   --radius: 16px;
   --radius-sm: 10px;
   --radius-pill: 9999px;
-
-  /* Smooth Transitions */
-  --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* --- Light Theme Overrides --- */
+[data-theme="light"] {
+  /* Surface Overrides */
+  --bg-page: #f7f7f5;
+  --bg-section: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f0eee8;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.16);
+
+  /* Typography Overrides */
+  --text-primary: #121212;
+  --text-secondary: #555555;
+  --text-dim: #888888;
+
+  /* Brand Adjustments for Light Contrast */
+  --primary: #D9880F;
+  --accent: #E85A1F;
+  --gradient-text: linear-gradient(180deg, #121212 0%, #444444 100%);
+
+  /* Visual Effects Overrides */
+  --glow-primary: 0 4px 20px rgba(217, 136, 15, 0.15);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.08);
+}
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   html { scroll-behavior: smooth; }
