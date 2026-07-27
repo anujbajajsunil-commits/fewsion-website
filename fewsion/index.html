@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <style>
-  :root {
+  /* :root {
     --black: #080808;
     --deep: #0e0e0e;
     --card: #141414;
@@ -32,7 +32,62 @@
     --font-body: 'DM Sans', sans-serif;
     --radius: 16px;
     --radius-sm: 10px;
-  }
+  } */
+:root {
+  /* --- Base Palette --- */
+  --black: #080808;
+  --deep: #0e0e0e;
+  --card: #141414;
+  --card2: #1a1a1a;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.15);
+  
+  --amber: #F5A623;
+  --amber2: #FF6B35;
+  --amber-glow: rgba(245, 166, 35, 0.15);
+  
+  --text: #f0ece4;
+  --muted: #888888;
+  --muted2: #555555;
+  --white: #ffffff;
+
+  /* --- Landing Page Semantics --- */
+  --bg-page: var(--black);
+  --bg-section: var(--deep);
+  --bg-card: var(--card);
+  --bg-card-hover: var(--card2);
+
+  --text-primary: var(--text);
+  --text-secondary: var(--muted);
+  --text-dim: var(--muted2);
+
+  /* --- Brand & CTA Accents --- */
+  --primary: var(--amber);
+  --primary-hover: #ffb83d;
+  --accent: var(--amber2);
+  
+  /* High-impact CTA gradient (Buttons, Highlights) */
+  --gradient-primary: linear-gradient(135deg, var(--amber) 0%, var(--amber2) 100%);
+  --gradient-text: linear-gradient(180deg, #ffffff 0%, var(--text) 100%);
+  
+  /* Atmospheric Visual Effects */
+  --glow-primary: 0 0 32px var(--amber-glow);
+  --glow-strong: 0 10px 30px rgba(255, 107, 53, 0.25);
+  --glass-bg: rgba(20, 20, 20, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  /* Typography & Layout */
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --radius-lg: 20px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-pill: 9999px;
+
+  /* Smooth Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
