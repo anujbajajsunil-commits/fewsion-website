@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fewsion — Where Brands Meet Creators</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
@@ -963,7 +964,7 @@
 </nav>
 
 <!-- HERO -->
-<section id="hero">
+<!-- <section id="hero">
   <div class="hero-bg"></div>
   <div class="hero-grid"></div>
   <div class="hero-inner">
@@ -993,7 +994,72 @@
       </div>
     </div>
   </div>
-</section>
+</section> -->
+
+  <!-- HERO SECTION -->
+  <section class="relative flex min-h-screen flex-col justify-center overflow-hidden bg-grid pt-28 lg:pt-24">
+    <div class="pointer-events-none absolute -top-32 left-1/4 h-96 w-96 rounded-full bg-[oklch(0.8_0.16_75/15%)] blur-[120px]"></div>
+
+    <div class="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-8 px-4 sm:px-6 lg:grid-cols-[1.15fr_1fr]">
+      <!-- Copy -->
+      <div class="hero-reveal flex flex-col items-center text-center lg:items-start lg:text-left">
+        <div class="mb-8 inline-flex items-center gap-2 rounded-full border border-[oklch(0.8_0.16_75/30%)] bg-[oklch(0.8_0.16_75/10%)] px-5 py-2 text-sm text-[oklch(0.8_0.16_75)]">
+          <span class="h-2 w-2 rounded-full bg-[oklch(0.8_0.16_75)] animate-ping"></span>
+          India's First Performance-First Creator Marketplace
+        </div>
+
+        <h1 class="text-balance text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl">
+          Where <span class="font-serif-italic text-shimmer">Brands</span> Meet <span class="font-serif-italic text-shimmer">Creators</span>
+        </h1>
+
+        <p class="mt-7 max-w-xl text-base leading-relaxed text-[oklch(0.68_0.015_85)] sm:text-lg">
+          Fewsion connects D2C brands, UGC content creators, and video editors — powered by AI matching, verified performance data, and built-in escrow payments.
+        </p>
+
+        <div class="mt-10 flex flex-col items-center gap-4 sm:flex-row">
+          <a href="#join" class="magnetic-btn border-beam relative inline-flex items-center gap-2 rounded-full bg-[oklch(0.8_0.16_75)] px-8 py-4 text-base font-semibold text-[oklch(0.15_0.02_80)] shadow-[0_0_40px_-8px_oklch(0.8_0.16_75/50%)]">
+            Join the waitlist &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Orbital Graphic -->
+      <div class="hero-reveal relative mx-auto aspect-square w-full max-w-[420px]">
+        <svg viewBox="0 0 480 480" class="absolute inset-0 h-full w-full">
+          <circle cx="240" cy="240" r="170" fill="none" stroke="oklch(0.8 0.16 75 / 25%)" stroke-width="1" class="animate-dash-flow"></circle>
+          <circle cx="240" cy="240" r="115" fill="none" stroke="oklch(1 0 0 / 8%)" stroke-width="1"></circle>
+          <line x1="240" y1="240" x2="240" y2="70" stroke="oklch(0.8 0.16 75 / 30%)" stroke-width="1.5" class="animate-dash-flow"></line>
+          <line x1="240" y1="240" x2="387" y2="325" stroke="oklch(0.8 0.16 75 / 30%)" stroke-width="1.5" class="animate-dash-flow"></line>
+          <line x1="240" y1="240" x2="93" y2="325" stroke="oklch(0.8 0.16 75 / 30%)" stroke-width="1.5" class="animate-dash-flow"></line>
+        </svg>
+
+        <div class="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+          <div class="animate-core-glow flex h-24 w-24 flex-col items-center justify-center rounded-full border border-[oklch(0.8_0.16_75/50%)] bg-[oklch(0.17_0.012_80)]">
+            <span class="text-lg font-bold">Few<span class="text-[oklch(0.8_0.16_75)]">sion</span></span>
+            <span class="text-[10px] uppercase tracking-widest text-[oklch(0.68_0.015_85)]">AI Core</span>
+          </div>
+        </div>
+
+        <div class="animate-orbit absolute inset-0">
+          <div class="absolute inset-0 rotate-0">
+            <div class="orbit-node absolute left-1/2 top-[4.5%] -translate-x-1/2">
+              <span class="rounded-full border border-[oklch(1_0_0/10%)] bg-[oklch(0.17_0.012_80)] px-3 py-1 text-xs">D2C Brands</span>
+            </div>
+          </div>
+          <div class="absolute inset-0 rotate-[120deg]">
+            <div class="orbit-node absolute left-1/2 top-[4.5%] -translate-x-1/2">
+              <span class="rounded-full border border-[oklch(1_0_0/10%)] bg-[oklch(0.17_0.012_80)] px-3 py-1 text-xs">UGC Creators</span>
+            </div>
+          </div>
+          <div class="absolute inset-0 rotate-[240deg]">
+            <div class="orbit-node absolute left-1/2 top-[4.5%] -translate-x-1/2">
+              <span class="rounded-full border border-[oklch(1_0_0/10%)] bg-[oklch(0.17_0.012_80)] px-3 py-1 text-xs">Video Editors</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
 <!-- PROBLEM -->
 <section id="problem">
