@@ -34,6 +34,118 @@ const counterObserver = new IntersectionObserver(
 document.querySelectorAll('[data-counter]').forEach((el) => counterObserver.observe(el));
 
 
+ // ============================================================
+// Fewsion — vanilla JS port of components/fewsion/motion.tsx,
+// buttons.tsx, navbar.tsx, how-it-works.tsx, comparison.tsx, roadmap.tsx
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------------------------------------------------
+     1) Reveal on scroll  (replaces <Reveal> / whileInView)
+     --------------------------------------------------------- */
+  const revealEls = document.querySelectorAll('[data-reveal], [data-reveal-blur]');
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const delay = entry.target.dataset.delay || 0;
+          entry.target.style.transitionDelay = `${delay}s`;
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -80px 0px' }
+  );
+  revealEls.forEach((el) => revealObserver.observe(el));
+
+  /* ---------------------------------------------------------
+     2) Stagger groups (replaces <Stagger>/<StaggerItem>)
+     Any [data-stagger] container reveals its [data-stagger-item]
+     children one-by-one once the container enters view.
+     --------------------------------------------------------- */
+  document.querySelectorAll('[data-stagger]').forEach((group) => {
+    const step = parseFloat(group.dataset.staggerDelay || '0.1');
+    const items = group.querySelectorAll('[data-stagger-item]');
+    items.forEach((item, i) => {
+      item.style.setProperty('--stagger-delay', `${i * step}s`);
+      item.setAttribute('data-reveal', '');
+    });
+  });
+  // re-scan (items were just tagged with data-reveal above)
+  document.querySelectorAll('[data-stagger-item][data-reveal]').forEach((el) => revealObserver.observe(el));
+
+  /* ---------------------------------------------------------
+     3) Animated counters (replaces <Counter>)
+     --------------------------------------------------------- */
+  function animateCounter(el) {
+    const value = parseFloat(el.dataset.value || '0');
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const decimals = parseInt(el.dataset.decimals || '0', 10);
+    const duration = 2000;
+    const start = performance.now();
+
+    function tick(now) {
+      const p = Math.min((now - start) / duration, 1);
+      // easeOutExpo-ish spring feel
+      const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+      const current = value * eased;
+      const formatted = decimals > 0
+        ? current.toFixed(decimals)
+        : Math.round(current).toLocaleString('en-IN');
+      el.textContent = `${prefix}${formatted}${suffix}`;
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = `${prefix}${decimals > 0 ? value.toFixed(decimals) : value.toLocaleString('en-IN')}${suffix}`;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  const counterObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.3, rootMargin: '0px 0px -60px 0px' }
+  );
+  document.querySelectorAll('[data-counter]').forEach((el) => counterObserver.observe(el));
+
+  /* ---------------------------------------------------------
+     4) Navbar: scroll shrink/blur + mobile menu
+     --------------------------------------------------------- */
+  const header = document.getElementById('site-header');
+  if (header) {
+    const onScroll = () => {
+      header.classList.toggle('is-scrolled', window.scrollY > 24);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  const menuBtn = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  if (menuBtn && mobileMenu) {
+    menuBtn.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('is-open');
+      menuBtn.setAttribute('aria-expanded', String(isOpen));
+      menuBtn.querySelector('.icon-menu').classList.toggle('hidden', isOpen);
+      menuBtn.querySelector('.icon-close').classList.toggle('hidden', !isOpen);
+    });
+    mobileMenu.querySelectorAll('a').forEach((a) =>
+      a.addEventListener('click', () => {
+        mobileMenu.classList.remove('is-open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+        menuBtn.querySelector('.icon-menu').classList.remove('hidden');
+        menuBtn.querySelector('.icon-close').classList.add('hidden');
+      })
+    );
+  }
+
   /* ---------------------------------------------------------
      5) Magnetic buttons (replaces <MagneticButton>)
      --------------------------------------------------------- */
@@ -55,7 +167,7 @@ document.querySelectorAll('[data-counter]').forEach((el) => counterObserver.obse
       btn.style.transform = 'translate(0, 0)';
     });
   });
- 
+
   function spawnParticles(btn) {
     if (reducedMotion) return;
     const layer = btn.querySelector('.btn-particles');
@@ -77,7 +189,121 @@ document.querySelectorAll('[data-counter]').forEach((el) => counterObserver.obse
       setTimeout(() => p.remove(), 750);
     }
   }
- 
+
+  /* ---------------------------------------------------------
+     6) Spotlight cards (replaces <SpotlightCard>)
+     --------------------------------------------------------- */
+  document.querySelectorAll('.spotlight-card').forEach((card) => {
+    const tilt = card.dataset.tilt !== 'false';
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const px = ((e.clientX - rect.left) / rect.width) * 100;
+      const py = ((e.clientY - rect.top) / rect.height) * 100;
+      card.style.setProperty('--sx', `${px}%`);
+      card.style.setProperty('--sy', `${py}%`);
+      if (tilt && !reducedMotion) {
+        const rY = ((px - 50) / 50) * 5;
+        const rX = ((50 - py) / 50) * 5;
+        card.style.transform = `perspective(900px) rotateX(${rX}deg) rotateY(${rY}deg)`;
+      }
+    });
+    card.addEventListener('mouseenter', () => card.classList.add('is-hovering'));
+    card.addEventListener('mouseleave', () => {
+      card.classList.remove('is-hovering');
+      card.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg)';
+    });
+  });
+
+  /* ---------------------------------------------------------
+     7) How It Works — auto-cycling step tabs (replaces useState/interval)
+     --------------------------------------------------------- */
+  const hiw = document.getElementById('how-it-works');
+  if (hiw) {
+    const tabs = Array.from(hiw.querySelectorAll('[data-hiw-tab]'));
+    const panels = Array.from(hiw.querySelectorAll('[data-hiw-panel]'));
+    const CYCLE_MS = 4000;
+    let active = 0;
+    let paused = false;
+    let timer = null;
+
+    function render() {
+      tabs.forEach((tab, i) => {
+        const isActive = i === active;
+        tab.classList.toggle('is-active', isActive);
+        tab.setAttribute('aria-selected', String(isActive));
+        const bar = tab.querySelector('.hiw-progress');
+        const desc = tab.querySelector('.hiw-desc');
+        if (bar) {
+          bar.style.transition = 'none';
+          bar.style.transform = 'scaleX(0)';
+          if (isActive) {
+            requestAnimationFrame(() => {
+              bar.style.transition = `transform ${CYCLE_MS / 1000}s linear`;
+              bar.style.transform = paused ? 'scaleX(0)' : 'scaleX(1)';
+            });
+          }
+        }
+        if (desc) desc.classList.toggle('hidden', !isActive);
+      });
+      panels.forEach((p, i) => p.classList.toggle('hidden', i !== active));
+    }
+
+    function next() { active = (active + 1) % tabs.length; render(); }
+
+    function startTimer() {
+      if (reducedMotion) return;
+      clearInterval(timer);
+      timer = setInterval(() => { if (!paused) next(); }, CYCLE_MS);
+    }
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => { active = i; render(); });
+    });
+    hiw.addEventListener('mouseenter', () => { paused = true; render(); });
+    hiw.addEventListener('mouseleave', () => { paused = false; render(); });
+
+    render();
+    startTimer();
+  }
+
+  /* ---------------------------------------------------------
+     8) Comparison table tabs (replaces useState tab switch)
+     --------------------------------------------------------- */
+  const comparison = document.getElementById('comparison-tabs');
+  if (comparison) {
+    const buttons = Array.from(comparison.querySelectorAll('[data-cmp-tab]'));
+    const panels = Array.from(document.querySelectorAll('[data-cmp-panel]'));
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        buttons.forEach((b) => {
+          const isActive = b === btn;
+          b.classList.toggle('is-active', isActive);
+        });
+        panels.forEach((p) => p.classList.toggle('hidden', p.dataset.cmpPanel !== btn.dataset.cmpTab));
+      });
+    });
+  }
+
+  /* ---------------------------------------------------------
+     9) Roadmap — scroll-linked progress line
+     --------------------------------------------------------- */
+  const roadmapTrack = document.getElementById('roadmap-track');
+  const roadmapProgress = document.getElementById('roadmap-progress');
+  if (roadmapTrack && roadmapProgress) {
+    const onScroll = () => {
+      const rect = roadmapTrack.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const start = vh * 0.7;
+      const total = rect.height + (vh * 0.7 - vh * 0.6) + rect.height;
+      const progressed = start - rect.top;
+      const pct = Math.min(Math.max(progressed / (rect.height + vh * 0.1), 0), 1);
+      roadmapProgress.style.height = `${pct * 100}%`;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  }
+});
 /* ============================================================
    Fewsion Shared Navbar — nav.js
    ------------------------------------------------------------
