@@ -143,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
       card.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg)';
     });
   });
+}
 /* ============================================================
    Fewsion Shared Navbar — nav.js
    ------------------------------------------------------------
