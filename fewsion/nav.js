@@ -1,3 +1,37 @@
+function animateCounter(el) {
+  const value = parseFloat(el.dataset.value || '0');
+  const prefix = el.dataset.prefix || '';
+  const suffix = el.dataset.suffix || '';
+  const decimals = parseInt(el.dataset.decimals || '0', 10);
+  const duration = 2000;
+  const start = performance.now();
+
+  function tick(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+    const current = value * eased;
+    const formatted = decimals > 0
+      ? current.toFixed(decimals)
+      : Math.round(current).toLocaleString('en-IN');
+    el.textContent = `${prefix}${formatted}${suffix}`;
+    if (p < 1) requestAnimationFrame(tick);
+    else el.textContent = `${prefix}${decimals > 0 ? value.toFixed(decimals) : value.toLocaleString('en-IN')}${suffix}`;
+  }
+  requestAnimationFrame(tick);
+}
+
+const counterObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+        counterObserver.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.3, rootMargin: '0px 0px -60px 0px' }
+);
+document.querySelectorAll('[data-counter]').forEach((el) => counterObserver.observe(el));
 /* ============================================================
    Fewsion Shared Navbar — nav.js
    ------------------------------------------------------------
