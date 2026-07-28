@@ -6,7 +6,73 @@
         <div id="fewsion-nav"></div>
    2. Load this script anywhere on the page (head or body):
         <script src="nav.js"></script>
-
+/* ---------------------------------------------------------
+     5) Magnetic buttons (replaces <MagneticButton>)
+     --------------------------------------------------------- */
+  document.querySelectorAll('.magnetic-btn').forEach((btn) => {
+    let burstTimeout;
+    btn.addEventListener('mousemove', (e) => {
+      if (reducedMotion) return;
+      const rect = btn.getBoundingClientRect();
+      const dx = e.clientX - (rect.left + rect.width / 2);
+      const dy = e.clientY - (rect.top + rect.height / 2);
+      btn.style.transform = `translate(${dx * 0.28}px, ${dy * 0.28}px)`;
+    });
+    btn.addEventListener('mouseenter', () => {
+      btn.classList.add('is-hovering');
+      spawnParticles(btn);
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.classList.remove('is-hovering');
+      btn.style.transform = 'translate(0, 0)';
+    });
+  });
+ 
+  function spawnParticles(btn) {
+    if (reducedMotion) return;
+    const layer = btn.querySelector('.btn-particles');
+    if (!layer) return;
+    layer.innerHTML = '';
+    const isPrimary = btn.classList.contains('btn-primary');
+    const count = 10;
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const dist = 36 + (i % 3) * 14;
+      const p = document.createElement('span');
+      p.className = 'btn-particle';
+      p.style.background = isPrimary ? 'oklch(0.15 0.02 80 / 80%)' : 'var(--primary)';
+      layer.appendChild(p);
+      requestAnimationFrame(() => {
+        p.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px) scale(0)`;
+        p.style.opacity = '0';
+      });
+      setTimeout(() => p.remove(), 750);
+    }
+  }
+ 
+  /* ---------------------------------------------------------
+     6) Spotlight cards (replaces <SpotlightCard>)
+     --------------------------------------------------------- */
+  document.querySelectorAll('.spotlight-card').forEach((card) => {
+    const tilt = card.dataset.tilt !== 'false';
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const px = ((e.clientX - rect.left) / rect.width) * 100;
+      const py = ((e.clientY - rect.top) / rect.height) * 100;
+      card.style.setProperty('--sx', `${px}%`);
+      card.style.setProperty('--sy', `${py}%`);
+      if (tilt && !reducedMotion) {
+        const rY = ((px - 50) / 50) * 5;
+        const rX = ((50 - py) / 50) * 5;
+        card.style.transform = `perspective(900px) rotateX(${rX}deg) rotateY(${rY}deg)`;
+      }
+    });
+    card.addEventListener('mouseenter', () => card.classList.add('is-hovering'));
+    card.addEventListener('mouseleave', () => {
+      card.classList.remove('is-hovering');
+      card.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg)';
+    });
+  });
    REQUIRES: the page must already define Fewsion's CSS
    variables in :root (--black, --amber, --amber2, --white,
    --muted, --text, --border, --border2, --font-display) —
