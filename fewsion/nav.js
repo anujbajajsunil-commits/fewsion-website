@@ -1,3 +1,81 @@
+ 
+document.addEventListener('DOMContentLoaded', () => {
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ 
+  /* ---------------------------------------------------------
+     1) Reveal on scroll  (replaces <Reveal> / whileInView)
+     --------------------------------------------------------- */
+  const revealEls = document.querySelectorAll('[data-reveal], [data-reveal-blur]');
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const delay = entry.target.dataset.delay || 0;
+          entry.target.style.transitionDelay = `${delay}s`;
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -80px 0px' }
+  );
+  revealEls.forEach((el) => revealObserver.observe(el));
+ 
+  /* ---------------------------------------------------------
+     2) Stagger groups (replaces <Stagger>/<StaggerItem>)
+     Any [data-stagger] container reveals its [data-stagger-item]
+     children one-by-one once the container enters view.
+     --------------------------------------------------------- */
+  document.querySelectorAll('[data-stagger]').forEach((group) => {
+    const step = parseFloat(group.dataset.staggerDelay || '0.1');
+    const items = group.querySelectorAll('[data-stagger-item]');
+    items.forEach((item, i) => {
+      item.style.setProperty('--stagger-delay', `${i * step}s`);
+      item.setAttribute('data-reveal', '');
+    });
+  });
+  // re-scan (items were just tagged with data-reveal above)
+  document.querySelectorAll('[data-stagger-item][data-reveal]').forEach((el) => revealObserver.observe(el));
+ 
+  /* ---------------------------------------------------------
+     3) Animated counters (replaces <Counter>)
+     --------------------------------------------------------- */
+  function animateCounter(el) {
+    const value = parseFloat(el.dataset.value || '0');
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const decimals = parseInt(el.dataset.decimals || '0', 10);
+    const duration = 2000;
+    const start = performance.now();
+ 
+    function tick(now) {
+      const p = Math.min((now - start) / duration, 1);
+      // easeOutExpo-ish spring feel
+      const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+      const current = value * eased;
+      const formatted = decimals > 0
+        ? current.toFixed(decimals)
+        : Math.round(current).toLocaleString('en-IN');
+      el.textContent = `${prefix}${formatted}${suffix}`;
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = `${prefix}${decimals > 0 ? value.toFixed(decimals) : value.toLocaleString('en-IN')}${suffix}`;
+    }
+    requestAnimationFrame(tick);
+  }
+ 
+  const counterObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.3, rootMargin: '0px 0px -60px 0px' }
+  );
+  document.querySelectorAll('[data-counter]').forEach((el) => counterObserver.observe(el));
+ 
 /* ---------------------------------------------------------
      5) Magnetic buttons (replaces <MagneticButton>)
      --------------------------------------------------------- */
