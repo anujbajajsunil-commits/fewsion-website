@@ -1,11 +1,3 @@
-/* ============================================================
-   Fewsion Shared Navbar — nav.js
-   ------------------------------------------------------------
-   USAGE:
-   1. Add a placeholder div as the FIRST thing inside <body>:
-        <div id="fewsion-nav"></div>
-   2. Load this script anywhere on the page (head or body):
-        <script src="nav.js"></script>
 /* ---------------------------------------------------------
      5) Magnetic buttons (replaces <MagneticButton>)
      --------------------------------------------------------- */
@@ -73,6 +65,15 @@
       card.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg)';
     });
   });
+/* ============================================================
+   Fewsion Shared Navbar — nav.js
+   ------------------------------------------------------------
+   USAGE:
+   1. Add a placeholder div as the FIRST thing inside <body>:
+        <div id="fewsion-nav"></div>
+   2. Load this script anywhere on the page (head or body):
+        <script src="nav.js"></script>
+
    REQUIRES: the page must already define Fewsion's CSS
    variables in :root (--black, --amber, --amber2, --white,
    --muted, --text, --border, --border2, --font-display) —
