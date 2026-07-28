@@ -6,6 +6,8 @@
 <title>Fewsion — Where Brands Meet Creators</title>
 <!-- Tailwind CSS v4 CDN -->
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- GSAP & ScrollTrigger for React-like Motion Physics -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -1257,7 +1259,7 @@
         </div>
       </div>
     </div>
-          <div class="hero-stats">
+          <!-- <div class="hero-stats">
       <div class="stat-item">
         <div class="stat-num">₹3,500<span>Cr</span></div>
         <div class="stat-label">Indian Market Size</div>
@@ -1274,7 +1276,25 @@
         <div class="stat-num">26<span>%</span></div>
         <div class="stat-label">Annual Growth Rate</div>
       </div>
+    </div> -->
+    <div data-reveal data-delay="1.2" class="relative z-10 mx-auto mt-16 grid w-full max-w-5xl grid-cols-2 gap-x-4 gap-y-10 px-4 pb-16 sm:px-6 lg:mt-20 lg:grid-cols-4">
+    <div class="text-center">
+      <span data-counter data-value="3500" data-prefix="₹" data-suffix="Cr" class="text-4xl font-bold tracking-tight text-primary sm:text-5xl">₹0Cr</span>
+      <p class="mt-2 text-sm text-muted-foreground">Indian Market Size</p>
     </div>
+    <div class="text-center">
+      <span data-counter data-value="4.5" data-decimals="1" data-suffix="M+" class="text-4xl font-bold tracking-tight text-primary sm:text-5xl">0M+</span>
+      <p class="mt-2 text-sm text-muted-foreground">Indian Creators</p>
+    </div>
+    <div class="text-center">
+      <span data-counter data-value="323" data-prefix="$" data-suffix="B" class="text-4xl font-bold tracking-tight text-primary sm:text-5xl">$0B</span>
+      <p class="mt-2 text-sm text-muted-foreground">Global Creator Economy</p>
+    </div>
+    <div class="text-center">
+      <span data-counter data-value="26" data-suffix="%" class="text-4xl font-bold tracking-tight text-primary sm:text-5xl">0%</span>
+      <p class="mt-2 text-sm text-muted-foreground">Annual Growth Rate</p>
+    </div>
+  </div>
   </section>
 
 <!-- PROBLEM -->
@@ -2428,5 +2448,6 @@ Recommend 3 perfectly matched Indian creators.`;
   window.handleUserSend = handleUserSend;
 })();
 </script>
+  <script src="nav.js"></script>
 </body>
 </html>
